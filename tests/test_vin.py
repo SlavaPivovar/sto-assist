@@ -34,6 +34,23 @@ def test_invalid_length_and_chars():
     assert not info.valid and "O" in info.warnings[0]
 
 
-def test_non_tesla():
-    info = decode_vin("WVWZZZ1JZXW000001")
-    assert not info.valid
+def test_other_makes_by_wmi():
+    vw = decode_vin("WVWZZZ1JZXW000001")
+    assert vw.valid and vw.make == "Volkswagen" and vw.model_name is None
+    assert vw.year is None  # європейські заводи не завжди кодують рік — не вгадуємо
+    assert decode_vin("JTDKN3DU0A0123456").make == "Toyota"
+    honda = decode_vin("1HGCM82633A004352")
+    assert honda.make == "Honda" and honda.year == 2003 and honda.warnings == []
+    assert decode_vin("KMHD35LE5DU123456").make == "Hyundai"
+
+
+def test_unknown_make_and_year_cycle():
+    from datetime import date
+
+    from sto_assist.vin import model_year
+
+    info = decode_vin("ABCDEFGH1JK123456")
+    assert info.valid and info.make is None and "Марку за VIN не визначено" in info.warnings[0]
+    assert model_year("A", date(2026, 1, 1)) == 2010 and model_year("Y", date(2026, 1, 1)) == 2000
+    assert model_year("T", date(2026, 1, 1)) == 2026 and model_year("V", date(2026, 1, 1)) == 2027
+    assert model_year("W", date(2026, 1, 1)) == 1998 and model_year("U") is None

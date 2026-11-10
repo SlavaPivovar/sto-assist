@@ -9,10 +9,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="DK-Tesla" id="appTitle">
+<meta name="apple-mobile-web-app-title" content="STO-Assist" id="appTitle">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#171a20" media="(prefers-color-scheme: dark)">
-<title>DK-TeslaService</title>
+<title>STO-Assist</title>
 <style>
 :root{
   --bg:#f4f5f7; --panel:#fff; --text:#16181d; --muted:#6b7280; --line:#e3e5e9;
@@ -463,7 +463,7 @@ details.fold[open]>summary::before{content:"▾ "}
 </head>
 <body>
 <header>
-  <h1><span id="brand">DK-TeslaService</span> <span>· Замовлення-наряди</span></h1>
+  <h1><span id="brand">STO-Assist</span> <span>· Замовлення-наряди</span></h1>
   <button id="btnHome" title="Головна: замовлення в роботі, записи на сьогодні">🏠 <span class="label">Головна</span></button>
   <button id="btnCatalog" title="Довідник робіт">📚 <span class="label">Довідник</span></button>
   <button id="btnOrders" title="Збережені замовлення-наряди">📁 <span class="label">Збережені</span></button>
@@ -565,6 +565,7 @@ details.fold[open]>summary::before{content:"▾ "}
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const num = v => Number(v).toLocaleString("uk-UA", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const carName = v => [v && v.make, v && v.model].filter(Boolean).join(" ");  // «Toyota Camry»
 const dash = v => (v === null || v === undefined || v === "") ? "—" : esc(v);
 let busy = false;
 let STATUSES = ["чернетка", "прийнято", "в роботі", "готово", "видано", "скасовано"];
@@ -745,7 +746,7 @@ function signDialog(){
   const o = currentOrder;
   $("#lineTitle").textContent = "Підпис клієнта";
   $("#lineBody").innerHTML = `<div class="sign-pad">
-      <p class="sub">${esc(o.vehicle.model ? "Tesla " + o.vehicle.model : "Автомобіль")}${o.vehicle.plate ? " · " + esc(o.vehicle.plate) : ""} · замовлення-наряд № ${esc(o.number)}</p>
+      <p class="sub">${esc(carName(o.vehicle) || "Автомобіль")}${o.vehicle.plate ? " · " + esc(o.vehicle.plate) : ""} · замовлення-наряд № ${esc(o.number)}</p>
       <p>Із технічним станом автомобіля, переліком залишених речей і зауваженнями щодо пошкоджень ознайомлений(-а) і згоден(-на).</p>
       <canvas id="sigCanvas" aria-label="Поле для підпису"></canvas>
       <div class="sub">Підпишіться пальцем або мишею в полі вище.</div>
@@ -980,9 +981,9 @@ function renderOrder(o){
     <div class="sec-head" id="sec-client"><h3>Замовник і автомобіль</h3><button data-edit-head title="Змінити замовника й автомобіль">✎ Змінити</button></div>
     <div class="info">
       <dl><dt>Замовник</dt><dd>${dash(c.name)}</dd><dt>Телефон</dt><dd>${dash(c.phone)}</dd><dt>E-mail</dt><dd>${dash(c.email)}</dd></dl>
-      <dl><dt>Автомобіль</dt><dd>${v.model ? "Tesla " + esc(v.model) + " " + dash(v.year) : "—"}</dd><dt>VIN</dt><dd>${dash(v.vin)}</dd>
+      <dl><dt>Автомобіль</dt><dd>${carName(v) ? esc(carName(v)) + " " + (v.year ? esc(v.year) : "") : "—"}</dd><dt>VIN</dt><dd>${dash(v.vin)}</dd>
           <dt>Держ. номер</dt><dd>${dash(v.plate)}</dd><dt>Пробіг</dt><dd>${v.odometer_km != null ? Number(v.odometer_km).toLocaleString("uk-UA") + " км" : "—"}</dd>
-          ${v.color ? `<dt>Колір</dt><dd>${esc(v.color)}</dd>` : ""}${v.battery_percent != null ? `<dt>Заряд ВВБ</dt><dd>${esc(v.battery_percent)}%</dd>` : ""}</dl>
+          ${v.color ? `<dt>Колір</dt><dd>${esc(v.color)}</dd>` : ""}${v.battery_percent != null ? `<dt>Заряд батареї</dt><dd>${esc(v.battery_percent)}%</dd>` : ""}</dl>
     </div>
     <div class="intake" id="intakeBox"></div>
     ${o.history && o.history.length ? `<details class="fold" id="histFold"><summary>Історія автомобіля · ${o.history.length === 10 ? "останні 10 візитів" : "візитів: " + o.history.length}</summary>
@@ -1361,11 +1362,14 @@ function editHeadDialog(){
       <label for="hPhone">Телефон</label><input id="hPhone" type="tel" value="${esc(c.phone)}" placeholder="+380…">
       <label for="hEmail">E-mail</label><input id="hEmail" type="email" value="${esc(c.email)}">
       <label for="hVin">VIN</label><div><input id="hVin" value="${esc(v.vin)}" maxlength="20" style="text-transform:uppercase" placeholder="17 символів">
-        <div class="hint">Модель і рік визначаться за VIN.</div></div>
+        <div class="hint">Марка визначиться за VIN; для авто, яке вже було в сервісі, — ще й модель і рік.</div></div>
+      <label for="hMake">Марка</label><input id="hMake" value="${esc(v.make || "")}" placeholder="за VIN або вручну: Toyota">
+      <label for="hModel">Модель</label><input id="hModel" value="${esc(v.model || "")}" placeholder="Camry">
+      <label for="hYear">Рік</label><input id="hYear" inputmode="numeric" value="${v.year ?? ""}">
       <label for="hOdo">Пробіг, км</label><input id="hOdo" inputmode="numeric" value="${v.odometer_km ?? ""}">
       <label for="hPlate">Держ. номер</label><input id="hPlate" value="${esc(v.plate)}">
       <label for="hColor">Колір</label><input id="hColor" value="${esc(v.color)}">
-      <label for="hBat">Заряд ВВБ, %</label><input id="hBat" inputmode="numeric" value="${v.battery_percent ?? ""}">
+      <label for="hBat">Заряд батареї, % <span class="sub">(електромобілі)</span></label><input id="hBat" inputmode="numeric" value="${v.battery_percent ?? ""}">
       <span></span><div><div class="form-err" id="lineErr" hidden></div><div class="form-warn" id="headWarn" hidden></div>
         <div class="form-actions"><button class="primary" type="submit" id="headSave">Зберегти</button><button type="button" id="lineCancel">Скасувати</button></div></div>
     </form>`;
@@ -1385,8 +1389,12 @@ function editHeadDialog(){
     if ([odo, bat].some(x => x !== null && !Number.isInteger(x))){
       $("#lineErr").hidden = false; $("#lineErr").textContent = "Пробіг і заряд — цілі числа"; return;
     }
+    // VIN змінили — марку, модель і рік визначаємо заново (за VIN чи з історії), а не беремо від попереднього авто.
+    const keepCar = $("#hVin").value.trim().toUpperCase() === (v.vin || "") || $("#hMake").value !== (v.make || "") ||
+                    $("#hModel").value !== (v.model || "") || $("#hYear").value !== String(v.year ?? "");
     const customer = {name: $("#hName").value, phone: $("#hPhone").value, email: $("#hEmail").value};
-    const vehicle = {vin: $("#hVin").value, odometer_km: odo, plate: $("#hPlate").value, color: $("#hColor").value, battery_percent: bat};
+    const vehicle = {vin: $("#hVin").value, make: keepCar ? $("#hMake").value : "", model: keepCar ? $("#hModel").value : "",
+                     year: keepCar ? int($("#hYear").value) : null, odometer_km: odo, plate: $("#hPlate").value, color: $("#hColor").value, battery_percent: bat};
     if (!await orderEdit("PUT", "/api/order/customer", customer)) return;
     let warnings = [];
     try{
@@ -1833,8 +1841,8 @@ function renderClientsTable(){
   const list = clientsData.clients.filter(clientMatches);
   $("#clientsTable").innerHTML = list.length ? `<div class="tbl"><table>
     <tr><th>Клієнт</th><th class="hide-m">Автомобілі</th><th class="r">Візитів</th><th class="r hide-m">Сума</th><th class="hide-m">Останній візит</th></tr>
-    ${list.map(c => `<tr class="click" data-client="${esc(c.key)}"><td>${dash(c.name)} ${tgBadge(c)}<div class="sub">${dash(c.phone)}<span class="show-m"> · ${c.cars.map(x => esc(x.model || "Tesla")).join(", ")} · ${dateOnly(c.last_visit)}</span></div></td>
-      <td class="hide-m">${c.cars.map(x => `Tesla ${esc(x.model || "")} ${x.plate ? `<span class="sub">${esc(x.plate)}</span>` : ""}`).join("<br>") || "—"}</td>
+    ${list.map(c => `<tr class="click" data-client="${esc(c.key)}"><td>${dash(c.name)} ${tgBadge(c)}<div class="sub">${dash(c.phone)}<span class="show-m"> · ${c.cars.map(x => esc(carName(x) || "авто")).join(", ")} · ${dateOnly(c.last_visit)}</span></div></td>
+      <td class="hide-m">${c.cars.map(x => `${esc(carName(x))} ${x.plate ? `<span class="sub">${esc(x.plate)}</span>` : ""}`).join("<br>") || "—"}</td>
       <td class="r">${c.visits}</td><td class="r hide-m">${num(c.spent)} $${Number(c.debt) > 0 ? `<div class="sub" style="color:var(--accent)">борг ${num(c.debt)}</div>` : ""}</td><td class="hide-m">${dateOnly(c.last_visit)}</td></tr>`).join("")}
     </table></div>` : `<div class="empty">${clientsData.clients.length ? "Нічого не знайдено." : "Клієнти з'являться тут із першими замовленнями-нарядами."}</div>`;
 }
@@ -1851,7 +1859,7 @@ function showClientCard(key){
       ${Number(c.debt) > 0 ? `<div style="color:var(--accent)"><b>${num(c.debt)} $</b>борг</div>` : ""}
       <div><b>${dateOnly(c.first_visit)}</b>перший візит</div><div><b>${dateOnly(c.last_visit)}</b>останній візит</div></div>
     <div class="sec-head"><h3>Автомобілі</h3><button class="primary" data-client-order="">＋ Нове замовлення</button></div>
-    <div class="cars">${c.cars.map(x => `<div class="car"><b>Tesla ${esc(x.model || "")} ${x.year ? esc(x.year) : ""}</b>
+    <div class="cars">${c.cars.map(x => `<div class="car"><b>${esc(carName(x) || "Автомобіль")} ${x.year ? esc(x.year) : ""}</b>
         <span class="sub">${esc(x.vin || "")}${x.plate ? " · " + esc(x.plate) : ""}${x.odometer_km != null ? " · " + Number(x.odometer_km).toLocaleString("uk-UA") + " км" : ""}</span>
         <button data-client-order="${esc(x.vin || "")}">＋ Замовлення на це авто</button></div>`).join("") || `<div class="sub">—</div>`}</div>
     <h3>Замовлення-наряди</h3>
@@ -1876,7 +1884,7 @@ function showBroadcast(){
       <div class="sub" id="bcPreview"></div>
       <h3>Отримувачі · <span id="bcCount"></span></h3>
       <div class="sub">Фільтр і пошук зі списку клієнтів: «${esc((CLIENT_FILTERS.find(f => f[0] === clientsFilter) || ["", "усі"])[1])}»${clientsQuery ? `, «${esc(clientsQuery)}»` : ""}.</div>
-      ${recipients.length ? `<div class="bc-list">${recipients.map(c => `<label><input type="checkbox" data-bc-key="${esc(c.key)}" checked> ${dash(c.name)} <span class="sub">${esc(c.phone)} · ${c.cars.map(x => esc(x.model || "Tesla")).join(", ")} · ${dateOnly(c.last_visit)}</span></label>`).join("")}</div>`
+      ${recipients.length ? `<div class="bc-list">${recipients.map(c => `<label><input type="checkbox" data-bc-key="${esc(c.key)}" checked> ${dash(c.name)} <span class="sub">${esc(c.phone)} · ${c.cars.map(x => esc(carName(x) || "авто")).join(", ")} · ${dateOnly(c.last_visit)}</span></label>`).join("")}</div>`
         : `<div class="empty">Немає підключених до бота клієнтів за цим фільтром.</div>`}
       <div class="send-row"><button class="primary" id="bcSend" ${recipients.length ? "" : "disabled"}>📣 Надіслати</button><span id="bcRes"></span></div>
       ${clientsData.broadcasts.length ? `<h3>Попередні розсилки</h3><div class="tbl"><table><tr><th>Дата</th><th>Текст</th><th class="r">Надіслано</th></tr>
@@ -1888,7 +1896,7 @@ function showBroadcast(){
     const first = recipients.find(c => document.querySelector(`[data-bc-key="${CSS.escape(c.key)}"]`).checked);
     const t = $("#bcText").value;
     $("#bcPreview").textContent = first && t ? "Приклад: " + t.replaceAll("{ім'я}", first.name || "").replaceAll("{авто}",
-      first.cars[0] ? `Tesla ${first.cars[0].model || ""}${first.cars[0].plate ? ` (${first.cars[0].plate})` : ""}`.replace(/\s+/g, " ") : "ваш автомобіль")
+      first.cars[0] ? `${carName(first.cars[0])}${first.cars[0].plate ? ` (${first.cars[0].plate})` : ""}`.replace(/\s+/g, " ") : "ваш автомобіль")
       .replaceAll("{сервіс}", document.title).replaceAll("{адреса}", catalogAddress()) : "";
   };
   $("#bcText").oninput = count;
@@ -2120,7 +2128,7 @@ $("#clientsBody").addEventListener("click", async e => {
       $("#clientsDlg").close(); $("#log").innerHTML = "";
       const v = data.order.vehicle;
       addMsg("assistant", `Створено замовлення-наряд № ${data.order.number} для клієнта ${data.order.customer.name}` +
-        (v.vin ? ` (Tesla ${v.model} ${v.plate || v.vin}). Вкажіть пробіг і скарги — тут або в панелі.` : ". Вкажіть автомобіль, пробіг і скарги — тут або в панелі."));
+        (v.vin ? ` (${carName(v)} ${v.plate || v.vin}). Вкажіть пробіг і скарги — тут або в панелі.` : ". Вкажіть автомобіль, пробіг і скарги — тут або в панелі."));
       renderOrder(data.order);
       document.querySelector('.tabs button[data-tab="order"]').click();
     }catch(err){ alert(err.message); }

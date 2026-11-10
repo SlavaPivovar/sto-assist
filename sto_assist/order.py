@@ -53,6 +53,7 @@ class Customer:
 @dataclass
 class Vehicle:
     vin: str = ""
+    make: str = ""  # марка: Toyota, Volkswagen, Tesla…
     model: str = ""
     model_code: str = ""
     year: int | None = None
@@ -60,6 +61,10 @@ class Vehicle:
     plate: str = ""
     odometer_km: int | None = None
     battery_percent: int | None = None
+
+    def name(self) -> str:
+        """«Toyota Camry» — марка й модель, скільки відомо."""
+        return " ".join(x for x in (self.make, self.model) if x)
 
 
 @dataclass
@@ -189,8 +194,8 @@ class RepairOrder:
             missing.append("ПІБ клієнта")
         if not self.customer.phone:
             missing.append("телефон клієнта")
-        if not self.vehicle.vin:
-            missing.append("VIN")
+        if not self.vehicle.vin and not self.vehicle.plate:
+            missing.append("VIN або держномер")
         if self.vehicle.odometer_km is None:
             missing.append("пробіг")
         if not self.complaints:

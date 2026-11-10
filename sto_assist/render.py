@@ -86,11 +86,11 @@ th{{background:#eee;text-align:left}} .r{{text-align:right;white-space:nowrap}}
 
 <h2>Замовник і автомобіль</h2>
 <table class=grid>
-<tr><td>Замовник</td><td>{e(c.name)}</td><td>Автомобіль</td><td>Tesla {e(v.model)} {e(v.year)}</td></tr>
+<tr><td>Замовник</td><td>{e(c.name)}</td><td>Автомобіль</td><td>{e(v.name())} {e(v.year)}</td></tr>
 <tr><td>Телефон</td><td>{e(c.phone)}</td><td>VIN</td><td>{e(v.vin)}</td></tr>
 <tr><td>E-mail</td><td>{e(c.email)}</td><td>Держ. номер</td><td>{e(v.plate)}</td></tr>
 <tr><td>Колір</td><td>{e(v.color)}</td><td>Пробіг, км</td><td>{e(v.odometer_km)}</td></tr>
-<tr><td></td><td></td><td>Заряд ВВБ, %</td><td>{e(v.battery_percent)}</td></tr>
+{f"<tr><td></td><td></td><td>Заряд батареї, %</td><td>{e(v.battery_percent)}</td></tr>" if v.battery_percent is not None else ""}
 </table>
 
 <h2>Причина звернення (зі слів замовника)</h2><ul>{complaints}</ul>

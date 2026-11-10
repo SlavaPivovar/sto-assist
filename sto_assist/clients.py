@@ -34,8 +34,8 @@ def _date(value: str) -> datetime:
 
 
 def car_label(car: dict) -> str:
-    return " ".join(x for x in (f"Tesla {car['model']}" if car.get("model") else "Tesla",
-                                f"({car['plate']})" if car.get("plate") else "") if x)
+    return " ".join(x for x in (car.get("make") or "", car.get("model") or "",
+                                f"({car['plate']})" if car.get("plate") else "") if x) or "автомобіль"
 
 
 def build_clients(orders: list[RepairOrder], telegram: dict | None = None) -> list[dict]:
@@ -55,13 +55,13 @@ def build_clients(orders: list[RepairOrder], telegram: dict | None = None) -> li
         v = order.vehicle
         if v.vin or v.plate:
             car = c["cars"].setdefault(v.vin or f"plate:{v.plate}", {"vin": v.vin})
-            car.update({k: val for k, val in (("model", v.model), ("year", v.year), ("plate", v.plate),
+            car.update({k: val for k, val in (("make", v.make), ("model", v.model), ("year", v.year), ("plate", v.plate),
                                               ("odometer_km", v.odometer_km)) if val not in (None, "")})
             car["last_visit"] = order.created_at
         total = order.totals()["total"]
         c["orders"].append({"number": order.number, "date": order.created_at, "status": order.status,
                             "total": str(total), "currency": order.currency,
-                            "vehicle": car_label({"model": v.model, "plate": v.plate}),
+                            "vehicle": car_label({"make": v.make, "model": v.model, "plate": v.plate}),
                             "works": [line.name for line in order.labor][:8]})
         if order.status not in (DRAFT, CANCELLED):
             c["visits"] += 1

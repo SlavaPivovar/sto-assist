@@ -194,3 +194,24 @@ def test_legacy_order_with_hours_loads(session):
     order = RepairOrder.from_dict(legacy)
     assert (order.labor[0].price, order.labor[0].qty) == (9750, 1)
     assert order.totals()["total"] == Decimal("8775.00")
+
+
+def test_any_make_vehicle_and_history_prefill(session):
+    session.new_order()
+    data = json.loads(session.set_vehicle("WVWZZZ1JZXW000001", odometer_km=180000, model="Golf", year=1999))
+    v = data["vehicle"]
+    assert v["make"] == "Volkswagen" and v["model"] == "Golf" and v["year"] == 1999 and data["vin_warnings"] == []
+    assert session.order.vehicle.name() == "Volkswagen Golf"
+    session.set_customer("Іван", "+380671112233")
+    session.add_complaint("ТО")
+    session.add_custom_labor("Заміна оливи", 500)
+    session.save_order("прийнято")
+    # те саме авто вдруге: марка, модель і рік — з попереднього візиту
+    session.new_order()
+    again = json.loads(session.set_vehicle("WVWZZZ1JZXW000001"))["vehicle"]
+    assert (again["make"], again["model"], again["year"]) == ("Volkswagen", "Golf", 1999)
+    # без VIN, лише держномер і марка вручну — замовлення можна оформити
+    session.new_order()
+    session.set_vehicle("", plate="aa 1234 bb", make="Daewoo", model="Lanos")
+    assert session.order.vehicle.plate == "AA1234BB" and session.order.vehicle.name() == "Daewoo Lanos"
+    assert "VIN або держномер" not in session.order.missing_fields()

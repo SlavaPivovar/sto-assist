@@ -254,7 +254,7 @@ class TelegramBot:
     def card(self, order: RepairOrder) -> str:
         v, c, t = order.vehicle, order.customer, order.totals()
         car = " · ".join(x for x in (
-            f"Tesla {v.model} {v.year or ''}".strip() if v.model else "",
+            f"{v.name()} {v.year or ''}".strip() if v.name() else "",
             v.plate, f"{v.odometer_km:,} км".replace(",", " ") if v.odometer_km is not None else "") if x)
         lines = [f"🚗 <b>{escape(order.number)}</b> · {STATUS_ICON.get(order.status, '')} <b>{escape(order.status)}</b>"]
         if car:
@@ -968,7 +968,7 @@ class TelegramBot:
         if client is None:
             return
         v = order.vehicle
-        car = " ".join(x for x in (f"Tesla {v.model}" if v.model else "Tesla", f"({v.plate})" if v.plate else "") if x)
+        car = " ".join(x for x in (v.name() or "", f"({v.plate})" if v.plate else "") if x)
         lines = [f"✅ Ваш автомобіль {car} готовий!",
                  f"Замовлення-наряд № {order.number}." + self._to_pay(order).replace("\n", " ") + "."]
         place = ", ".join(x for x in (self.service_name, self.service_address) if x)

@@ -112,10 +112,10 @@ figure img{{width:100%;height:120px;object-fit:cover;border:1px solid #ccc}} fig
 <div style="text-align:right">{head}</div></div>
 <h2>Замовник і автомобіль</h2>
 <table>
-<tr><td>Замовник</td><td>{e(c.name)}</td><td>Автомобіль</td><td>Tesla {e(v.model)} {e(v.year)}</td></tr>
+<tr><td>Замовник</td><td>{e(c.name)}</td><td>Автомобіль</td><td>{e(v.name())} {e(v.year)}</td></tr>
 <tr><td>Телефон</td><td>{e(c.phone)}</td><td>VIN</td><td>{e(v.vin)}</td></tr>
 <tr><td>Колір</td><td>{e(v.color)}</td><td>Держ. номер</td><td>{e(v.plate)}</td></tr>
-<tr><td>Пробіг, км</td><td>{e(v.odometer_km)}</td><td>Заряд ВВБ, %</td><td>{e(v.battery_percent)}</td></tr>
+<tr><td>Пробіг, км</td><td>{e(v.odometer_km)}</td><td>{"Заряд батареї, %" if v.battery_percent is not None else ""}</td><td>{e(v.battery_percent) if v.battery_percent is not None else ""}</td></tr>
 </table>
 <h2>Комплектність і речі</h2><ul>{checklist}</ul>
 <p><b>Залишено в салоні / багажнику:</b> {e(act.get('left_inside'))}</p>

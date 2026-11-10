@@ -106,7 +106,7 @@ def test_errors(tmp_path):
 def test_index_served(tmp_path):
     client, _ = make_client([])
     r = TestClient(create_app(orders_dir=tmp_path, client=client)).get("/")
-    assert r.status_code == 200 and "DK-TeslaService" in r.text
+    assert r.status_code == 200 and "STO-Assist" in r.text
 
 
 def test_password_required(tmp_path, monkeypatch):

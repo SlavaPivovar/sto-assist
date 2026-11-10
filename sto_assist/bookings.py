@@ -280,12 +280,12 @@ class BookingTools:
         digits = "".join(ch for ch in q if ch.isdigit())
         found = []
         for c in self.clients():
-            cars = " ".join(f"{x.get('model', '')} {x.get('plate', '')} {x.get('vin', '')}" for x in c["cars"]).lower()
+            cars = " ".join(f"{x.get('make', '')} {x.get('model', '')} {x.get('plate', '')} {x.get('vin', '')}" for x in c["cars"]).lower()
             hay = f"{c['name']} {cars}".lower()
             phone = "".join(ch for ch in c["phone"] if ch.isdigit())
             if (len(digits) >= 4 and digits in phone) or all(w in hay for w in q.split()):
                 found.append({"name": c["name"], "phone": c["phone"],
-                              "cars": [" ".join(x for x in (f"Tesla {car.get('model', '')}".strip(),
+                              "cars": [" ".join(x for x in (f"{car.get('make', '')} {car.get('model', '')}".strip(),
                                                             car.get("plate", ""), car.get("vin", "")) if x)
                                        for car in c["cars"]],
                               "last_visit": c["last_visit"]})

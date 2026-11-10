@@ -192,6 +192,9 @@ class CustomerIn(BaseModel):
 
 class VehicleIn(BaseModel):
     vin: str = ""
+    make: str = ""
+    model: str = ""
+    year: int | None = None
     odometer_km: int | None = None
     plate: str = ""
     color: str = ""
@@ -774,7 +777,7 @@ def create_app(
             for p in o.payments:
                 if p["at"].startswith(day):
                     rows.append({**p, "number": o.number, "client": o.customer.name,
-                                 "vehicle": " ".join(x for x in (o.vehicle.model, o.vehicle.plate) if x)})
+                                 "vehicle": " ".join(x for x in (o.vehicle.name(), o.vehicle.plate) if x)})
         return sorted(rows, key=lambda r: r["at"])
 
     @app.get("/api/cash")
@@ -798,7 +801,7 @@ def create_app(
                 continue
             balance = o.balance() if o.status != CANCELLED else -o.paid()
             row = {"number": o.number, "created_at": o.created_at, "status": o.status, "client": o.customer.name,
-                   "phone": o.customer.phone, "vehicle": " ".join(x for x in (o.vehicle.model, o.vehicle.plate) if x),
+                   "phone": o.customer.phone, "vehicle": " ".join(x for x in (o.vehicle.name(), o.vehicle.plate) if x),
                    "total": str(o.totals()["total"]), "paid": str(o.paid()), "balance": str(balance),
                    "last_payment": o.payments[-1]["at"] if o.payments else ""}
             if o.status == "видано" and balance > 0:
@@ -918,10 +921,10 @@ def create_app(
 
         def action():
             result = json.loads(conv.session.set_vehicle(body.vin, body.odometer_km, body.plate, body.color,
-                                                         body.battery_percent))
+                                                         body.battery_percent, body.model, body.year, body.make))
             return {"warnings": result["vin_warnings"]}
 
-        return edit_order(conv, action, f"автомобіль: VIN {body.vin}, пробіг {body.odometer_km}")
+        return edit_order(conv, action, f"автомобіль: {body.make} {body.model} VIN {body.vin}, пробіг {body.odometer_km}")
 
     @app.post("/api/order/complaints")
     def add_complaint(body: TextIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
@@ -1068,7 +1071,7 @@ def create_app(
 
     def matches(o, q: str) -> bool:
         """Пошук за номером, VIN, держномером, ПІБ або телефоном (телефон — лише за цифрами)."""
-        text = " ".join((o.number, o.vehicle.vin, o.vehicle.plate, o.customer.name, o.vehicle.model)).lower()
+        text = " ".join((o.number, o.vehicle.vin, o.vehicle.plate, o.customer.name, o.vehicle.make, o.vehicle.model)).lower()
         phone = "".join(ch for ch in o.customer.phone if ch.isdigit())
         digits = "".join(ch for ch in q if ch.isdigit())
         if len(digits) >= 3 and all(ch.isdigit() or ch in " +-()" for ch in q):
@@ -1086,7 +1089,7 @@ def create_app(
                 "customer": o.customer.name,
                 "phone": o.customer.phone,
                 "vin": o.vehicle.vin,
-                "vehicle": " ".join(x for x in (o.vehicle.model, str(o.vehicle.year or ""), o.vehicle.plate) if x),
+                "vehicle": " ".join(x for x in (o.vehicle.name(), str(o.vehicle.year or ""), o.vehicle.plate) if x),
                 "total": str(o.totals()["total"]),
                 "currency": o.currency,
                 "ai_cost": o.ai_usage.get("cost_usd", 0),
@@ -1277,7 +1280,8 @@ def create_app(
         car = next((c for c in client["cars"] if body.vin and c.get("vin") == body.vin), None)
         if car:
             try:
-                conv.session.set_vehicle(car["vin"], plate=car.get("plate", ""))
+                conv.session.set_vehicle(car["vin"], plate=car.get("plate", ""), make=car.get("make", ""),
+                                         model=car.get("model", ""), year=car.get("year"))
                 note += f", автомобіль VIN {car['vin']} (пробіг треба уточнити)"
             except ToolError:
                 pass
@@ -1395,7 +1399,8 @@ def create_app(
                 or len(known["cars"]) == 1)), None)
         if car:
             with contextlib.suppress(ToolError):
-                session.set_vehicle(car["vin"], plate=car.get("plate", ""))
+                session.set_vehicle(car["vin"], plate=car.get("plate", ""), make=car.get("make", ""),
+                                    model=car.get("model", ""), year=car.get("year"))
         if b["work"]:
             session.add_complaint(b["work"])
         conv.manual_changes.append(f"створив замовлення-наряд за записом {bk.label(b)} ({b['client_name']}); "
@@ -1567,7 +1572,7 @@ def create_app(
             "number": o.number, "status": o.status, "since": since, "days": round(days, 1) if days is not None else None,
             "stale": o.status == "в роботі" and days is not None and days >= STALE_DAYS,
             "client": o.customer.name, "phone": o.customer.phone,
-            "car": " ".join(x for x in (o.vehicle.model and f"Tesla {o.vehicle.model}", o.vehicle.plate) if x),
+            "car": " ".join(x for x in (o.vehicle.name(), o.vehicle.plate) if x),
             "works": [line.name for line in o.labor][:3], "more_works": max(0, len(o.labor) - 3),
             "total": str(o.totals()["total"]), "balance": str(o.balance()), "payment_status": o.payment_status(),
             "assignee": o.assignee, "comments": comments.count(o.number), "photos": len(photos.list(o.number)),

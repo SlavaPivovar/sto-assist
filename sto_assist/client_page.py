@@ -26,7 +26,7 @@ def render_client_page(order: RepairOrder, service: dict, token: str, rec: dict 
     e = lambda s: escape(str(s or ""))  # noqa: E731
     v, cur = order.vehicle, escape(order.currency)
     base = f"/c/{token}"
-    car = " ".join(x for x in (f"Tesla {v.model}" if v.model else "", str(v.year or ""), v.plate) if x)
+    car = " ".join(x for x in (v.name(), str(v.year or ""), v.plate) if x)
     in_uah = lambda amount: f' <span class="uah">≈ {_m(to_uah(amount, rate["rate"]))} грн</span>' if rate else ""  # noqa: E731
 
     # статус
@@ -156,7 +156,7 @@ button,.btn{{font:inherit;border-radius:10px;border:1px solid var(--line);backgr
 ul{{margin:0;padding-left:20px}} footer{{text-align:center;color:var(--muted);font-size:13px;margin-top:20px}}
 </style></head><body><main>
 <header><div class="svc">{e(service.get("name"))}</div><h1>Замовлення-наряд № {e(order.number)}</h1>
-<div class="muted">{e(car) or "Tesla"}{" · від " + e(order.created_at.split(" ")[0]) if order.created_at else ""}</div></header>
+<div class="muted">{e(car) or "Автомобіль"}{" · від " + e(order.created_at.split(" ")[0]) if order.created_at else ""}</div></header>
 {steps}
 {body}
 {money_block}

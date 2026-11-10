@@ -16,7 +16,7 @@ from anthropic.lib.tools import ToolError
 from .catalog import Catalog
 from .order import DRAFT, Customer, LaborLine, OrderStore, PartLine, RepairOrder, StatusError, Vehicle
 from .render import render_html
-from .vin import decode_vin
+from .vin import decode_vin, VinInfo
 
 log = logging.getLogger(__name__)
 
@@ -99,7 +99,7 @@ class OrderSession:
         return "ok"
 
     def decode_vin(self, vin: str) -> str:
-        """Розшифрувати VIN Tesla: модель, модельний рік, завод, перевірка контрольної цифри.
+        """Розшифрувати VIN: марка, модельний рік (де визначається), перевірка контрольної цифри.
 
         Args:
             vin: 17-значний VIN.
@@ -117,35 +117,40 @@ class OrderSession:
         battery_percent: int | None = None,
         model: str = "",
         year: int | None = None,
+        make: str = "",
     ) -> str:
-        """Вказати автомобіль. Модель і рік заповнюються автоматично за VIN; передавайте model/year
-        лише якщо клієнт їх уточнив або VIN не розшифровується.
+        """Вказати автомобіль. Марка (і для частини виробників рік) визначаються за VIN; якщо авто вже
+        було в сервісі — марка, модель і рік беруться з попереднього візиту. Модель зазвичай називає
+        майстер: передавайте make/model/year, коли вони відомі.
 
         Args:
-            vin: 17-значний VIN.
+            vin: 17-значний VIN (може бути порожнім, якщо відомий лише держномер).
             odometer_km: Пробіг у кілометрах.
             plate: Державний реєстраційний номер.
             color: Колір кузова.
             battery_percent: Рівень заряду високовольтної батареї під час приймання, %.
-            model: Модель (Model S / 3 / X / Y / Cybertruck), якщо треба задати вручну.
-            year: Модельний рік, якщо треба задати вручну.
+            model: Модель (Camry, Octavia, Model 3…).
+            year: Рік випуску.
+            make: Марка (Toyota, Škoda, Tesla…), якщо не визначилась за VIN або треба виправити.
         """
-        info = decode_vin(vin)
+        info = decode_vin(vin) if vin.strip() else VinInfo(vin="", valid=False)
+        previous = self.store.history(info.vin, exclude=self._order.number) if info.vin else []
+        last = previous[0].vehicle if previous else None
         if odometer_km is not None and odometer_km < 0:
             raise ToolError("Пробіг не може бути від'ємним")
         if battery_percent is not None and not 0 <= battery_percent <= 100:
             raise ToolError("Заряд батареї має бути від 0 до 100 %")
         self._order.vehicle = Vehicle(
             vin=info.vin,
-            model=model or info.model_name or "",
+            make=make.strip() or info.make or (last.make if last else ""),
+            model=model.strip() or info.model_name or (last.model if last else ""),
             model_code=info.model_code or "",
-            year=year or info.year,
+            year=year or info.year or (last.year if last else None),
             color=color,
             plate=plate.upper().replace(" ", ""),
             odometer_km=odometer_km,
             battery_percent=battery_percent,
         )
-        previous = self.store.history(info.vin, exclude=self._order.number)
         return _json({"vehicle": self._order.vehicle.__dict__, "vin_warnings": info.warnings,
                       "previous_visits_count": len(previous),
                       "previous_visits": [self._visit_info(o) for o in previous[:5]]})
