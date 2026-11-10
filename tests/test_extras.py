@@ -9,8 +9,8 @@ import httpx
 import openpyxl
 from fastapi.testclient import TestClient
 
-from tesla_ro.telegram import TelegramAPI, TelegramBot
-from tesla_ro.web import create_app
+from sto_assist.telegram import TelegramAPI, TelegramBot
+from sto_assist.web import create_app
 
 from test_send_client import GROUP, FakeTelegram, private_start, saved
 
@@ -178,7 +178,7 @@ def test_backup_download_and_telegram(tmp_path, session):
 
 
 def test_backup_skips_photos_over_limit(tmp_path):
-    from tesla_ro.backup import make_backup
+    from sto_assist.backup import make_backup
 
     orders = tmp_path / "orders"
     (orders / "photos" / "ЗН-2026-00001").mkdir(parents=True)

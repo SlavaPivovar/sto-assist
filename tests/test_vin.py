@@ -1,4 +1,4 @@
-from tesla_ro.vin import decode_vin
+from sto_assist.vin import decode_vin
 
 
 def test_decodes_model_3_fremont():

@@ -2,7 +2,7 @@
 
 import pytest
 
-from tesla_ro.order import RepairOrder, StatusError
+from sto_assist.order import RepairOrder, StatusError
 
 
 def test_lifecycle_and_log(session):

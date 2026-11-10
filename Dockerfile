@@ -14,8 +14,8 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY pyproject.toml README.md ./
-COPY tesla_ro ./tesla_ro
+COPY sto_assist ./sto_assist
 RUN pip install --no-cache-dir . && mkdir -p /data/orders
 
 EXPOSE 8000
-CMD ["python", "-m", "tesla_ro.web"]
+CMD ["python", "-m", "sto_assist.web"]

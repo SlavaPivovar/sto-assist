@@ -6,9 +6,9 @@ import httpx
 import openpyxl
 from fastapi.testclient import TestClient
 
-from tesla_ro.clients import build_clients, personalize
-from tesla_ro.telegram import TelegramAPI, TelegramBot
-from tesla_ro.web import create_app
+from sto_assist.clients import build_clients, personalize
+from sto_assist.telegram import TelegramAPI, TelegramBot
+from sto_assist.web import create_app
 
 from test_send_client import FakeTelegram, private_start
 

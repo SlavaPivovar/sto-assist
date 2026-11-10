@@ -2,7 +2,7 @@
 
 from fastapi.testclient import TestClient
 
-from tesla_ro.web import create_app
+from sto_assist.web import create_app
 
 
 def test_manifest_and_icons_are_public(tmp_path):

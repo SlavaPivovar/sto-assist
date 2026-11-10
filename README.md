@@ -13,7 +13,7 @@ AI-помічник майстра-приймальника: у вільній �
 ```bash
 pip install -e ".[dev]"
 export ANTHROPIC_API_KEY=sk-ant-...
-python -m tesla_ro.web        # або: tesla-ro-web
+python -m sto_assist.web        # або: sto-assist-web
 ```
 
 Відкрийте в браузері http://127.0.0.1:8000.
@@ -72,7 +72,7 @@ python -m tesla_ro.web        # або: tesla-ro-web
   «Довідник → Налаштування» — сьогодні, місяць, усього, середнє на замовлення-наряд і графік
   за 2 тижні. Клієнт цього не бачить: у друковану форму витрати не потрапляють. Журнал —
   `usage.jsonl` поруч із `orders/` (у Docker — `/data/usage.jsonl`). Тарифи — у
-  `tesla_ro/usage.py`; точна сума рахунку — у console.anthropic.com → Usage.
+  `sto_assist/usage.py`; точна сума рахунку — у console.anthropic.com → Usage.
 - **Прайс в Excel** (Довідник → Налаштування): «Вивантажити в Excel» — аркуші «Роботи» і
   «Запчастини»; змініть ціни чи додайте рядки й «Завантажити з Excel». Спершу показується, що
   буде додано й змінено і які рядки з помилками; зміни застосовуються після підтвердження.
@@ -216,7 +216,7 @@ python -m tesla_ro.web        # або: tesla-ro-web
 2. **New → Blueprint**, виберіть цей репозиторій — Render прочитає `render.yaml`.
 3. Введіть значення `ANTHROPIC_API_KEY` і `APP_PASSWORD`, натисніть **Apply**.
 4. За кілька хвилин сервіс буде доступний за адресою на кшталт
-   `https://tesla-repair-orders.onrender.com` — відкрийте її з телефона та увійдіть.
+   `https://sto-assist.onrender.com` — відкрийте її з телефона та увійдіть.
 
 У `render.yaml` вказано тариф **Starter** (платний) з диском 1 ГБ — на ньому зберігаються
 замовлення-наряди. На безкоштовному тарифі диска немає: замовлення-наряди зникатимуть після
@@ -225,17 +225,17 @@ python -m tesla_ro.web        # або: tesla-ro-web
 ### Власний сервер (VPS) з Docker
 
 ```bash
-docker build -t tesla-ro .
+docker build -t sto-assist .
 docker run -d --restart unless-stopped -p 8000:8000 \
   -e ANTHROPIC_API_KEY=sk-ant-... -e APP_PASSWORD='надійний-пароль' \
-  -v tesla-ro-data:/data tesla-ro
+  -v sto-assist-data:/data sto-assist
 ```
 
 Перед сервісом поставте HTTPS (наприклад, Caddy: `caddy reverse-proxy --from ваш-домен --to :8000`).
 Звичайним HTTP пароль передається відкритим текстом. Якщо HTTPS немає зовсім, додайте
 `-e COOKIE_SECURE=0`, інакше браузер не збереже вхід.
 
-Консольна версія: `python -m tesla_ro`.
+Консольна версія: `python -m sto_assist`.
 
 ## Telegram: замовлення й коментарі в робочій групі
 
@@ -283,8 +283,8 @@ docker run -d --restart unless-stopped -p 8000:8000 \
 ## Що вміє
 
 - **VIN Tesla**: модель (S/3/X/Y/Cybertruck), модельний рік, завод, перевірка контрольної цифри
-  для північноамериканських VIN (`tesla_ro/vin.py`).
-- **База робіт Tesla** — `tesla_ro/data/catalog.json`: 72 основні роботи в 10 розділах
+  для північноамериканських VIN (`sto_assist/vin.py`).
+- **База робіт Tesla** — `sto_assist/data/catalog.json`: 72 основні роботи в 10 розділах
   (діагностика, ТО, шини, гальма, підвіска й кермо, клімат, високовольтна система, привід,
   електрика, кузов), для кожної — фіксована ціна, моделі, типові запчастини та рекомендований
   інтервал обслуговування; 34 позиції запчастин із цінами. Там само реквізити сервісу, валюта
@@ -314,7 +314,7 @@ docker run -d --restart unless-stopped -p 8000:8000 \
 спершу приберіть її з цих робіт. Редагувати може кожен, хто знає пароль сервісу.
 
 Робочий довідник створюється під час першого запуску як копія стандартного
-`tesla_ro/data/catalog.json`. Після цього зміни стандартного файлу в репозиторії на сервер
+`sto_assist/data/catalog.json`. Після цього зміни стандартного файлу в репозиторії на сервер
 **не потрапляють** — щоб почати з нового стандартного довідника, видаліть робочий файл
 (`/data/catalog.json`) і перезапустіть сервіс; усі правки з інтерфейсу при цьому зникнуть.
 
@@ -334,24 +334,24 @@ docker run -d --restart unless-stopped -p 8000:8000 \
 
 | Файл | Призначення |
 |---|---|
-| `tesla_ro/web.py`, `tesla_ro/static/` | Веб-сервер (FastAPI), сторінка інтерфейсу і вхід |
-| `tesla_ro/assistant.py` | Агент на Claude API (tool runner, адаптивне мислення, fallback у разі відмови) |
-| `tesla_ro/tools.py` | Інструменти агента — операції над замовленням-нарядом |
-| `tesla_ro/order.py` | Модель замовлення-наряду, розрахунок підсумків, зберігання в JSON |
-| `tesla_ro/render.py` | HTML-форма для друку |
-| `tesla_ro/vision.py` | Розпізнавання VIN і пробігу з фото |
-| `tesla_ro/usage.py` | Облік витрат на Claude API |
-| `tesla_ro/comments.py`, `tesla_ro/telegram.py` | Внутрішні коментарі та Telegram-бот |
-| `tesla_ro/photos.py` | Фото до замовлень-нарядів |
-| `tesla_ro/clients.py` | База клієнтів (із замовлень-нарядів і даних бота) |
-| `tesla_ro/bookings.py` | Запис на сервіс: планувальник і помічник запису |
-| `tesla_ro/stock.py` | Склад запчастин |
-| `tesla_ro/acts.py` | Акт приймання автомобіля й підпис клієнта |
-| `tesla_ro/fx.py` | Курс гривні (НБУ або свій) |
-| `tesla_ro/approvals.py`, `tesla_ro/client_page.py` | Погодження по пунктах і сторінка для клієнта |
-| `tesla_ro/purchases.py` | Закупівлі в постачальників |
-| `tesla_ro/staff.py` | Співробітники, ролі, вхід за кодом із Telegram чи паролем |
-| `tesla_ro/excel.py`, `tesla_ro/backup.py` | Прайс в Excel і резервна копія |
-| `tesla_ro/catalog.py`, `tesla_ro/vin.py` | Довідник і декодер VIN |
+| `sto_assist/web.py`, `sto_assist/static/` | Веб-сервер (FastAPI), сторінка інтерфейсу і вхід |
+| `sto_assist/assistant.py` | Агент на Claude API (tool runner, адаптивне мислення, fallback у разі відмови) |
+| `sto_assist/tools.py` | Інструменти агента — операції над замовленням-нарядом |
+| `sto_assist/order.py` | Модель замовлення-наряду, розрахунок підсумків, зберігання в JSON |
+| `sto_assist/render.py` | HTML-форма для друку |
+| `sto_assist/vision.py` | Розпізнавання VIN і пробігу з фото |
+| `sto_assist/usage.py` | Облік витрат на Claude API |
+| `sto_assist/comments.py`, `sto_assist/telegram.py` | Внутрішні коментарі та Telegram-бот |
+| `sto_assist/photos.py` | Фото до замовлень-нарядів |
+| `sto_assist/clients.py` | База клієнтів (із замовлень-нарядів і даних бота) |
+| `sto_assist/bookings.py` | Запис на сервіс: планувальник і помічник запису |
+| `sto_assist/stock.py` | Склад запчастин |
+| `sto_assist/acts.py` | Акт приймання автомобіля й підпис клієнта |
+| `sto_assist/fx.py` | Курс гривні (НБУ або свій) |
+| `sto_assist/approvals.py`, `sto_assist/client_page.py` | Погодження по пунктах і сторінка для клієнта |
+| `sto_assist/purchases.py` | Закупівлі в постачальників |
+| `sto_assist/staff.py` | Співробітники, ролі, вхід за кодом із Telegram чи паролем |
+| `sto_assist/excel.py`, `sto_assist/backup.py` | Прайс в Excel і резервна копія |
+| `sto_assist/catalog.py`, `sto_assist/vin.py` | Довідник і декодер VIN |
 
 Тести (без звернення до API): `pytest`.

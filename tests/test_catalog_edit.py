@@ -5,8 +5,8 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
-from tesla_ro.catalog import DEFAULT_CATALOG, Catalog, CatalogError
-from tesla_ro.web import create_app
+from sto_assist.catalog import DEFAULT_CATALOG, Catalog, CatalogError
+from sto_assist.web import create_app
 
 OP = {"code": "brk-test", "name": "Тестова робота", "category": "Гальмівна система", "price": "95,5",
       "models": ["MODEL_3", "MODEL_Y"], "parts": ["pad-f"], "interval": ""}
@@ -117,8 +117,8 @@ def test_api_edit_flow(tmp_path):
 
 
 def test_new_orders_use_edited_price(tmp_path):
-    from tesla_ro.order import OrderStore
-    from tesla_ro.tools import OrderSession
+    from sto_assist.order import OrderStore
+    from sto_assist.tools import OrderSession
 
     cat = Catalog.load_editable(tmp_path / "catalog.json")
     diag = cat.operations["DIAG-01"]

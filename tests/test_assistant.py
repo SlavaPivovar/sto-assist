@@ -6,7 +6,7 @@ import anthropic
 import httpx2
 from anthropic import DefaultHttpxClient
 
-from tesla_ro.assistant import RepairOrderAssistant
+from sto_assist.assistant import RepairOrderAssistant
 
 
 def _msg(content, stop_reason):

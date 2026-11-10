@@ -5,7 +5,7 @@ import pytest
 from anthropic import beta_tool
 from anthropic.lib.tools import ToolError
 
-from tesla_ro.order import PartLine, RepairOrder
+from sto_assist.order import PartLine, RepairOrder
 
 
 def fill(session):
@@ -121,7 +121,7 @@ def test_all_methods_are_valid_tools(session):
 
 
 def test_print_header_shows_only_filled_details():
-    from tesla_ro.render import render_html
+    from sto_assist.render import render_html
 
     order = RepairOrder(number="x")
     html = render_html(order, {"name": "DK-TeslaService", "address": "м. Одеса, вул. Гарманна, 1", "phone": "", "inn": ""})
@@ -132,7 +132,7 @@ def test_print_header_shows_only_filled_details():
 
 
 def test_vat_line_hidden_when_zero():
-    from tesla_ro.render import render_html
+    from sto_assist.render import render_html
 
     order = RepairOrder(number="x", vat_percent=0)
     assert "ПДВ" not in render_html(order)

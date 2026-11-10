@@ -7,7 +7,7 @@ import httpx2
 from anthropic import DefaultHttpxClient
 from fastapi.testclient import TestClient
 
-from tesla_ro.web import create_app
+from sto_assist.web import create_app
 
 
 def _msg(content, stop_reason):
@@ -54,7 +54,7 @@ def test_full_flow(tmp_path):
 
     state = web.get("/api/state").json()
     assert state["order"] is None and state["history"] == []
-    assert "tesla_ro_sid" in web.cookies
+    assert "sto_assist_sid" in web.cookies
 
     r = web.post("/api/chat", json={"text": "Іваненко, VIN 5YJ3E1EA9LF000316, скрип"}).json()
     assert r["reply"] == "Замовлення-наряд **збережено**."
@@ -110,7 +110,7 @@ def test_index_served(tmp_path):
 
 
 def test_password_required(tmp_path, monkeypatch):
-    monkeypatch.setattr("tesla_ro.web.time.sleep", lambda s: None)
+    monkeypatch.setattr("sto_assist.web.time.sleep", lambda s: None)
     client, _ = make_client(SCRIPT)
     web = TestClient(create_app(orders_dir=tmp_path, client=client, password="secret-pass"))
 
@@ -139,12 +139,12 @@ def test_password_required(tmp_path, monkeypatch):
 def test_forged_auth_cookie_rejected(tmp_path):
     client, _ = make_client([])
     web = TestClient(create_app(orders_dir=tmp_path, client=client, password="secret-pass"))
-    web.cookies.set("tesla_ro_auth", "9999999999.deadbeef")
+    web.cookies.set("sto_assist_auth", "9999999999.deadbeef")
     assert web.get("/api/state").status_code == 401
 
 
 def test_login_rate_limited(tmp_path, monkeypatch):
-    monkeypatch.setattr("tesla_ro.web.time.sleep", lambda s: None)
+    monkeypatch.setattr("sto_assist.web.time.sleep", lambda s: None)
     client, _ = make_client([])
     web = TestClient(create_app(orders_dir=tmp_path, client=client, password="secret-pass"))
     for _ in range(10):
@@ -171,19 +171,19 @@ def test_catalog_endpoint(tmp_path):
 
 
 def test_login_survives_restart_with_same_secret(tmp_path):
-    from tesla_ro.web import load_secret
+    from sto_assist.web import load_secret
 
     secret = load_secret(tmp_path)
     assert load_secret(tmp_path) == secret and (tmp_path / ".auth_secret").stat().st_mode & 0o777 == 0o600
     client, _ = make_client([])
     first = TestClient(create_app(orders_dir=tmp_path / "o", client=client, password="secret-pass", secret=secret))
     first.post("/login", data={"password": "secret-pass"})
-    cookie = first.cookies.get("tesla_ro_auth")
+    cookie = first.cookies.get("sto_assist_auth")
 
     restarted = TestClient(create_app(orders_dir=tmp_path / "o", client=client, password="secret-pass", secret=secret))
-    restarted.cookies.set("tesla_ro_auth", cookie)
+    restarted.cookies.set("sto_assist_auth", cookie)
     assert restarted.get("/api/state").status_code == 200
 
     other_password = TestClient(create_app(orders_dir=tmp_path / "o", client=client, password="new-pass-1", secret=secret))
-    other_password.cookies.set("tesla_ro_auth", cookie)
+    other_password.cookies.set("sto_assist_auth", cookie)
     assert other_password.get("/api/state").status_code == 401

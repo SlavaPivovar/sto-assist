@@ -4,8 +4,8 @@ from decimal import Decimal
 
 from fastapi.testclient import TestClient
 
-from tesla_ro import fx
-from tesla_ro.web import create_app
+from sto_assist import fx
+from sto_assist.web import create_app
 
 from test_send_client import saved
 

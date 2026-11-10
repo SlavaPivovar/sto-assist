@@ -1,8 +1,8 @@
 import pytest
 
-from tesla_ro.catalog import Catalog
-from tesla_ro.order import OrderStore
-from tesla_ro.tools import OrderSession
+from sto_assist.catalog import Catalog
+from sto_assist.order import OrderStore
+from sto_assist.tools import OrderSession
 
 
 @pytest.fixture
@@ -13,7 +13,7 @@ def session(tmp_path):
 @pytest.fixture(autouse=True)
 def nbu_offline(monkeypatch):
     """Тести не ходять у мережу: «банк недоступний», якщо тест не підставив свій курс."""
-    from tesla_ro import fx
+    from sto_assist import fx
 
     def offline():
         raise OSError("NBU недоступний у тестах")

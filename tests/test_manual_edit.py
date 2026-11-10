@@ -7,7 +7,7 @@ import httpx2
 from anthropic import DefaultHttpxClient
 from fastapi.testclient import TestClient
 
-from tesla_ro.web import create_app
+from sto_assist.web import create_app
 
 
 def saved_order(session):

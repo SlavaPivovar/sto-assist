@@ -1,4 +1,4 @@
-"""Консольний інтерфейс помічника: python -m tesla_ro"""
+"""Консольний інтерфейс помічника: python -m sto_assist"""
 
 from __future__ import annotations
 

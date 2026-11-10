@@ -7,9 +7,9 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from tesla_ro import bookings as bk
-from tesla_ro.telegram import TelegramAPI, TelegramBot
-from tesla_ro.web import create_app
+from sto_assist import bookings as bk
+from sto_assist.telegram import TelegramAPI, TelegramBot
+from sto_assist.web import create_app
 
 from test_send_client import GROUP, FakeTelegram, private_start, saved
 from test_web import _msg, _tool, make_client

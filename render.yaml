@@ -1,7 +1,7 @@
 # Конфігурація для Render (https://render.com): New → Blueprint → вибрати цей репозиторій.
 services:
   - type: web
-    name: tesla-repair-orders
+    name: sto-assist
     runtime: docker
     plan: starter            # постійний диск доступний на платних тарифах
     region: frankfurt

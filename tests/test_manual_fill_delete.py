@@ -2,8 +2,8 @@
 
 from fastapi.testclient import TestClient
 
-from tesla_ro.order import OrderStore
-from tesla_ro.web import create_app
+from sto_assist.order import OrderStore
+from sto_assist.web import create_app
 
 
 def test_fill_new_order_by_hand(tmp_path):

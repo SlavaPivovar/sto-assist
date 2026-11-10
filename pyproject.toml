@@ -1,5 +1,5 @@
 [project]
-name = "tesla-repair-orders"
+name = "sto-assist"
 version = "0.1.0"
 description = "AI-помічник для оформлення замовлень-нарядів на ремонт автомобілів Tesla"
 requires-python = ">=3.10"
@@ -9,11 +9,11 @@ dependencies = ["anthropic>=2.3.0", "fastapi>=0.110", "uvicorn>=0.29", "python-m
 dev = ["pytest"]
 
 [project.scripts]
-tesla-ro = "tesla_ro.cli:main"
-tesla-ro-web = "tesla_ro.web:main"
+sto-assist = "sto_assist.cli:main"
+sto-assist-web = "sto_assist.web:main"
 
 [tool.setuptools.packages.find]
-include = ["tesla_ro*"]
+include = ["sto_assist*"]
 
 [tool.setuptools.package-data]
-tesla_ro = ["data/*.json", "static/*.html", "static/icons/*.png"]
+sto_assist = ["data/*.json", "static/*.html", "static/icons/*.png"]

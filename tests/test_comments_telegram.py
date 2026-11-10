@@ -6,9 +6,9 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from tesla_ro.comments import CommentError, CommentStore
-from tesla_ro.telegram import TelegramAPI, TelegramBot
-from tesla_ro.web import create_app
+from sto_assist.comments import CommentError, CommentStore
+from sto_assist.telegram import TelegramAPI, TelegramBot
+from sto_assist.web import create_app
 
 GROUP = -100123
 

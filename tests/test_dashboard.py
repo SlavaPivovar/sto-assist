@@ -4,7 +4,7 @@ from datetime import date
 
 from fastapi.testclient import TestClient
 
-from tesla_ro.web import create_app
+from sto_assist.web import create_app
 
 from test_send_client import saved
 

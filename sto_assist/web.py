@@ -1,4 +1,4 @@
-"""Веб-інтерфейс помічника: python -m tesla_ro.web"""
+"""Веб-інтерфейс помічника: python -m sto_assist.web"""
 
 from __future__ import annotations
 
@@ -90,8 +90,8 @@ PERMISSIONS = [
     (None, r"^/api/stock/to-order", "admin"),
     (None, r"^/api/purchases", "admin"),
 ]
-COOKIE = "tesla_ro_sid"
-AUTH_COOKIE = "tesla_ro_auth"
+COOKIE = "sto_assist_sid"
+AUTH_COOKIE = "sto_assist_auth"
 AUTH_TTL = 30 * 24 * 3600  # вхід діє 30 днів
 IDLE_TTL = 12 * 3600  # неактивні діалоги видаляються з пам'яті через 12 годин
 FAIL_WINDOW = 15 * 60
@@ -542,8 +542,8 @@ def create_app(
         return FileResponse(STATIC / "index.html")
 
     @app.get("/api/state")
-    def state(response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def state(response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         history = []
         for m in conv.assistant.messages:
             if isinstance(m["content"], str):
@@ -566,11 +566,11 @@ def create_app(
                 "auth": password is not None}
 
     @app.post("/api/chat")
-    def chat(body: ChatIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
+    def chat(body: ChatIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
         text = body.text.strip()
         if not text:
             raise HTTPException(400, "Порожнє повідомлення")
-        conv = conversation(tesla_ro_sid, response)
+        conv = conversation(sto_assist_sid, response)
         if not conv.lock.acquire(blocking=False):
             raise HTTPException(409, "Помічник ще відповідає на попереднє повідомлення")
         if conv.manual_changes:
@@ -586,8 +586,8 @@ def create_app(
         return {"reply": reply, "order": conv.session.snapshot()}
 
     @app.post("/api/photo")
-    def photo(body: PhotoIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def photo(body: PhotoIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         try:
             media_type, data = parse_data_url(body.image)
             with api_errors():
@@ -630,8 +630,8 @@ def create_app(
         return lines[number - 1].name if 1 <= number <= len(lines) else f"рядок {number}"
 
     @app.post("/api/order/labor")
-    def add_labor(body: LineIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def add_labor(body: LineIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         s = conv.session
         if body.code:
             op = catalog.operations.get(body.code)
@@ -644,8 +644,8 @@ def create_app(
                           f"додав роботу «{name}» за {body.price:g} × {body.qty:g}")
 
     @app.post("/api/order/parts")
-    def add_part(body: LineIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def add_part(body: LineIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         s = conv.session
         if body.part_no and body.price is None and not body.name:
             part = catalog.parts.get(body.part_no)
@@ -660,10 +660,10 @@ def create_app(
 
     @app.patch("/api/order/{kind}/{number}")
     def update_line(kind: str, number: int, body: LineEditIn, response: Response,
-                    tesla_ro_sid: str | None = Cookie(None)):
+                    sto_assist_sid: str | None = Cookie(None)):
         if kind not in ("labor", "parts"):
             raise HTTPException(404, "Невідомий тип рядка")
-        conv = conversation(tesla_ro_sid, response)
+        conv = conversation(sto_assist_sid, response)
         s = conv.session
 
         def action():
@@ -679,9 +679,9 @@ def create_app(
         return edit_order(conv, action, f"змінив «{name}»: {changes}")
 
     @app.delete("/api/order/{kind}/{number}")
-    def delete_line(kind: str, number: int, response: Response, tesla_ro_sid: str | None = Cookie(None)):
+    def delete_line(kind: str, number: int, response: Response, sto_assist_sid: str | None = Cookie(None)):
         """Видалити рядок роботи чи запчастини, скаргу або рекомендацію."""
-        conv = conversation(tesla_ro_sid, response)
+        conv = conversation(sto_assist_sid, response)
         s, order = conv.session, conv.session.order
         if kind in ("labor", "parts"):
             name = line_name(conv, kind, number) if order else ""
@@ -695,8 +695,8 @@ def create_app(
         raise HTTPException(404, "Невідомий тип рядка")
 
     @app.post("/api/order/status")
-    def order_status(request: Request, body: StatusIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def order_status(request: Request, body: StatusIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         if conv.session.order is None:
             raise HTTPException(404, "Замовлення-наряд ще не створено")
         if not conv.lock.acquire(blocking=False):
@@ -715,8 +715,8 @@ def create_app(
         return {"order": conv.session.snapshot()}
 
     @app.put("/api/order/assignee")
-    def set_assignee(request: Request, body: AssigneeIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def set_assignee(request: Request, body: AssigneeIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         name = " ".join(body.name.split())[:80]
 
         def action():
@@ -729,8 +729,8 @@ def create_app(
     # --- оплата, каса, боржники ---
 
     @app.post("/api/order/payments")
-    def add_payment(request: Request, body: PaymentIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def add_payment(request: Request, body: PaymentIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
 
         def action():
             amount, uah_info = body.amount, None
@@ -755,8 +755,8 @@ def create_app(
 
     # id — у параметрі запиту: шлях /api/order/<щось>/<n> уже зайнятий видаленням рядків замовлення.
     @app.delete("/api/order/payments")
-    def delete_payment(request: Request, payment_id: str, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def delete_payment(request: Request, payment_id: str, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
 
         def action():
             try:
@@ -818,9 +818,9 @@ def create_app(
         return {"rate": str(rate["rate"].normalize()), "date": rate["date"], "source": rate["source"]} if rate else None
 
     @app.post("/api/order/approval/defer")
-    def defer_to_recommendations(response: Response, tesla_ro_sid: str | None = Cookie(None)):
+    def defer_to_recommendations(response: Response, sto_assist_sid: str | None = Cookie(None)):
         """Відкладені клієнтом рядки прибрати із замовлення й записати в рекомендації (нагадаємо пізніше)."""
-        conv = conversation(tesla_ro_sid, response)
+        conv = conversation(sto_assist_sid, response)
 
         def action():
             order = conv.session.order
@@ -876,14 +876,14 @@ def create_app(
             conv.manual_changes.clear()
 
     @app.post("/api/reset")
-    def reset(response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        restart(conversation(tesla_ro_sid, response))
+    def reset(response: Response, sto_assist_sid: str | None = Cookie(None)):
+        restart(conversation(sto_assist_sid, response))
         return {"order": None}
 
     @app.post("/api/order/new")
-    def new_order_manual(response: Response, tesla_ro_sid: str | None = Cookie(None)):
+    def new_order_manual(response: Response, sto_assist_sid: str | None = Cookie(None)):
         """Порожнє замовлення-наряд для ручного заповнення (без помічника)."""
-        conv = conversation(tesla_ro_sid, response)
+        conv = conversation(sto_assist_sid, response)
         if conv.lock.locked():
             raise HTTPException(409, "Помічник ще відповідає — спробуйте за мить")
         restart(conv)
@@ -907,14 +907,14 @@ def create_app(
         return {"deleted": number}
 
     @app.put("/api/order/customer")
-    def set_customer(body: CustomerIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def set_customer(body: CustomerIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         return edit_order(conv, lambda: conv.session.set_customer(body.name, body.phone, body.email),
                           f"замовник: {body.name}, {body.phone}")
 
     @app.put("/api/order/vehicle")
-    def set_vehicle(body: VehicleIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def set_vehicle(body: VehicleIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
 
         def action():
             result = json.loads(conv.session.set_vehicle(body.vin, body.odometer_km, body.plate, body.color,
@@ -924,16 +924,16 @@ def create_app(
         return edit_order(conv, action, f"автомобіль: VIN {body.vin}, пробіг {body.odometer_km}")
 
     @app.post("/api/order/complaints")
-    def add_complaint(body: TextIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def add_complaint(body: TextIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         text = body.text.strip()
         if not text:
             raise HTTPException(400, "Порожня скарга")
         return edit_order(conv, lambda: conv.session.add_complaint(text), f"додав скаргу «{text}»")
 
     @app.post("/api/order/recommendations")
-    def add_recommendation(body: TextIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def add_recommendation(body: TextIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         text = body.text.strip()
         if not text:
             raise HTTPException(400, "Порожня рекомендація")
@@ -941,8 +941,8 @@ def create_app(
                           f"додав рекомендацію «{text}»")
 
     @app.put("/api/order/diagnosis")
-    def set_diagnosis(body: TextIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def set_diagnosis(body: TextIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         return edit_order(conv, lambda: conv.session.set_diagnosis(body.text),
                           f"діагностика: «{body.text.strip()}»")
 
@@ -1099,8 +1099,8 @@ def create_app(
         ]
 
     @app.post("/api/orders/{number}/open")
-    def open_order(number: str, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def open_order(number: str, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         try:
             order = store.load(number)
         except FileNotFoundError:
@@ -1123,8 +1123,8 @@ def create_app(
                         headers={"Content-Disposition": f"inline; filename*=UTF-8''{name}"})
 
     @app.get("/pdf/current")
-    def pdf_current(response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def pdf_current(response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         if conv.session.order is None:
             raise HTTPException(404, "Замовлення-наряд ще не створено")
         return pdf_response(conv.session.order)
@@ -1207,8 +1207,8 @@ def create_app(
         return {"sent": True, "client": client["name"], "photos": client.get("photos", 0)}
 
     @app.get("/print/current", response_class=HTMLResponse)
-    def print_current(response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def print_current(response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         if conv.session.order is None:
             raise HTTPException(404, "Замовлення-наряд ще не створено")
         return render_html(conv.session.order, catalog.service, fx_rate())
@@ -1262,12 +1262,12 @@ def create_app(
                         headers={"Content-Disposition": f"attachment; filename*=UTF-8''klienty-{time.strftime('%Y-%m-%d')}.xlsx"})
 
     @app.post("/api/clients/new-order")
-    def client_new_order(body: ClientOrderIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
+    def client_new_order(body: ClientOrderIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
         """Нове замовлення-наряд для відомого клієнта: ПІБ, телефон і (якщо вибрано) автомобіль підставляються."""
         client = next((c for c in all_clients() if c["key"] == body.key), None)
         if client is None:
             raise HTTPException(404, "Клієнта не знайдено")
-        conv = conversation(tesla_ro_sid, response)
+        conv = conversation(sto_assist_sid, response)
         if conv.lock.locked():
             raise HTTPException(409, "Помічник ще відповідає — спробуйте за мить")
         restart(conv)
@@ -1341,8 +1341,8 @@ def create_app(
             raise HTTPException(500, "Не вдалося зберегти запис") from None
 
     @app.post("/api/bookings/agent")
-    def bookings_agent(request: Request, body: BookingAgentIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def bookings_agent(request: Request, body: BookingAgentIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
         booking_agent.service = catalog.service
         try:
             with api_errors():
@@ -1352,8 +1352,8 @@ def create_app(
         return {"reply": result["reply"] or "Готово."}
 
     @app.post("/api/bookings/agent/reset")
-    def bookings_agent_reset(response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        booking_agent.reset(f"web:{conversation(tesla_ro_sid, response).channel}")
+    def bookings_agent_reset(response: Response, sto_assist_sid: str | None = Cookie(None)):
+        booking_agent.reset(f"web:{conversation(sto_assist_sid, response).channel}")
         return {"ok": True}
 
     @app.post("/api/bookings")
@@ -1371,7 +1371,7 @@ def create_app(
         return booking_edit(lambda: bookings.set_status(booking_id, body.status, by=actor(request, body.author)))
 
     @app.post("/api/bookings/{booking_id}/order")
-    def booking_to_order(booking_id: str, response: Response, tesla_ro_sid: str | None = Cookie(None)):
+    def booking_to_order(booking_id: str, response: Response, sto_assist_sid: str | None = Cookie(None)):
         """Клієнт приїхав: нове замовлення-наряд із даними запису (лише на прохання співробітника)."""
         try:
             b = bookings.get(booking_id)
@@ -1379,7 +1379,7 @@ def create_app(
             raise HTTPException(404, "Запис не знайдено") from None
         if b.get("order_number"):
             raise HTTPException(409, f"За цим записом уже створено {b['order_number']}")
-        conv = conversation(tesla_ro_sid, response)
+        conv = conversation(sto_assist_sid, response)
         if conv.lock.locked():
             raise HTTPException(409, "Помічник ще відповідає — спробуйте за мить")
         restart(conv)
@@ -1406,8 +1406,8 @@ def create_app(
     # --- акт приймання автомобіля ---
 
     @app.put("/api/order/intake")
-    def set_intake(body: IntakeIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def set_intake(body: IntakeIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
 
         def action():
             try:
@@ -1419,8 +1419,8 @@ def create_app(
         return edit_order(conv, action, "заповнив акт приймання автомобіля")
 
     @app.post("/api/order/intake/sign")
-    def sign_intake(body: SignatureIn, response: Response, tesla_ro_sid: str | None = Cookie(None)):
-        conv = conversation(tesla_ro_sid, response)
+    def sign_intake(body: SignatureIn, response: Response, sto_assist_sid: str | None = Cookie(None)):
+        conv = conversation(sto_assist_sid, response)
 
         def action():
             order = conv.session.order

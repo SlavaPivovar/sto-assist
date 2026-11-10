@@ -5,8 +5,8 @@ import json
 import httpx
 from fastapi.testclient import TestClient
 
-from tesla_ro.telegram import TelegramAPI, TelegramBot
-from tesla_ro.web import create_app
+from sto_assist.telegram import TelegramAPI, TelegramBot
+from sto_assist.web import create_app
 
 from test_send_client import GROUP, FakeTelegram, saved
 
@@ -146,7 +146,7 @@ def test_daily_summary(tmp_path, session):
     assert "🏁 Видано: 1 · на суму <b>222,00 $</b>" in text and "Зараз у роботі: 1" in text
 
     # підсумок раз на добу, лише після 20:00 (перевіряємо, підмінивши годину)
-    import tesla_ro.telegram as tg
+    import sto_assist.telegram as tg
     old = tg.SUMMARY_HOUR
     tg.SUMMARY_HOUR = 0
     try:

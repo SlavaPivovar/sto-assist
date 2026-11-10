@@ -7,10 +7,10 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from tesla_ro.order import PaymentError, RepairOrder
-from tesla_ro.render import render_html
-from tesla_ro.telegram import TelegramAPI, TelegramBot
-from tesla_ro.web import create_app
+from sto_assist.order import PaymentError, RepairOrder
+from sto_assist.render import render_html
+from sto_assist.telegram import TelegramAPI, TelegramBot
+from sto_assist.web import create_app
 
 from test_send_client import GROUP, FakeTelegram, saved
 

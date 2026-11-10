@@ -9,8 +9,8 @@ import pytest
 from anthropic import DefaultHttpxClient
 from fastapi.testclient import TestClient
 
-from tesla_ro.vision import PhotoError, clean_vin, parse_data_url, summarize
-from tesla_ro.web import create_app
+from sto_assist.vision import PhotoError, clean_vin, parse_data_url, summarize
+from sto_assist.web import create_app
 
 JPEG = "data:image/jpeg;base64," + base64.b64encode(b"\xff\xd8\xff fake jpeg").decode()
 

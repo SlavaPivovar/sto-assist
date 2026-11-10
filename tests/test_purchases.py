@@ -5,8 +5,8 @@ import io
 import openpyxl
 from fastapi.testclient import TestClient
 
-from tesla_ro.stock import Stock
-from tesla_ro.web import create_app
+from sto_assist.stock import Stock
+from sto_assist.web import create_app
 
 from test_send_client import saved
 

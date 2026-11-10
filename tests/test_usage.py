@@ -10,8 +10,8 @@ import httpx2
 from anthropic import DefaultHttpxClient
 from fastapi.testclient import TestClient
 
-from tesla_ro.usage import UsageLedger, from_response
-from tesla_ro.web import create_app
+from sto_assist.usage import UsageLedger, from_response
+from sto_assist.web import create_app
 
 USAGE = {"input_tokens": 1000, "output_tokens": 500, "cache_read_input_tokens": 5000,
          "cache_creation_input_tokens": 0}
