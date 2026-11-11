@@ -1,0 +1,2766 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="STO-Assist" id="appTitle">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171a20" media="(prefers-color-scheme: dark)">
+<title>STO-Assist</title>
+<style>
+:root{
+  --bg:#f4f5f7; --panel:#fff; --text:#16181d; --muted:#6b7280; --line:#e3e5e9;
+  --accent:#d32f2f; --accent-ink:#fff; --user:#1f2937; --user-ink:#fff; --bot:#f0f1f4;
+  --warn-bg:#fff4e5; --warn:#9a5b00; --ok:#1b7f3b; --shadow:0 1px 2px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1115; --panel:#171a20; --text:#e8eaed; --muted:#9aa1ad; --line:#2a2f38;
+    --accent:#ef5350; --accent-ink:#fff; --user:#e8eaed; --user-ink:#111; --bot:#20242c;
+    --warn-bg:#3a2a10; --warn:#f3b664; --ok:#5fd38a; --shadow:none;
+  }
+  :root:not([data-theme="light"]) .st-1{color:#93b4ff} :root:not([data-theme="light"]) .st-2{color:#f3b664}
+  :root:not([data-theme="light"]) .st-3{color:#5fd38a} :root:not([data-theme="light"]) .st-4{color:#cbd5e1}
+  :root:not([data-theme="light"]) .st-5{color:#f87171}
+}
+:root[data-theme="dark"]{
+  --bg:#0f1115; --panel:#171a20; --text:#e8eaed; --muted:#9aa1ad; --line:#2a2f38;
+  --accent:#ef5350; --accent-ink:#fff; --user:#e8eaed; --user-ink:#111; --bot:#20242c;
+  --warn-bg:#3a2a10; --warn:#f3b664; --ok:#5fd38a; --shadow:none;
+}
+:root[data-theme="dark"] .st-1{color:#93b4ff} :root[data-theme="dark"] .st-2{color:#f3b664}
+:root[data-theme="dark"] .st-3{color:#5fd38a} :root[data-theme="dark"] .st-4{color:#cbd5e1}
+:root[data-theme="dark"] .st-5{color:#f87171}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;display:flex;flex-direction:column}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:7px 12px}
+button:hover{border-color:var(--muted)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:disabled{opacity:.5;cursor:default}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{font-size:16px;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header h1 span:not(#brand){color:var(--muted);font-weight:400}
+.tabs{display:none;gap:4px;padding:8px 16px 0}
+.tabs button{flex:1}
+.tabs button.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(340px,5fr) 7fr;gap:16px;padding:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);min-height:0;display:flex;flex-direction:column}
+#chat .log{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:9px 12px;border-radius:12px;white-space:normal;overflow-wrap:anywhere}
+.msg.user{align-self:flex-end;background:var(--user);color:var(--user-ink);border-bottom-right-radius:4px}
+.msg.assistant{align-self:flex-start;background:var(--bot);border-bottom-left-radius:4px}
+.msg.error{align-self:center;background:var(--warn-bg);color:var(--warn);font-size:13px}
+.msg p{margin:0 0 6px}.msg p:last-child{margin:0}.msg ul{margin:4px 0 6px;padding-left:20px}
+.typing{align-self:flex-start;color:var(--muted);font-size:13px}
+.typing::after{content:"";animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.hints{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 10px}
+.hints button{font-size:12px;padding:4px 10px;border-radius:999px;color:var(--muted)}
+form.composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+form.composer .mic{display:flex;align-items:center;justify-content:center;width:44px;padding:0;flex:none}
+form.composer .mic svg{width:20px;height:20px}
+form.composer .mic.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(211,47,47,.45)}50%{box-shadow:0 0 0 6px rgba(211,47,47,0)}}
+form.composer textarea{flex:1;min-width:0;resize:none;font:inherit;padding:9px 11px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);max-height:160px}
+#order{overflow:auto}
+#order .body{padding:16px 20px}
+.empty{color:var(--muted);text-align:center;margin:auto;padding:40px 20px}
+.ohead{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin-bottom:12px}
+.ohead h2{margin:0;font-size:18px}
+.badge{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--bot);color:var(--muted)}
+.ohead .actions{margin-left:auto;display:flex;gap:6px}
+.missing{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:13px}
+.done{color:var(--ok);font-size:13px;margin-bottom:14px}
+.info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.info dl{margin:0;display:grid;align-content:start;grid-template-columns:auto 1fr;gap:3px 10px}
+.info dt{color:var(--muted)}.info dd{margin:0;overflow-wrap:anywhere}
+h3{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:18px 0 6px}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:500}
+.r{text-align:right;white-space:nowrap}
+ul.plain{margin:0;padding-left:18px}
+.totals{margin:14px 0 0 auto;width:max-content;min-width:260px}
+.totals div{display:flex;justify-content:space-between;gap:24px;padding:3px 0}
+.totals .grand{font-size:16px;font-weight:700;border-top:1px solid var(--line);margin-top:4px;padding-top:8px}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);padding:0;width:min(760px,calc(100vw - 32px));max-height:80vh}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+dialog .dh{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+dialog .dh h2{margin:0;font-size:16px;flex:1}
+dialog .db{padding:8px 16px 16px;overflow:auto;max-height:calc(80vh - 60px)}
+dialog td button{padding:3px 8px;font-size:12px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;padding:10px 0}
+.filters input,.filters select{font:inherit;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.filters input{flex:1;min-width:160px}
+.cat-row td{background:var(--bot);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
+[hidden]{display:none !important}
+.sub{color:var(--muted);font-size:12px}
+.show-m{display:none}
+.seg{display:flex;gap:4px;padding:10px 0 2px}
+.seg button{flex:1}
+.seg button.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 0;align-items:center}
+.toolbar input,.toolbar select{font:inherit;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.toolbar input{flex:1;min-width:150px}
+.acts{white-space:nowrap}
+.form{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px 12px;align-items:start;padding:12px 0}
+.form label{color:var(--muted);padding-top:8px}
+.form input[type=date],.form input[type=time],.form input[type=text],.form input[type=tel],.form input[type=email],.form input:not([type]),.form select{width:100%;font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.form input:disabled{opacity:.6}
+.checks{display:flex;flex-wrap:wrap;gap:6px 14px;padding-top:7px}
+.checks label{color:var(--text);padding:0;display:flex;gap:5px;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--bot);border-radius:999px;padding:3px 4px 3px 10px;font-size:13px}
+.chip button{border:0;background:none;padding:0 6px;color:var(--muted)}
+.row{display:flex;gap:6px}.row select{flex:1;min-width:0}
+.form-actions{display:flex;flex-wrap:wrap;gap:8px;padding-top:6px}
+.form-actions .danger{margin-left:auto;color:var(--accent);border-color:var(--accent)}
+.form-err{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:8px 12px;margin-top:10px}
+.form-ok{color:var(--ok);padding:6px 0}
+.hint{color:var(--muted);font-size:12px;margin-top:4px}
+.visits{display:flex;flex-direction:column;gap:8px}
+.visit{border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.visit-head{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.visit-head b{font-weight:600}
+.visit-head .sum{margin-left:auto;white-space:nowrap}
+.visit-head button{padding:2px 8px;font-size:12px}
+.visit ul{margin:4px 0 0;padding-left:18px}
+.rec{color:var(--warn)}
+select.status{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:3px 10px;border:1px solid transparent;cursor:pointer}
+.status,.st{background:var(--bot);color:var(--muted)}
+.st-1{background:rgba(37,99,235,.13);color:#1d4ed8}
+.st-2{background:rgba(217,119,6,.15);color:#a35a00}
+.st-3{background:rgba(22,163,74,.14);color:#15803d}
+.st-4{background:rgba(71,85,105,.16);color:#334155}
+.st-5{background:rgba(220,38,38,.12);color:#b91c1c}
+.status-log{font-size:12px;color:var(--muted);margin:-6px 0 12px}
+.line-add{display:flex;gap:8px;margin-top:8px}
+.sec-head{display:flex;align-items:center;gap:8px}
+.sec-head h3{flex:1}
+.sec-head button,.plain-edit button{padding:2px 8px;font-size:12px}
+.plain-edit{list-style:none;padding:0;margin:0}
+.plain-edit li{display:flex;gap:8px;align-items:flex-start;padding:3px 0}
+.plain-edit li span{flex:1}
+.plain-edit li span::before{content:"• ";color:var(--muted)}
+.inline-add{display:flex;gap:6px;margin-top:6px}
+.inline-add input{flex:1;min-width:0;font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.inline-add button{padding:4px 12px}
+.empty .primary{margin-top:14px}
+.form textarea{width:100%;font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);min-height:110px;resize:vertical}
+.internal{margin-top:20px;border:1px dashed var(--line);border-radius:12px;padding:4px 14px 14px;background:var(--bg)}
+.internal h3{margin-top:12px}
+.comments{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.comment{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.comment .meta{font-size:12px;color:var(--muted);margin-bottom:2px}
+.comment .meta b{color:var(--text);font-weight:600}
+.comment-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+.comment-form input,.comment-form textarea{font:inherit;font-size:14px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text);min-width:0}
+.comment-form textarea{grid-column:1 / -1;min-height:64px;resize:vertical}
+.cc{font-size:11px;color:var(--muted);white-space:nowrap}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px;margin-bottom:10px}
+.photo{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);display:flex;flex-direction:column;min-width:0}
+.photo a{display:block;aspect-ratio:4/3;background:var(--bg)}
+.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.photo .pc{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding:6px;font-size:12px}
+.photo select{font:inherit;font-size:12px;padding:3px 4px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--text);min-width:0;flex:1 1 100%}
+.photo label{display:flex;align-items:center;gap:3px;white-space:nowrap}
+.photo button{padding:1px 7px;font-size:12px;margin-left:auto}
+.photo-add{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.photo-add select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text)}
+.approval{border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:13px;background:var(--bg);border:1px solid var(--line)}
+.approval.ok{color:var(--ok)}
+.approval.no,.approval .warn{color:var(--warn)}
+.approval .warn{display:block;margin-top:4px}
+.tools-sec{border-top:1px solid var(--line);margin-top:18px;padding-top:4px}
+.tools-sec .send-row{margin:8px 0}
+.import-list{max-height:220px;overflow:auto;font-size:13px;margin:6px 0}
+.import-list div{padding:2px 0}
+.assignee{display:flex;align-items:center;gap:6px;margin:-4px 0 12px;font-size:13px;color:var(--muted)}
+.assignee input{font:inherit;font-size:13px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);min-width:0;width:240px;max-width:100%}
+.comment audio{display:block;width:100%;max-width:340px;height:36px;margin-top:4px}
+.bk-agent{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:end;padding-top:12px}
+.bk-agent .mic{width:42px;height:42px;padding:0;display:grid;place-items:center}
+.bk-agent .mic svg{width:20px;height:20px}
+.bk-agent .mic.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);animation:pulse 1.4s ease-in-out infinite}
+.bk-agent textarea{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);resize:vertical;min-width:0}
+.bk-log{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.bk-log div{font-size:13px;padding:6px 10px;border-radius:8px;background:var(--bot)}
+.bk-log div.me{background:transparent;color:var(--muted);padding:0 2px}
+.bk-log div.err{background:var(--warn-bg);color:var(--warn)}
+.bk-nav{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}
+.bk-nav input[type=date]{font:inherit;padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.bk-nav .bk-new{margin-left:auto}
+.bk-day{margin-bottom:12px}
+.bk-day h4{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.bk-day.today h4{color:var(--accent)}
+.bk-item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:6px}
+.bk-item .t{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bk-item .t small{display:block;font-weight:400;color:var(--muted)}
+.bk-item .acts{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:6px}
+.bk-item .acts button{padding:3px 9px;font-size:13px}
+.bk-item.off{opacity:.55}
+.bk-item.off .who{text-decoration:line-through}
+.bk-warn{color:var(--warn);font-size:12px}
+.pay{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:4px 14px 12px}
+.pay h3{margin-top:10px}
+.pay-st{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--warn-bg);color:var(--warn)}
+.pay-st.ok{background:transparent;color:var(--ok);border:1px solid var(--ok)}
+.pay-st.part{background:var(--bot);color:var(--text)}
+.pay-list{display:flex;flex-direction:column;gap:4px;margin:6px 0;font-size:13px}
+.pay-list div{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center}
+.pay-list span:first-child{color:var(--muted);white-space:nowrap}
+.pay-list b.neg{color:var(--warn)}
+.pay-list button{padding:1px 7px;font-size:12px}
+.pay-sum{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;margin:8px 0;font-size:14px}
+.pay-sum .due{color:var(--accent)}
+.pay-form{display:flex;flex-wrap:wrap;gap:6px}
+.pay-form #payAmount{flex:1 1 90px;max-width:140px}
+.pay-form #payMethod{flex:0 1 auto}
+.pay-form #payNote{flex:2 1 160px}
+.pay-form button{flex:1 0 auto}
+.pay-form input,.pay-form select{font:inherit;font-size:14px;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);min-width:0}
+.cash-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}
+.cash-tiles div{background:var(--bg);border-radius:10px;padding:8px 12px}
+.cash-tiles b{display:block;font-size:18px}
+.stock-low,.sub.stock-low{color:var(--accent)}
+.intake{margin:4px 0 6px;border:1px solid var(--line);border-radius:12px;padding:2px 14px 12px}
+.intake h3{margin-top:10px}
+.intake-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.intake-sig{display:flex;align-items:center;gap:10px;margin-top:6px}
+.intake-sig img{height:44px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:2px}
+.intake-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 12px}
+.intake-items input:not([type]){grid-column:1 / -1;margin-top:4px}
+.sign-pad canvas{width:100%;height:200px;background:#fff;border:1px dashed var(--muted);border-radius:10px;touch-action:none;display:block;margin:8px 0 4px}
+.sign-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.sign-row input{flex:1;min-width:160px;font:inherit;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.totals .uah{color:var(--muted)}
+.totals .uah-rate{font-size:11px;color:var(--muted);text-align:right}
+.uah-opts{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px}
+.uah-opts label{display:flex;align-items:center;gap:6px;padding:0;color:var(--muted);font-size:13px}
+.uah-opts input{width:90px !important}
+.dec{font-size:11px;white-space:nowrap;color:var(--warn)}
+.dec.ok{color:var(--ok)}
+.defer-btn{display:block;margin-top:6px;font-size:13px}
+.link-row{display:flex;gap:6px;margin-top:6px}
+.link-row input{flex:1;min-width:0;font:inherit;font-size:13px;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+.totals .margin{color:var(--muted);font-size:13px}
+.totals .margin small{color:var(--warn)}
+#poLines input{width:100%;min-width:60px;font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+#poLines td:first-child{min-width:150px}
+.po-total{margin:10px 0;text-align:right}
+body.role-master .need-admin, body.role-master .need-owner, body.role-admin .need-owner{display:none !important}
+.staff-add{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.5fr) auto auto;gap:6px;margin:8px 0 12px}
+.staff-add input,.staff-add select,.staff-row select{font:inherit;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);min-width:0}
+.staff-row.off{opacity:.55}
+.staff-acts{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+.staff-acts button{font-size:13px;padding:4px 9px}
+.who{color:var(--muted);font-weight:400}
+.tg{font-size:12px;white-space:nowrap;color:var(--ok)}
+.tg.off{color:var(--muted)}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--bg)}
+.client-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.client-head h3{margin:0;font-size:18px;text-transform:none;letter-spacing:0;color:var(--text)}
+.client-stats{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+.client-stats div{background:var(--bg);border-radius:8px;padding:6px 12px;font-size:13px}
+.client-stats b{display:block;font-size:16px}
+.cars{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.car{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.car .sub{flex:1;min-width:160px}
+.bc-form textarea{width:100%;font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);min-height:120px;resize:vertical}
+.bc-list{max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:6px 0 10px;font-size:13px}
+.bc-list label{display:flex;gap:6px;align-items:center;padding:3px 0}
+.send-sec{border-top:1px solid var(--line);padding:12px 0 4px}
+.send-sec:first-child{border-top:0;padding-top:4px}
+.send-sec h3{margin:0 0 6px}
+.send-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.qr{background:#fff;border-radius:12px;padding:10px;width:200px;height:200px;display:flex;align-items:center;justify-content:center}
+.qr svg{width:100%;height:100%}
+.qr-wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.qr-wrap .link{flex:1;min-width:180px;word-break:break-all;font-size:12px;color:var(--muted)}
+.ok-line{color:var(--ok);font-weight:600}
+.form-warn{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:8px 12px;margin-top:10px}
+button.danger-lite{color:var(--accent)}
+.line-add button{font-size:13px;padding:5px 12px}
+#orderBody td.acts button{padding:2px 7px;font-size:12px}
+.ai-cost{font-size:12px;color:var(--muted);margin:-6px 0 12px}
+.usage{border-top:1px solid var(--line);margin-top:8px;padding-top:4px}
+.usage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0 14px}
+.usage-tile{background:var(--bot);border-radius:10px;padding:10px 12px}
+.usage-tile b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.usage-tile span{color:var(--muted);font-size:12px}
+.bars{display:flex;align-items:flex-end;gap:4px;height:90px;padding-top:6px}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.bars i{display:block;width:100%;background:var(--accent);border-radius:3px 3px 0 0;min-height:1px;opacity:.85}
+.bars small{font-size:10px;color:var(--muted);margin-top:3px;white-space:nowrap}
+.filter-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.filter-chips button{font-size:12px;padding:4px 10px;border-radius:999px}
+.filter-chips button.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.send-icon{display:none;width:20px;height:20px}
+.msg.user img{display:block;max-width:200px;max-height:200px;border-radius:8px;margin-bottom:4px}
+@media (max-width:900px){
+  .tabs{display:flex}
+  main{grid-template-columns:minmax(0,1fr);padding:8px 16px 16px}
+  main > .card{display:none}
+  main > .card.show{display:flex}
+  .info{grid-template-columns:1fr}
+  #catalogList .hide-m,#orderBody .hide-m,#clientsBody .hide-m,#cashBody .hide-m{display:none}
+  .bk-agent textarea{grid-column:1 / -1;min-height:64px}
+  .pay-form #payAmount{max-width:none}
+  .staff-add{grid-template-columns:1fr 1fr}
+  .pay-form #payNote,.pay-form button{flex-basis:100%}
+  .pay-list div{grid-template-columns:minmax(0,1fr) auto auto}
+  .pay-list span:first-child{grid-column:1 / -1}
+  .bk-agent .mic{justify-self:end}
+  #catalogList .show-m,#clientsBody .show-m,#cashBody .show-m{display:inline}
+  #orderBody .show-m{display:block}
+  #orderBody td.acts{white-space:nowrap}
+  #catalogList th,#catalogList td{padding:6px 4px}
+  #catalogList td.acts{white-space:normal;width:44px}
+  #catalogList td.acts button{display:block;margin:0 0 4px auto}
+  .form{grid-template-columns:1fr;gap:4px}
+  #send{width:48px;padding:0;display:flex;align-items:center;justify-content:center;flex:none}
+  #send .send-label{display:none}
+  #send .send-icon{display:block}
+  .form label{padding-top:8px}
+  header .label{display:none}
+}
+
+
+/* ---- головна ---- */
+#home{display:none;overflow:auto}
+body.home-mode main{grid-template-columns:minmax(0,1fr)}
+body.home-mode main > .card{display:none !important}
+body.home-mode main > #home{display:flex !important}
+#btnHome.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.home-body{padding:16px 20px 24px;display:flex;flex-direction:column;gap:16px}
+.home-body h3{margin:0 0 8px}
+.home-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px}
+.home-head h2{margin:0;font-size:20px}
+.mine-toggle{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);cursor:pointer}
+.continue{text-align:left;border-color:var(--accent);color:var(--accent);font-weight:600;padding:10px 14px}
+.quick{display:flex;flex-wrap:wrap;gap:8px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.kpi{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;border-radius:12px;background:var(--bg);text-align:left}
+.kpi b{font-size:22px;line-height:1.1}
+.kpi span{font-size:12px;color:var(--muted)}
+.kpi.good b{color:var(--ok)} .kpi.bad b{color:var(--accent)}
+.attn{border:1px solid var(--warn);background:var(--warn-bg);border-radius:12px;padding:10px 12px}
+.attn h3{color:var(--warn)}
+.attn-row{display:flex;gap:8px;width:100%;text-align:left;border:0;background:transparent;padding:6px 2px;color:var(--text)}
+.attn-row:hover{text-decoration:underline}
+.attn-more{display:none;margin-top:4px;border-color:var(--warn);color:var(--warn);background:transparent}
+@media (max-width:900px){
+  .attn.folded .attn-row:nth-of-type(n+4){display:none}
+  .attn.folded .attn-more{display:inline-block}
+}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+.stage-tabs{display:none;gap:6px;margin-bottom:8px}
+.stage-tabs button{flex:1;padding:8px 6px}
+.stage-tabs button.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+#home-board{scroll-margin-top:8px}
+.col{background:var(--bg);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:8px;min-height:80px;scroll-margin-top:12px}
+.col-head{font-weight:600;font-size:14px;padding:4px 4px 0}
+.col-empty{padding:8px 4px}
+.htile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:3px;box-shadow:var(--shadow)}
+.htile:hover{border-color:var(--muted)}
+.htile.late{border-left:4px solid var(--accent)}
+.ht-top{display:flex;justify-content:space-between;align-items:center}
+.ht-age{font-size:12px;color:var(--muted);background:var(--bot);border-radius:999px;padding:1px 8px}
+.ht-age.bad{color:#fff;background:var(--accent)}
+.ht-car{font-weight:600}
+.ht-works{font-size:13px}
+.ht-meta,.ht-foot{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:12px;color:var(--muted)}
+.ht-meta .ht-sum{font-size:14px;color:var(--text);font-weight:600}
+.ht-meta .ok,.ht-foot .ok{color:var(--ok)} .ht-meta .warn{color:var(--accent)}
+.ht-foot .mine{color:var(--text);font-weight:600}
+.ht-next{margin-left:auto;font-size:13px;padding:5px 10px}
+.hbook{display:flex;flex-direction:column;gap:6px}
+.hb{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.hb .t{font-weight:700;font-variant-numeric:tabular-nums}
+.hb.off{opacity:.55}
+.drafts{display:flex;flex-wrap:wrap;gap:6px}
+.drafts button{display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+@media (max-width:900px){
+  .home-body{padding:12px 4px 20px}
+  .stage-tabs{display:flex}
+  .board{display:block}
+  .col{display:none;background:transparent;padding:0}
+  .col.sel{display:flex}
+  .col-head{display:none}
+  .quick button{flex:1 1 45%}
+  .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .kpi b{font-size:18px}
+  #home{border:0;box-shadow:none;background:transparent}
+}
+/* ---- телефон і сенсорні екрани ---- */
+#btnMenu{display:none}
+.menu{position:fixed;top:56px;right:12px;z-index:50;display:flex;flex-direction:column;min-width:240px;padding:6px;
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18)}
+.menu[hidden]{display:none}
+.menu button{border:0;text-align:left;padding:12px 14px;font-size:16px;background:transparent}
+.menu button:hover{background:var(--bg)}
+.menu .menu-logout{border-top:1px solid var(--line);border-radius:0;margin-top:4px;color:var(--muted)}
+.obar{position:sticky;top:0;z-index:5;margin:-16px -20px 12px;padding:8px 20px;background:var(--panel);border-bottom:1px solid var(--line);
+  display:none;flex-direction:column;gap:6px}
+.obar.show{display:flex}
+.obar .line{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:14px}
+.obar .due{color:var(--accent);font-weight:600}
+.obar nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.obar nav::-webkit-scrollbar{display:none}
+.obar nav button{white-space:nowrap;font-size:13px;padding:5px 11px;border-radius:999px}
+#orderBody [id^="sec-"]{scroll-margin-top:96px}
+details.fold{margin:6px 0 4px}
+details.fold>summary{cursor:pointer;list-style:none;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600;padding:8px 0}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:"▸ ";display:inline-block;width:1em}
+details.fold[open]>summary::before{content:"▾ "}
+.ocards{display:flex;flex-direction:column;gap:8px}
+.ocard{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;cursor:pointer;background:var(--panel)}
+.ocard:active{background:var(--bg)}
+.ocard .top{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.ocard .sum{text-align:right;font-weight:600;white-space:nowrap}
+.ocard .acts{grid-column:1 / -1;display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+@media (max-width:900px){
+  header > button:not(#btnNew):not(#btnMenu){display:none}
+  #btnMenu{display:inline-flex}
+  header .label{display:inline}
+  header h1 span:not(#brand){display:none}
+  .seg{flex-wrap:wrap}
+  .seg button{flex:1 1 40%}
+  .assignee label{white-space:nowrap}
+  .desc-m{display:none}
+  form.composer{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px}
+}
+@media (max-width:380px){
+  /* вузькі Android: поле введення на всю ширину, кнопки під ним праворуч */
+  form.composer textarea{grid-column:1 / -1;grid-row:1}
+  #photoBtn{grid-column:2;grid-row:2} #mic{grid-column:3;grid-row:2} #send{grid-column:4;grid-row:2}
+  form.composer .mic, #send{height:44px}
+}
+/* iPhone збільшує сторінку, якщо в полі шрифт менший за 16 px */
+@media (max-width:900px), (pointer:coarse){
+  input, select, textarea{font-size:16px !important}
+}
+/* Пальцем — щонайменше ~40 px */
+@media (max-width:900px), (pointer:coarse){
+  #orderBody button, #orderBody select, dialog button, .filter-chips button, .sec-head button{min-height:40px}
+  #orderBody button, #orderBody td.acts button, .plain-edit button, [data-photo-del], [data-pay-del], .catalog-acts button,
+  #catalogList td button, #stockTable td button{min-width:40px}
+  #orderBody .status{min-height:40px}
+  input[type=checkbox]{width:22px;height:22px}
+  .photo label{min-height:36px}
+  .comment a{display:inline-block;padding:8px 0}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1><span id="brand">STO-Assist</span> <span>· Замовлення-наряди</span></h1>
+  <button id="btnHome" title="Головна: замовлення в роботі, записи на сьогодні">🏠 <span class="label">Головна</span></button>
+  <button id="btnCatalog" title="Довідник робіт">📚 <span class="label">Довідник</span></button>
+  <button id="btnOrders" title="Збережені замовлення-наряди">📁 <span class="label">Збережені</span></button>
+  <button id="btnClients" title="База клієнтів">👥 <span class="label">Клієнти</span></button>
+  <button id="btnBookings" title="Запис клієнтів на сервіс">📅 <span class="label">Запис</span></button>
+  <button id="btnCash" class="need-admin" title="Каса й боржники">💰 <span class="label">Каса</span></button>
+  <button id="btnNew" title="Почати нове замовлення-наряд">＋ <span class="label">Нове</span></button>
+  <button id="btnLogout" title="Вийти" hidden>⎋ <span class="label">Вийти</span></button>
+  <button id="btnMenu" aria-haspopup="true" aria-expanded="false">☰ Меню</button>
+</header>
+<nav id="menuPanel" class="menu" hidden aria-label="Меню">
+  <button data-proxy="#btnHome">🏠 Головна</button>
+  <button data-proxy="#btnOrders">📁 Збережені замовлення</button>
+  <button data-proxy="#btnBookings">📅 Запис на сервіс</button>
+  <button data-proxy="#btnClients">👥 Клієнти</button>
+  <button data-proxy="#btnCash" class="need-admin">💰 Каса й боржники</button>
+  <button data-proxy="#btnCatalog">📚 Довідник і склад</button>
+  <button data-proxy="#btnLogout" class="menu-logout" id="menuLogout" hidden>⎋ Вийти</button>
+</nav>
+<div class="tabs"><button data-tab="home">🏠 Головна</button><button data-tab="chat" class="on">Чат</button><button data-tab="order">Замовлення</button></div>
+<main>
+  <section id="home" class="card"><div class="home-body" id="homeBody">Завантаження…</div></section>
+  <section id="chat" class="card show">
+    <div class="log" id="log"></div>
+    <div class="hints" id="hints">
+      <button data-manual>📝 Заповнити вручну, без помічника</button>
+    </div>
+    <form class="composer" id="composer">
+      <textarea id="input" rows="2" placeholder="Клієнт, автомобіль, скарги… (Enter — надіслати, Shift+Enter — новий рядок)"></textarea>
+      <button type="button" class="mic" id="photoBtn" title="Фото VIN або одометра" aria-label="Фото VIN або одометра">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </button>
+      <input type="file" id="photoInput" accept="image/*" hidden>
+      <button type="button" class="mic" id="mic" title="Голосове введення" aria-label="Голосове введення" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>
+      </button>
+      <button class="primary" id="send" aria-label="Надіслати"><span class="send-label">Надіслати</span><svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button>
+    </form>
+  </section>
+  <section id="order" class="card"><div class="body" id="orderBody"></div></section>
+</main>
+
+<dialog id="catalogDlg">
+  <div class="dh"><h2>Довідник</h2><button id="closeCatalog">✕</button></div>
+  <div class="db">
+    <div class="seg" id="catTabs">
+      <button data-view="ops" class="on">Роботи</button><button data-view="parts">Запчастини</button><button data-view="stock">Склад</button><button data-view="purchases" class="need-admin">Закупівлі</button><button data-view="staff" class="need-owner">Співробітники</button><button data-view="settings" class="need-owner">Налаштування</button>
+    </div>
+    <div id="catalogList">Завантаження…</div>
+  </div>
+</dialog>
+<datalist id="catCategories"></datalist>
+
+<dialog id="lineDlg">
+  <div class="dh"><h2 id="lineTitle"></h2><button id="closeLine">✕</button></div>
+  <div class="db" id="lineBody"></div>
+</dialog>
+
+<dialog id="ordersDlg">
+  <div class="dh"><h2>Збережені замовлення-наряди</h2><button id="closeDlg">✕</button></div>
+  <div class="db">
+    <div class="toolbar"><input id="ordersQuery" type="search" placeholder="Пошук: VIN, телефон, ПІБ, держномер або номер"></div>
+    <div class="filter-chips" id="statusFilter"></div>
+    <div id="ordersList"></div>
+  </div>
+</dialog>
+
+<dialog id="bookingsDlg">
+  <div class="dh"><h2>Запис на сервіс</h2><button id="closeBookings">✕</button></div>
+  <div class="db">
+    <form class="bk-agent" id="bkAgentForm">
+      <textarea id="bkText" rows="2" placeholder="Напишіть або надиктуйте 🎤: «Петренко, Model Y, у пʼятницю о 10, ТО і стукіт спереду» або «перенеси Коваль на завтра 12:00»"></textarea>
+      <button type="button" class="mic" id="bkMic" title="Голосове введення" aria-label="Голосове введення" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>
+      </button>
+      <button class="primary" id="bkSend">Записати</button>
+    </form>
+    <div id="bkLog" class="bk-log"></div>
+    <div class="bk-nav"><button data-bk-nav="-7" title="Попередній тиждень">◀</button><button data-bk-nav="0">Сьогодні</button><button data-bk-nav="7" title="Наступний тиждень">▶</button>
+      <span id="bkRange" class="sub"></span><button data-bk-new class="bk-new">＋ Вручну</button></div>
+    <div id="bkDays">Завантаження…</div>
+  </div>
+</dialog>
+
+<dialog id="cashDlg">
+  <div class="dh"><h2>Каса</h2><button id="closeCash">✕</button></div>
+  <div class="db">
+    <div class="seg" id="cashTabs"><button data-cash-view="cash" class="on">Каса за день</button><button data-cash-view="debts">Боржники</button></div>
+    <div id="cashBody">Завантаження…</div>
+  </div>
+</dialog>
+
+<dialog id="clientsDlg">
+  <div class="dh"><h2 id="clientsTitle">Клієнти</h2><button id="closeClients">✕</button></div>
+  <div class="db" id="clientsBody">Завантаження…</div>
+</dialog>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const num = v => Number(v).toLocaleString("uk-UA", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const carName = v => [v && v.make, v && v.model].filter(Boolean).join(" ");  // «Toyota Camry»
+const dash = v => (v === null || v === undefined || v === "") ? "—" : esc(v);
+let busy = false;
+let STATUSES = ["чернетка", "прийнято", "в роботі", "готово", "видано", "скасовано"];
+const usd = c => c > 0 && c < 0.01 ? "< $0,01" : "$" + Number(c || 0).toLocaleString("uk-UA",
+  {minimumFractionDigits: 2, maximumFractionDigits: c < 1 ? 3 : 2});
+const stClass = s => "st-" + Math.max(0, STATUSES.indexOf(s));
+
+function md(text){
+  // Мінімальна розмітка: абзаци, списки, **жирний**, `код`.
+  const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  let html = "", list = null;
+  for (const raw of text.split("\n")){
+    const line = raw.trim();
+    const m = line.match(/^(?:[-*•]|\d+[.)])\s+(.*)/);
+    if (m){ if (!list){ list = []; } list.push(`<li>${inline(m[1])}</li>`); continue; }
+    if (list){ html += `<ul>${list.join("")}</ul>`; list = null; }
+    if (line) html += `<p>${inline(line)}</p>`;
+  }
+  if (list) html += `<ul>${list.join("")}</ul>`;
+  return html;
+}
+
+function addMsg(role, text){
+  const div = document.createElement("div");
+  div.className = "msg " + role;
+  div.innerHTML = role === "assistant" ? md(text) : esc(text).replace(/\n/g, "<br>");
+  $("#log").appendChild(div);
+  $("#log").scrollTop = $("#log").scrollHeight;
+  return div;
+}
+
+function greet(){
+  addMsg("assistant", "Вітаю! Опишіть клієнта, автомобіль (VIN, пробіг) і скарги — я підберу роботи та запчастини й оформлю замовлення-наряд.");
+}
+
+// Номер останнього замовлення-наряду в браузері: після перезапуску сервера відкриваємо його знову.
+function remember(number){
+  try{ number ? localStorage.setItem("lastOrder", number) : localStorage.removeItem("lastOrder"); }catch(e){}
+}
+function remembered(){
+  try{ return localStorage.getItem("lastOrder"); }catch(e){ return null; }
+}
+
+let ASSIGNEES = [], INTAKE_ITEMS = [], CUR = "грн";
+let currentOrder = null, TELEGRAM = false, BACKUP_CHAT = false, PHOTO_KINDS = ["до", "після", "пошкодження", "інше"];
+
+// ---------- Внутрішні коментарі (не друкуються) ----------
+let USER = {id: "owner", name: "Власник", role: "owner"};
+const isEmployee = () => USER && USER.id !== "owner";
+// Співробітник підписується своїм ім'ям зі входу; власник за загальним паролем — як указав сам.
+function authorName(){ if (isEmployee()) return USER.name; try{ return localStorage.getItem("author") || ""; }catch(e){ return ""; } }
+function setAuthorName(v){ try{ localStorage.setItem("author", v); }catch(e){} }
+
+function renderComments(list){
+  const box = $("#internalBox");
+  if (!box || !currentOrder) return;
+  currentOrder.comments = list;
+  renderOrderBar(currentOrder);
+  const typing = document.activeElement && document.activeElement.id === "cText" ? $("#cText").value : "";
+  box.dataset.count = list.length;
+  box.innerHTML = `<h3>💬 Внутрішні коментарі${list.length ? " · " + list.length : ""}</h3>
+    <div class="sub desc-m" style="margin:-4px 0 10px">Лише для співробітників — у друковану форму не потрапляють.${TELEGRAM ? " Також з'являються в Telegram-групі, а відповіді там — тут." : ""}</div>
+    <div class="comments">${list.map(c => `<div class="comment">
+        <div class="meta"><b>${esc(c.author)}</b> · ${esc(c.at)} · ${c.source === "telegram" ? "📱 Telegram" : "🖥 сайт"}</div>
+        <div>${esc(c.text).replace(/\n/g, "<br>")}</div>${c.voice ? `<audio controls preload="none" src="/voice/${encodeURIComponent(currentOrder.number)}/${esc(c.voice.file)}"></audio>
+        <a class="sub" href="/voice/${encodeURIComponent(currentOrder.number)}/${esc(c.voice.file)}" download>⬇ завантажити запис</a>` : ""}</div>`).join("") || `<div class="sub">Коментарів ще немає.</div>`}</div>
+    <form class="comment-form" id="commentForm">
+      <textarea id="cText" placeholder="Що зроблено, що помітили, що лишилось…" aria-label="Коментар">${esc(typing)}</textarea>
+      <input id="cAuthor" placeholder="Ваше ім'я" value="${esc(authorName())}" aria-label="Ваше ім'я" ${isEmployee() ? "hidden" : ""}>
+      <button class="primary">Додати</button>
+    </form>`;
+  if (typing){ $("#cText").focus(); }
+  $("#commentForm").onsubmit = async e => {
+    e.preventDefault();
+    const text = $("#cText").value.trim(), author = $("#cAuthor").value.trim();
+    if (!text) return;
+    if (!author){ $("#cAuthor").focus(); $("#cAuthor").placeholder = "Вкажіть ім'я"; return; }
+    setAuthorName(author);
+    try{
+      const list2 = await api(`/api/orders/${encodeURIComponent(currentOrder.number)}/comments`,
+                              {method: "POST", body: JSON.stringify({text, author})});
+      $("#cText").value = "";
+      document.activeElement.blur();
+      renderComments(list2);
+    }catch(err){ alert(err.message); }
+  };
+}
+
+// Коментарі й фото з Telegram і відповідь клієнта на кошторис з'являються самі:
+// раз на 20 секунд перевіряємо відкрите замовлення.
+setInterval(async () => {
+  if (!currentOrder || document.hidden || !$("#internalBox")) return;
+  try{
+    const x = await api(`/api/orders/${encodeURIComponent(currentOrder.number)}/extras`);
+    if (String(x.comments.length) !== $("#internalBox").dataset.count) renderComments(x.comments);
+    if (JSON.stringify(x.photos) !== JSON.stringify(currentOrder.photos || [])) renderPhotos(x.photos);
+    if (JSON.stringify(x.approval) !== JSON.stringify(currentOrder.approval || null)) renderApproval(x.approval);
+    // Статус чи відповідального змінили кнопками в Telegram-групі — оновлюємо панель.
+    if (x.status && (x.status !== currentOrder.status || (x.assignee || "") !== (currentOrder.assignee || ""))
+        && document.activeElement?.id !== "assigneeInp"){
+      renderOrder((await api("/api/state")).order);
+    }
+  }catch(e){}
+}, 20000);
+
+// ---------- Закріплена смужка замовлення: сума, оплата, переходи до розділів ----------
+let obarObserver = null;
+function renderOrderBar(o){
+  const bar = $("#obar");
+  if (!bar) return;
+  const due = Number(o.balance);
+  const count = (n, label) => n ? `${label} ${n}` : label;
+  bar.innerHTML = `<div class="line"><b>№ ${esc(o.number.replace(/^ЗН-\d{4}-0*/, ""))}</b>
+      <span class="badge ${stClass(o.status)}">${esc(o.status)}</span>
+      <span>${num(o.totals.total)} ${esc(o.currency)}</span>${due > 0 && Number(o.paid) > 0 || (due > 0 && o.status === "видано") ? `<span class="due">до сплати ${num(due)}</span>` : o.payment_status === "оплачено" ? `<span class="pay-st ok">оплачено</span>` : ""}</div>
+    <nav><button data-jump="sec-client">Клієнт</button><button data-jump="sec-works">${count(o.labor.length + o.parts.length, "Роботи")}</button>
+      <button data-jump="sec-pay">Оплата</button><button data-jump="sec-photos">${count((o.photos || []).length, "Фото")}</button>
+      <button data-jump="sec-comments">${count((o.comments || []).length, "Коментарі")}</button></nav>`;
+  // Смужку видно, щойно заголовок замовлення сховався при прокручуванні.
+  if (obarObserver) obarObserver.disconnect();
+  obarObserver = new IntersectionObserver(([e]) => bar.classList.toggle("show", !e.isIntersecting), {root: $("#order"), threshold: 0});
+  obarObserver.observe(document.querySelector("#orderBody .ohead"));
+}
+document.addEventListener("click", e => {
+  const id = e.target.dataset && e.target.dataset.jump;
+  if (!id) return;
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior: "smooth", block: "start"});
+});
+
+// ---------- Акт приймання автомобіля ----------
+function renderIntake(o){
+  const box = $("#intakeBox");
+  if (!box) return;
+  const a = o.intake || {}, filled = (a.items && a.items.length) || a.left_inside || a.damages;
+  const n = encodeURIComponent(o.number);
+  box.innerHTML = `<div class="sec-head"><h3>📋 Акт приймання</h3>
+      <span>${a.signature ? `<span class="pay-st ok">✓ підписано</span>` : filled ? `<span class="pay-st">не підписано</span>` : ""}</span></div>
+    ${filled ? `<div class="sub">${a.items && a.items.length ? "Речі: " + a.items.map(esc).join(", ") + ". " : ""}${a.left_inside ? "У салоні: " + esc(a.left_inside) + ". " : ""}${a.damages ? "Пошкодження: " + esc(a.damages) : ""}</div>` : `<div class="sub">Ключі, речі в салоні, пошкодження, фото й підпис клієнта під час приймання.</div>`}
+    ${a.signature ? `<div class="intake-sig"><img alt="Підпис клієнта" src="/signatures/${encodeURIComponent(a.signature)}"><span class="sub">${esc(a.signed_by)} · ${esc(a.signed_at)}</span></div>` : ""}
+    <div class="intake-acts"><button data-intake-edit>✎ ${filled ? "Змінити" : "Заповнити"}</button>
+      <button data-intake-sign class="${filled && !a.signature ? "primary" : ""}">✍ ${a.signature ? "Підписати заново" : "Підпис клієнта"}</button>
+      <button data-intake-print>🖨 Акт</button></div>`;
+}
+
+function intakeDialog(){
+  if (!currentOrder) return;
+  const a = currentOrder.intake || {}, items = a.items || [];
+  const extra = items.filter(x => !INTAKE_ITEMS.includes(x));
+  $("#lineTitle").textContent = "Акт приймання автомобіля";
+  $("#lineBody").innerHTML = `<form class="form" id="intakeForm" autocomplete="off">
+      <label>Комплектність і речі</label><div class="checks intake-items">${INTAKE_ITEMS.map(x => `<label><input type="checkbox" value="${esc(x)}" ${items.includes(x) ? "checked" : ""}> ${esc(x)}</label>`).join("")}
+        <input id="iExtra" placeholder="Інше (через кому)" value="${esc(extra.join(", "))}"></div>
+      <label for="iLeft">Залишено в салоні / багажнику</label><textarea id="iLeft" maxlength="1000" placeholder="напр., сумка в багажнику, дитячі речі">${esc(a.left_inside || "")}</textarea>
+      <label for="iDmg">Пошкодження та зауваження</label><div><textarea id="iDmg" maxlength="1000" placeholder="напр., подряпина на задньому бампері зліва, скол на лобовому склі">${esc(a.damages || "")}</textarea>
+        <div class="hint">Фото пошкоджень додайте в блоці «📷 Фото» з типом «до» або «пошкодження» — вони потраплять в акт. Пробіг і заряд — у блоці «Замовник і автомобіль».</div></div>
+      <span></span><div>${a.signature ? `<div class="form-warn">Акт уже підписано. Після змін підпис буде знято — клієнт має підписати заново.</div>` : ""}
+        <div class="form-err" id="lineErr" hidden></div>
+        <div class="form-actions"><button class="primary" type="submit">Зберегти</button><button type="button" id="lineCancel">Скасувати</button></div></div>
+    </form>`;
+  $("#lineDlg").showModal();
+  $("#lineCancel").onclick = () => $("#lineDlg").close();
+  $("#intakeForm").onsubmit = async e => {
+    e.preventDefault();
+    const chosen = [...document.querySelectorAll(".intake-items input[type=checkbox]:checked")].map(x => x.value);
+    const more = $("#iExtra").value.split(",").map(x => x.trim()).filter(Boolean);
+    try{
+      const r = await api("/api/order/intake", {method: "PUT", body: JSON.stringify({items: [...chosen, ...more], left_inside: $("#iLeft").value, damages: $("#iDmg").value})});
+      $("#lineDlg").close();
+      renderOrder(r.order);
+      if (r.unsigned) alert("Зміст акта змінено — підпис знято. Попросіть клієнта підписати ще раз.");
+    }catch(err){ $("#lineErr").hidden = false; $("#lineErr").textContent = err.message; }
+  };
+}
+
+function signDialog(){
+  if (!currentOrder) return;
+  const o = currentOrder;
+  $("#lineTitle").textContent = "Підпис клієнта";
+  $("#lineBody").innerHTML = `<div class="sign-pad">
+      <p class="sub">${esc(carName(o.vehicle) || "Автомобіль")}${o.vehicle.plate ? " · " + esc(o.vehicle.plate) : ""} · замовлення-наряд № ${esc(o.number)}</p>
+      <p>Із технічним станом автомобіля, переліком залишених речей і зауваженнями щодо пошкоджень ознайомлений(-а) і згоден(-на).</p>
+      <canvas id="sigCanvas" aria-label="Поле для підпису"></canvas>
+      <div class="sub">Підпишіться пальцем або мишею в полі вище.</div>
+      <div class="sign-row"><input id="sigName" placeholder="ПІБ клієнта" value="${esc(o.customer.name)}" aria-label="ПІБ клієнта">
+        <button type="button" id="sigClear">Очистити</button><button type="button" class="primary" id="sigSave">Зберегти підпис</button></div>
+      <div class="form-err" id="lineErr" hidden></div></div>`;
+  $("#lineDlg").showModal();
+  const canvas = $("#sigCanvas"), ratio = window.devicePixelRatio || 1;
+  canvas.width = canvas.clientWidth * ratio; canvas.height = canvas.clientHeight * ratio;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(ratio, ratio); ctx.lineWidth = 2.4; ctx.lineCap = ctx.lineJoin = "round"; ctx.strokeStyle = "#111";
+  let drawing = false, strokes = 0, last = null;
+  const pos = e => { const r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  canvas.onpointerdown = e => { drawing = true; last = pos(e); canvas.setPointerCapture(e.pointerId); strokes++;
+    ctx.beginPath(); ctx.arc(last[0], last[1], 1.1, 0, Math.PI * 2); ctx.fillStyle = "#111"; ctx.fill(); };
+  canvas.onpointermove = e => { if (!drawing) return; const p = pos(e);
+    ctx.beginPath(); ctx.moveTo(last[0], last[1]); ctx.lineTo(p[0], p[1]); ctx.stroke(); last = p; };
+  canvas.onpointerup = canvas.onpointercancel = () => { drawing = false; };
+  $("#sigClear").onclick = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); strokes = 0; };
+  $("#sigSave").onclick = async () => {
+    const err = msg => { $("#lineErr").hidden = false; $("#lineErr").textContent = msg; };
+    if (!strokes) return err("Поле підпису порожнє");
+    if (!$("#sigName").value.trim()) return err("Вкажіть ПІБ того, хто підписує");
+    $("#sigSave").disabled = true;
+    try{
+      const r = await api("/api/order/intake/sign", {method: "POST", body: JSON.stringify({image: canvas.toDataURL("image/png"), signed_by: $("#sigName").value})});
+      $("#lineDlg").close();
+      renderOrder(r.order);
+    }catch(e){ err(e.message); $("#sigSave").disabled = false; }
+  };
+}
+document.addEventListener("click", e => {
+  const d = e.target.dataset;
+  if (!d || !currentOrder) return;
+  if (d.intakeEdit !== undefined && okToEdit()) intakeDialog();
+  if (d.intakeSign !== undefined){
+    const a = currentOrder.intake || {};
+    if (!((a.items && a.items.length) || a.left_inside || a.damages) && !confirm("Акт ще не заповнено. Підписати порожній акт?")) return;
+    signDialog();
+  }
+  if (d.intakePrint !== undefined) window.open(`/print/${encodeURIComponent(currentOrder.number)}/act`, "_blank");
+});
+
+// ---------- Оплата ----------
+const PAY_METHODS = ["готівка", "картка", "переказ"];
+const PAY_CLASS = {"оплачено": "ok", "частково": "part", "не оплачено": "", "переплата": "part"};
+function renderPayments(o){
+  const box = $("#payBox");
+  if (!box) return;
+  const bal = Number(o.balance), cur = esc(o.currency);
+  box.innerHTML = `<div class="sec-head"><h3>💵 Оплата</h3><span class="pay-st ${PAY_CLASS[o.payment_status] || ""}">${esc(o.payment_status)}</span></div>
+    ${o.payments.length ? `<div class="pay-list">${o.payments.map(p => `<div><span>${esc(p.at)}</span><span>${esc(p.method)}${p.by ? " · " + esc(p.by) : ""}${p.note ? " · " + esc(p.note) : ""}</span>
+      <b class="${Number(p.amount) < 0 ? "neg" : ""}">${Number(p.amount) < 0 ? "повернення " : ""}${num(Math.abs(Number(p.amount)))} ${cur}${p.amount_uah ? `<small class="sub"> (${num(Math.abs(Number(p.amount_uah)))} грн)</small>` : ""}</b><button class="need-admin" data-pay-del="${esc(p.id)}" title="Видалити запис про оплату">✕</button></div>`).join("")}</div>` : ""}
+    <div class="pay-sum"><span>Сплачено: <b>${num(o.paid)} ${cur}</b></span>
+      <span>${bal > 0 ? `До сплати: <b class="due">${num(bal)} ${cur}</b>${o.uah ? ` <span class="sub">≈ ${num(o.uah.balance)} грн</span>` : ""}` : bal < 0 ? `Переплата: <b>${num(-bal)} ${cur}</b>` : Number(o.totals.total) > 0 ? "✓ Сплачено повністю" : ""}</span></div>
+    <form class="pay-form need-admin" id="payForm">
+      <input id="payAmount" inputmode="decimal" aria-label="Сума" placeholder="Сума" value="${bal > 0 ? String(bal).replace(".", ",") : ""}">
+      ${o.uah ? `<select id="payCur" aria-label="Валюта"><option value="USD">$</option><option value="UAH">грн</option></select>` : ""}
+      <select id="payMethod" aria-label="Спосіб оплати">${PAY_METHODS.map(m => `<option>${m}</option>`).join("")}</select>
+      <input id="payNote" placeholder="Примітка (необов'язково)" aria-label="Примітка">
+      <button class="primary">Прийняти оплату</button>
+    </form>
+    <div class="hint desc-m">Передоплату теж вносьте тут. Повернення клієнту — сума з мінусом.</div>`;
+  if ($("#payCur")) $("#payCur").onchange = e => {
+    if (bal <= 0) return;
+    $("#payAmount").value = (e.target.value === "UAH" ? Number(o.uah.balance) : bal).toFixed(2).replace(".", ",");
+  };
+  $("#payForm").onsubmit = async e => {
+    e.preventDefault();
+    const amount = $("#payAmount").value.trim().replace(/\s/g, "").replace(",", ".");
+    if (!amount || !Number(amount)){ $("#payAmount").focus(); return; }
+    const currency = $("#payCur") ? $("#payCur").value : "USD";
+    const sum = `${Number(amount) < 0 ? "Повернути клієнту" : "Прийняти"} ${num(Math.abs(Number(amount)))} ${currency === "UAH" ? "грн" : o.currency} (${$("#payMethod").value})?` +
+      (currency === "UAH" ? `\nБуде зараховано ≈ ${num(Math.abs(Number(amount)) / Number(o.uah.rate))} $ за курсом ${o.uah.rate}.` : "");
+    if (!confirm(sum)) return;
+    try{
+      const r = await api("/api/order/payments", {method: "POST", body: JSON.stringify({amount, currency, method: $("#payMethod").value,
+                                                                                     note: $("#payNote").value, by: authorName()})});
+      renderOrder(r.order);
+    }catch(err){ alert(err.message); }
+  };
+}
+document.addEventListener("click", async e => {
+  const id = e.target.dataset && e.target.dataset.payDel;
+  if (!id || !currentOrder) return;
+  if (!confirm("Видалити запис про оплату? Робіть це лише для помилково внесеної оплати.")) return;
+  try{ renderOrder((await api(`/api/order/payments?payment_id=${encodeURIComponent(id)}`, {method: "DELETE"})).order); }
+  catch(err){ alert(err.message); }
+});
+
+// ---------- Погодження кошторису клієнтом ----------
+function lineDecision(o, kind, i, name){
+  const a = o.approval;
+  const x = a && a.lines && a.lines.find(y => y.key === `${kind}:${i}` && y.name === name);
+  if (!x || x.decision === "pending") return "";
+  return x.decision === "approved" ? ` <span class="dec ok" title="Клієнт погодив">✅</span>` : ` <span class="dec" title="Клієнт відклав на потім">⏳ пізніше</span>`;
+}
+
+function renderApproval(a){
+  if (!currentOrder || !$("#approvalBox")) return;
+  currentOrder.approval = a;
+  const box = $("#approvalBox"), o = currentOrder;
+  if (!a){ box.hidden = true; return; }
+  box.hidden = false;
+  const cur = esc(a.currency || o.currency), sum = `${num(a.total)} ${cur}`;
+  const later = (a.lines || []).filter(x => x.decision === "deferred");
+  const yes = (a.lines || []).filter(x => x.decision === "approved");
+  const via = a.via === "web" ? " · на сторінці" : a.via === "telegram" ? " · у Telegram" : "";
+  const changed = a.status === "pending" || a.status === "approved"
+    ? Math.abs(Number(a.total) - Number(o.totals.total)) > 0.004 : false;
+  const text = a.status === "approved" ? `✅ Клієнт погодив кошторис на ${sum} · ${esc(a.at)}${via}`
+    : a.status === "partial" ? `🟡 Клієнт погодив ${yes.length} з ${a.lines.length} на ${num(a.approved_total)} ${cur}, відклав ${later.length} на ${num(a.deferred_total)} ${cur} · ${esc(a.at)}${via}`
+    : a.status === "declined" ? `❌ Клієнт відмовився від кошторису на ${sum} · ${esc(a.at)}${via}`
+    : `⏳ Кошторис на ${sum} надіслано на погодження ${esc(a.sent_at)} — чекаємо відповіді клієнта`;
+  const stillThere = later.some(x => { const [k, i] = x.key.split(":"); const row = (k === "labor" ? o.labor : o.parts)[Number(i)]; return row && row.name === x.name; });
+  box.className = "approval " + (a.status === "approved" || a.status === "partial" ? "ok" : a.status === "declined" ? "no" : "");
+  box.innerHTML = text
+    + (later.length ? `<div class="sub">Відкладено: ${later.map(x => `${esc(x.name)} (${num(x.total)})`).join(", ")}</div>` : "")
+    + (stillThere ? `<button class="defer-btn" data-defer>⏳ Прибрати відкладене із замовлення → у рекомендації</button>` : "")
+    + (changed ? `<span class="warn">⚠ Відтоді сума змінилась: зараз ${num(o.totals.total)} ${esc(o.currency)}. Надішліть кошторис на погодження ще раз (📤 Клієнту).</span>` : "");
+}
+
+document.addEventListener("click", async e => {
+  if (e.target.dataset && e.target.dataset.defer !== undefined && currentOrder){
+    if (!confirm("Прибрати відкладені клієнтом роботи із замовлення й записати їх у рекомендації?")) return;
+    try{ renderOrder((await api("/api/order/approval/defer", {method: "POST"})).order); }
+    catch(err){ alert(err.message); }
+  }
+});
+
+// ---------- Фото до замовлення ----------
+function renderPhotos(list){
+  const box = $("#photoBox");
+  if (!box || !currentOrder) return;
+  currentOrder.photos = list;
+  renderOrderBar(currentOrder);
+  const n = encodeURIComponent(currentOrder.number);
+  const kind = box.dataset.kind || "до";
+  const toClient = list.filter(p => p.to_client).length;
+  const lineNames = [...new Set([...currentOrder.labor, ...currentOrder.parts].map(x => x.name))];
+  box.innerHTML = `<h3>📷 Фото${list.length ? " · " + list.length : ""}</h3>
+    <div class="sub desc-m" style="margin:-4px 0 10px">До й після ремонту, пошкодження. Позначені «клієнту» бот надсилає разом із PDF${toClient ? ` (зараз: ${toClient})` : ""}.${TELEGRAM ? " Фото відповіддю на картку в Telegram-групі теж потрапляють сюди." : ""}</div>
+    ${list.length ? `<div class="photos">${list.map(p => `<div class="photo">
+        <a href="/photos/${n}/${esc(p.id)}" target="_blank" rel="noopener" title="${esc(p.author)} · ${esc(p.at)}"><img loading="lazy" alt="Фото: ${esc(p.kind)}" src="/photos/${n}/${esc(p.id)}"></a>
+        <div class="pc"><select data-photo-kind="${esc(p.id)}" aria-label="Тип фото">${PHOTO_KINDS.map(k => `<option ${k === p.kind ? "selected" : ""}>${esc(k)}</option>`).join("")}</select>
+          ${lineNames.length ? `<select data-photo-line="${esc(p.id)}" aria-label="До пункту кошторису" title="До якого пункту кошторису — клієнт побачить фото поруч із ним">
+            <option value="">до пункту: —</option>${lineNames.map(nm => `<option ${nm === p.line ? "selected" : ""}>${esc(nm)}</option>`).join("")}</select>` : ""}
+          <label><input type="checkbox" data-photo-client="${esc(p.id)}" ${p.to_client ? "checked" : ""}> клієнту</label>
+          <button data-photo-del="${esc(p.id)}" title="Видалити фото">✕</button></div>
+      </div>`).join("")}</div>` : ""}
+    <div class="photo-add"><select id="photoKind" aria-label="Тип нових фото">${PHOTO_KINDS.map(k => `<option ${k === kind ? "selected" : ""}>${esc(k)}</option>`).join("")}</select>
+      <button id="photoAdd">📷 Додати фото</button><span class="sub" id="photoNote"></span>
+      <input type="file" id="photoFiles" accept="image/*" multiple hidden></div>`;
+  $("#photoKind").onchange = e => { box.dataset.kind = e.target.value; };
+  $("#photoAdd").onclick = () => $("#photoFiles").click();
+  $("#photoFiles").onchange = async e => {
+    const files = [...e.target.files], number = currentOrder.number;
+    e.target.value = "";
+    let last = null;
+    for (const [i, file] of files.entries()){
+      $("#photoNote").textContent = `Завантаження ${i + 1} з ${files.length}…`;
+      try{
+        const image = await shrinkPhoto(file);
+        last = await api(`/api/orders/${encodeURIComponent(number)}/photos`, {method: "POST",
+          body: JSON.stringify({image, kind: $("#photoKind").value, author: authorName()})});
+      }catch(err){ alert(err.message); break; }
+    }
+    if (last && currentOrder && currentOrder.number === number) renderPhotos(last);
+    else if ($("#photoNote")) $("#photoNote").textContent = "";
+  };
+}
+document.addEventListener("change", async e => {
+  const d = e.target.dataset;
+  if (!currentOrder || (!d.photoKind && !d.photoClient && !d.photoLine)) return;
+  const id = d.photoKind || d.photoClient || d.photoLine;
+  const body = d.photoKind ? {kind: e.target.value} : d.photoLine ? {line: e.target.value} : {to_client: e.target.checked};
+  try{ renderPhotos(await api(`/api/orders/${encodeURIComponent(currentOrder.number)}/photos/${id}`, {method: "PATCH", body: JSON.stringify(body)})); }
+  catch(err){ alert(err.message); }
+});
+document.addEventListener("click", async e => {
+  const id = e.target.dataset && e.target.dataset.photoDel;
+  if (!id || !currentOrder) return;
+  if (!confirm("Видалити це фото?")) return;
+  try{ renderPhotos(await api(`/api/orders/${encodeURIComponent(currentOrder.number)}/photos/${id}`, {method: "DELETE"})); }
+  catch(err){ alert(err.message); }
+});
+const textList = (items, kind) => items.length
+  ? `<ul class="plain-edit">${items.map((x, i) => `<li><span>${esc(x)}</span><button data-text-del="${kind}:${i + 1}" title="Видалити">✕</button></li>`).join("")}</ul>`
+  : `<div class="sub">—</div>`;
+function renderOrder(o){
+  const box = $("#orderBody");
+  if (!o) currentOrder = null;
+  if (!o){
+    box.innerHTML = `<div class="empty">Замовлення-наряд з'явиться тут, щойно ви почнете діалог із помічником.<br>
+      <button class="primary" id="btnManual">📝 Заповнити вручну</button></div>`;
+    $("#btnManual").onclick = newManualOrder;
+    return;
+  }
+  remember(o.number);
+  currentOrder = o;
+  const c = o.customer, v = o.vehicle, t = o.totals, cur = esc(o.currency);
+  const lines = (rows, isLabor) => rows.length ? rows.map((l, i) => {
+    const qty = String(l.qty).replace(".", ",") + (isLabor ? "" : " " + esc(l.unit));
+    const code = esc(isLabor ? l.code : l.part_no);
+    return `<tr>
+      <td class="hide-m">${i + 1}</td><td class="hide-m">${code}</td>
+      <td>${esc(l.name)}${lineDecision(o, isLabor ? "labor" : "parts", i, l.name)}<div class="sub show-m">${code ? code + " · " : ""}${qty} × ${num(l.price)}${l.discount_percent ? " · −" + esc(l.discount_percent) + "%" : ""}</div>${!isLabor && o.stock && l.part_no in o.stock ? `<div class="sub ${o.stock[l.part_no] < l.qty && o.status !== "видано" ? "stock-low" : ""}">на складі: ${String(o.stock[l.part_no]).replace(".", ",")}</div>` : ""}</td>
+      <td class="r hide-m">${qty}</td>
+      <td class="r hide-m">${num(l.price)}</td>
+      <td class="r hide-m">${l.discount_percent ? esc(l.discount_percent) + "%" : ""}</td>
+      <td class="r">${num(l.qty * l.price * (1 - l.discount_percent / 100))}</td>
+      <td class="r acts"><button data-line-edit="${isLabor ? "labor" : "parts"}:${i + 1}" title="Змінити">✎</button> <button data-line-del="${isLabor ? "labor" : "parts"}:${i + 1}" title="Видалити">✕</button></td></tr>`;
+  }).join("")
+    : `<tr><td colspan="8" style="color:var(--muted)">—</td></tr>`;
+  const vat = o.prices_include_vat ? `у т.ч. ПДВ ${esc(o.vat_percent)}%` : `ПДВ ${esc(o.vat_percent)}%`;
+  box.innerHTML = `
+    <div class="obar" id="obar"></div>
+    <div class="ohead">
+      <h2>№ ${esc(o.number)}</h2>
+      <select class="status ${stClass(o.status)}" id="statusSel" title="Статус замовлення-наряду">
+        ${STATUSES.map(s => `<option ${s === o.status ? "selected" : ""}>${esc(s)}</option>`).join("")}</select>
+      <span class="badge">${esc(o.created_at)}</span>
+      <div class="actions"><button id="btnSend" title="Надіслати клієнту">📤 <span class="label">Клієнту</span></button><button id="btnPrint">🖨 Друк</button><button id="btnDelete" class="danger-lite need-admin" title="Видалити замовлення-наряд">🗑</button></div>
+    </div>
+    ${o.ai_usage && o.ai_usage.requests ? `<div class="ai-cost" title="Вартість запитів до Claude по цьому замовленню-наряду (у друковану форму не потрапляє)">Claude: ${usd(o.ai_usage.cost_usd)} · запитів: ${o.ai_usage.requests}</div>` : ""}
+    ${o.status_log && o.status_log.length ? `<div class="status-log">${o.status_log.slice(-5).map(e => `${esc(e.status)} ${esc(e.at)}${e.by ? " (" + esc(e.by) + ")" : ""}`).join(" → ")}</div>` : ""}
+    <div class="assignee"><label for="assigneeInp">👤 Відповідальний:</label>
+      <input id="assigneeInp" list="assigneeList" placeholder="не призначено" value="${esc(o.assignee || "")}" autocomplete="off">
+      <datalist id="assigneeList">${[...new Set([...ASSIGNEES, authorName()].filter(Boolean))].map(n => `<option value="${esc(n)}">`).join("")}</datalist></div>
+    <div id="approvalBox" hidden></div>
+    ${o.missing_fields.length ? `<div class="missing">Не заповнено: ${o.missing_fields.map(esc).join(", ")}</div>` : `<div class="done">✓ Усі обов'язкові поля заповнено</div>`}
+    <div class="sec-head" id="sec-client"><h3>Замовник і автомобіль</h3><button data-edit-head title="Змінити замовника й автомобіль">✎ Змінити</button></div>
+    <div class="info">
+      <dl><dt>Замовник</dt><dd>${dash(c.name)}</dd><dt>Телефон</dt><dd>${dash(c.phone)}</dd><dt>E-mail</dt><dd>${dash(c.email)}</dd></dl>
+      <dl><dt>Автомобіль</dt><dd>${carName(v) ? esc(carName(v)) + " " + (v.year ? esc(v.year) : "") : "—"}</dd><dt>VIN</dt><dd>${dash(v.vin)}</dd>
+          <dt>Держ. номер</dt><dd>${dash(v.plate)}</dd><dt>Пробіг</dt><dd>${v.odometer_km != null ? Number(v.odometer_km).toLocaleString("uk-UA") + " км" : "—"}</dd>
+          ${v.color ? `<dt>Колір</dt><dd>${esc(v.color)}</dd>` : ""}${v.battery_percent != null ? `<dt>Заряд батареї</dt><dd>${esc(v.battery_percent)}%</dd>` : ""}</dl>
+    </div>
+    <div class="intake" id="intakeBox"></div>
+    ${o.history && o.history.length ? `<details class="fold" id="histFold"><summary>Історія автомобіля · ${o.history.length === 10 ? "останні 10 візитів" : "візитів: " + o.history.length}</summary>
+      <div class="visits">${o.history.map(h => `<div class="visit">
+        <div class="visit-head"><b>${esc(h.date.split(" ")[0])}</b><span class="sub">№ ${esc(h.number)} · ${esc(h.status)}${h.odometer_km != null ? " · " + Number(h.odometer_km).toLocaleString("uk-UA") + " км" : ""}</span>
+          <span class="sum">${num(h.total)} ${esc(h.currency)} <button data-print-visit="${esc(h.number)}" title="Друк">🖨</button></span></div>
+        ${h.works.length ? `<div>${h.works.map(esc).join(", ")}</div>` : ""}
+        ${h.recommendations.length ? `<ul>${h.recommendations.map(r => `<li class="rec">${esc(r)}</li>`).join("")}</ul>` : ""}
+      </div>`).join("")}</div></details>` : ""}
+    <h3>Скарги клієнта</h3>
+    ${textList(o.complaints, "complaints")}
+    <form class="inline-add" data-add-text="complaints"><input placeholder="Додати скаргу…" aria-label="Нова скарга"><button>＋</button></form>
+    <div class="sec-head"><h3>Діагностика</h3><button data-edit-diag title="Змінити">✎</button></div>
+    <div>${o.diagnosis ? esc(o.diagnosis).replace(/\n/g, "<br>") : `<span class="sub">—</span>`}</div>
+    <h3 id="sec-works">Роботи</h3>
+    <div class="tbl"><table><tr><th class="hide-m">№</th><th class="hide-m">Код</th><th>Найменування</th><th class="r hide-m">Кількість</th><th class="r hide-m">Ціна</th><th class="r hide-m">Знижка</th><th class="r">Сума</th><th></th></tr>${lines(o.labor, true)}</table></div>
+    <div class="line-add"><button data-add-line="labor">＋ Додати роботу</button></div>
+    <h3>Запчастини та матеріали</h3>
+    <div class="tbl"><table><tr><th class="hide-m">№</th><th class="hide-m">Артикул</th><th>Найменування</th><th class="r hide-m">Кількість</th><th class="r hide-m">Ціна</th><th class="r hide-m">Знижка</th><th class="r">Сума</th><th></th></tr>${lines(o.parts, false)}</table></div>
+    <div class="line-add"><button data-add-line="parts">＋ Додати запчастину</button></div>
+    <div class="totals">
+      <div><span>Роботи</span><span>${num(t.labor)} ${cur}</span></div>
+      <div><span>Запчастини</span><span>${num(t.parts)} ${cur}</span></div>
+      ${Number(o.vat_percent) ? `<div><span>${vat}</span><span>${num(t.vat)} ${cur}</span></div>` : ""}
+      <div class="grand"><span>Разом</span><span>${num(t.total)} ${cur}</span></div>
+      ${o.margin && (o.margin.amount != null || o.margin.unknown) ? `<div class="margin" title="Внутрішнє: продаж запчастин мінус середня закупівельна ціна. Клієнт цього не бачить.">
+        <span>Маржа на запчастинах</span><span>${o.margin.amount != null ? `${num(o.margin.amount)} ${cur}${o.margin.percent != null ? ` · ${o.margin.percent}%` : ""}` : "—"}${o.margin.unknown ? `<small> · без собівартості: ${o.margin.unknown}</small>` : ""}</span></div>` : ""}
+      ${o.uah ? `<div class="uah"><span>≈ у гривні</span><span>${num(o.uah.amount)} грн</span></div>
+        <div class="uah-rate">${esc(o.uah.source)} ${esc(String(o.uah.rate).replace(".", ","))} на ${esc(o.uah.date)}</div>` : ""}
+    </div>
+    <div id="sec-pay"></div><div class="pay" id="payBox"></div>
+    <h3>Рекомендації</h3>
+    ${textList(o.recommendations, "recommendations")}
+    <form class="inline-add" data-add-text="recommendations"><input placeholder="Додати рекомендацію…" aria-label="Нова рекомендація"><button>＋</button></form>
+    <div id="sec-photos"></div><div class="internal" id="photoBox"></div>
+    <div id="sec-comments"></div><div class="internal" id="internalBox"></div>`;
+  renderOrderBar(o);
+  $("#assigneeInp").onchange = async e => {
+    const name = e.target.value.trim();
+    try{
+      const r = await api("/api/order/assignee", {method: "PUT", body: JSON.stringify({name})});
+      if (name && !ASSIGNEES.includes(name)) ASSIGNEES.push(name);
+      currentOrder = r.order;
+    }catch(err){ alert(err.message); e.target.value = o.assignee || ""; }
+  };
+  renderPayments(o);
+  renderIntake(o);
+  renderApproval(o.approval || null);
+  renderPhotos(o.photos || []);
+  renderComments(o.comments || []);
+  $("#btnPrint").onclick = () => window.open("/print/current", "_blank");
+  $("#btnDelete").onclick = () => deleteOrder(o.number);
+  $("#btnSend").onclick = () => sendToClientDialog(o);
+  $("#statusSel").onchange = async e => {
+    const status = e.target.value;
+    if (status === "видано" && Number(o.balance) > 0 &&
+        !confirm(`Клієнт ще не сплатив ${num(o.balance)} ${o.currency}. Видати автомобіль у борг?`)){
+      e.target.value = o.status; return;
+    }
+    try{
+      renderOrder((await api("/api/order/status", {method: "POST", body: JSON.stringify({status, by: authorName()})})).order);
+    }catch(err){
+      e.target.value = o.status;
+      addMsg("error", err.message);
+      document.querySelector('.tabs button[data-tab="chat"]').click();
+    }
+  };
+}
+
+async function api(path, opts = {}){
+  const r = await fetch(path, {headers: {"Content-Type": "application/json"}, credentials: "same-origin", ...opts});
+  const data = await r.json().catch(() => ({}));
+  if (r.status === 401){ location.href = "/login"; throw new Error("Потрібно увійти"); }
+  if (!r.ok) throw new Error(data.error || data.detail || `Помилка ${r.status}`);
+  return data;
+}
+
+// Голосове введення: розпізнавання мовлення вбудоване в браузер (Web Speech API).
+const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognizer = null;
+
+// Голосове введення працює в чаті й у вікні «Запис»: ціль — поле, кнопка мікрофона й куди писати помилки.
+const VOICE_CHAT = {input: "#input", mic: "#mic", error: msg => addMsg("error", msg)};
+let voiceTarget = VOICE_CHAT;
+
+function setListening(on, target = voiceTarget){
+  const mic = $(target.mic), input = $(target.input);
+  mic.classList.toggle("on", on);
+  mic.setAttribute("aria-pressed", String(on));
+  mic.title = on ? "Зупинити запис" : "Голосове введення";
+  if (on){ input.dataset.placeholder = input.placeholder; input.placeholder = "Слухаю… говоріть"; }
+  else if (input.dataset.placeholder){ input.placeholder = input.dataset.placeholder; }
+}
+
+function stopVoice(discard = false){
+  if (!recognizer) return;
+  if (discard) recognizer.onresult = null;  // текст уже отправлен — пізні результати не потрібні
+  recognizer.stop();
+}
+
+function startVoice(target = VOICE_CHAT){
+  voiceTarget = target;
+  if (!Recognition){
+    target.error("Цей браузер не підтримує голосове введення. Скористайтеся мікрофоном на клавіатурі телефона або відкрийте сторінку в Chrome чи Safari.");
+    return;
+  }
+  const input = $(target.input);
+  const base = input.value.trim() ? input.value.trim() + " " : "";
+  const r = new Recognition();
+  r.lang = "uk-UA";
+  // Chrome на Android у безперервному режимі дублює фрази, тому там запис зупиняється після паузи.
+  r.continuous = !/Android/i.test(navigator.userAgent);
+  r.interimResults = true;
+  r.onresult = e => {
+    let text = "";
+    for (const res of e.results) text += res[0].transcript;
+    input.value = base + text.trim();
+  };
+  r.onerror = e => {
+    const msg = {
+      "not-allowed": "Немає доступу до мікрофона. Дозвольте його в налаштуваннях браузера для цього сайту.",
+      "service-not-allowed": "Немає доступу до мікрофона. Дозвольте його в налаштуваннях браузера для цього сайту.",
+      "audio-capture": "Мікрофон не знайдено.",
+      "network": "Розпізнавання мовлення недоступне: немає з'єднання.",
+    }[e.error];
+    if (msg) target.error(msg);
+  };
+  r.onend = () => {
+    setListening(false, target);
+    if (recognizer === r){ recognizer = null; input.focus(); }  // могли вже ввімкнути мікрофон в іншому полі
+  };
+  try{ r.start(); }catch(err){ target.error("Не вдалося увімкнути мікрофон: " + err.message); return; }
+  recognizer = r;
+  setListening(true, target);
+}
+
+async function send(text){
+  text = text.trim();
+  if (!text || busy) return;
+  if (voiceTarget === VOICE_CHAT) stopVoice(true);
+  busy = true; $("#send").disabled = true;
+  addMsg("user", text);
+  $("#input").value = "";
+  const typing = document.createElement("div");
+  typing.className = "typing"; typing.textContent = "Помічник працює";
+  $("#log").appendChild(typing); $("#log").scrollTop = $("#log").scrollHeight;
+  try{
+    const data = await api("/api/chat", {method: "POST", body: JSON.stringify({text})});
+    typing.remove();
+    if (data.reply) addMsg("assistant", data.reply);
+    renderOrder(data.order);
+  }catch(e){
+    typing.remove();
+    addMsg("error", e.message);
+  }finally{
+    busy = false; $("#send").disabled = false; $("#input").focus();
+  }
+}
+
+let ordersTimer = null, ordersStatus = "";
+async function showOrders(){
+  if (!$("#ordersDlg").open){ $("#ordersQuery").value = ""; $("#ordersDlg").showModal(); }
+  $("#ordersList").innerHTML = "Завантаження…";
+  const q = $("#ordersQuery").value.trim();
+  $("#statusFilter").innerHTML = ["", ...STATUSES].map(s =>
+    `<button data-status="${esc(s)}" class="${s === ordersStatus ? "on" : ""}">${s ? esc(s) : "усі"}</button>`).join("");
+  try{
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (ordersStatus) params.set("status", ordersStatus);
+    const list = await api("/api/orders" + (params.toString() ? "?" + params : ""));
+    if (list.length && matchMedia("(max-width: 900px)").matches){
+      // На телефоні — картки: уся картка відкриває замовлення, нічого не ховається за край екрана.
+      $("#ordersList").innerHTML = `<div class="ocards">${list.map(o => `<div class="ocard" data-open="${esc(o.number)}" role="button" tabindex="0">
+          <div class="top"><b>${esc(o.number)}</b><span class="badge ${stClass(o.status)}">${esc(o.status)}</span>${o.comments ? `<span class="cc">💬${o.comments}</span>` : ""}</div>
+          <div class="sum">${num(o.total)} ${esc(o.currency)}</div>
+          <div class="sub">${dash(o.customer)}${o.vehicle ? " · " + esc(o.vehicle) : ""}</div>
+          <div class="sub" style="text-align:right">${o.status === "видано" && Number(o.balance) > 0 ? `<span style="color:var(--accent)">борг ${num(o.balance)}</span>` : o.payment_status === "оплачено" ? `<span style="color:var(--ok)">оплачено</span>` : esc(o.created_at.split(" ")[0])}</div>
+        </div>`).join("")}</div>`;
+      return;
+    }
+    $("#ordersList").innerHTML = list.length ? `<div class="tbl"><table>
+      <tr><th>Номер</th><th>Дата</th><th>Клієнт</th><th>Автомобіль</th><th class="r">Сума</th><th>Статус</th><th class="r" title="Витрати на Claude">Claude</th><th></th></tr>
+      ${list.map(o => `<tr><td>${esc(o.number)}${o.comments ? ` <span class="cc" title="Внутрішні коментарі">💬${o.comments}</span>` : ""}</td><td>${esc(o.created_at)}</td><td>${dash(o.customer)}</td><td>${dash(o.vehicle)}</td>
+        <td class="r">${num(o.total)} ${esc(o.currency)}${o.status === "видано" && Number(o.balance) > 0 ? `<div class="sub" style="color:var(--accent)">борг ${num(o.balance)}</div>` : o.payment_status === "оплачено" ? `<div class="sub" style="color:var(--ok)">оплачено</div>` : ""}</td><td><span class="badge ${stClass(o.status)}">${esc(o.status)}</span></td><td class="r sub">${o.ai_cost ? usd(o.ai_cost) : "—"}</td>
+        <td class="r"><button data-open="${esc(o.number)}">Відкрити</button> <button data-print="${esc(o.number)}">🖨</button> <button class="need-admin" data-del-order="${esc(o.number)}" title="Видалити">🗑</button></td></tr>`).join("")}
+      </table></div>` : `<div class="empty">${q || ordersStatus ? "Нічого не знайдено." : "Збережених замовлень-нарядів поки немає."}</div>`;
+  }catch(e){ $("#ordersList").textContent = e.message; }
+}
+
+$("#statusFilter").onclick = e => {
+  if (e.target.dataset.status === undefined) return;
+  ordersStatus = e.target.dataset.status;
+  showOrders();
+};
+$("#ordersQuery").oninput = () => { clearTimeout(ordersTimer); ordersTimer = setTimeout(showOrders, 250); };
+$("#ordersList").addEventListener("click", async e => {
+  const print = e.target.dataset.print;
+  if (print) return void window.open("/print/" + encodeURIComponent(print), "_blank");
+  if (e.target.dataset.delOrder){ if (await deleteOrder(e.target.dataset.delOrder)) showOrders(); return; }
+  const open = e.target.closest("[data-open]")?.dataset.open;
+  if (open){
+    const data = await api(`/api/orders/${encodeURIComponent(open)}/open`, {method: "POST"});
+    $("#ordersDlg").close();
+    $("#log").innerHTML = "";
+    addMsg("assistant", `Відкрито замовлення-наряд № ${open}. Що потрібно змінити?`);
+    renderOrder(data.order);
+    document.querySelector('.tabs button[data-tab="order"]').click();
+  }
+});
+
+$("#orderBody").addEventListener("click", e => {
+  const d = e.target.dataset;
+  if (d.printVisit) window.open("/print/" + encodeURIComponent(d.printVisit), "_blank");
+  if (d.addLine) addLineDialog(d.addLine);
+  if (d.lineEdit) editLineDialog(...d.lineEdit.split(":"));
+  if (d.lineDel) deleteLine(...d.lineDel.split(":"));
+  if (d.editHead !== undefined) editHeadDialog();
+  if (d.editDiag !== undefined) editDiagnosisDialog();
+  if (d.textDel){
+    const [kind, n] = d.textDel.split(":");
+    const item = currentOrder[kind][n - 1];
+    if (okToEdit() && confirm(`Видалити «${item}»?`)) orderEdit("DELETE", `/api/order/${kind}/${n}`);
+  }
+});
+$("#orderBody").addEventListener("submit", async e => {
+  const kind = e.target.dataset.addText;
+  if (!kind) return;
+  e.preventDefault();
+  const input = e.target.querySelector("input"), text = input.value.trim();
+  if (!text || !okToEdit()) return;
+  if (await orderEdit("POST", `/api/order/${kind}`, {text})) document.querySelector(`[data-add-text="${kind}"] input`).focus();
+});
+
+// ---------- Нове замовлення вручну, шапка, діагностика, видалення ----------
+async function newManualOrder(){
+  if (busy) return;
+  try{
+    const data = await api("/api/order/new", {method: "POST"});
+    $("#log").innerHTML = "";
+    addMsg("assistant", `Створено порожнє замовлення-наряд № ${data.order.number}. Заповнюйте його в панелі праворуч або пишіть мені — я допоможу.`);
+    renderOrder(data.order);
+    document.querySelector('.tabs button[data-tab="order"]').click();
+    editHeadDialog();
+  }catch(e){ addMsg("error", e.message); }
+}
+
+// ---------- Надіслати замовлення-наряд клієнту ----------
+let clientPoll = null;
+async function sendToClientDialog(o){
+  clearInterval(clientPoll);
+  $("#lineTitle").textContent = `Надіслати клієнту · № ${o.number}`;
+  $("#lineBody").innerHTML = `
+    <div class="send-sec"><h3>📝 Погодження й сторінка для клієнта</h3>
+      <div class="sub">Клієнт відкриває посилання з будь-якого телефона (Telegram, Viber, SMS) і бачить статус ремонту, кошторис, фото, оплату й документи.
+        На погодженні він позначає кожен пункт: «✅ погоджую» або «⏳ пізніше».${TELEGRAM ? " Якщо клієнт підключений до бота — кошторис прийде йому й у Telegram." : ""}</div>
+      <div class="send-row"><button class="primary" id="sendApproval">📝 Надіслати на погодження</button><button id="pageLink">🔗 Посилання на сторінку</button></div>
+      <div id="pageBox"></div></div>
+    <div class="send-sec"><h3>PDF через «Поділитися»</h3>
+      <div class="sub">Відкриється меню телефона: виберіть Telegram (чи Viber) і чат клієнта.</div>
+      <div class="send-row"><button class="primary" id="sharePdf" disabled>📤 Поділитися PDF</button>
+        <a class="sub" id="pdfLink" href="/pdf/${encodeURIComponent(o.number)}" target="_blank" rel="noopener">⬇ Відкрити PDF</a></div>
+      <div class="sub" id="shareNote">Готую PDF…</div></div>
+    ${TELEGRAM ? `<div class="send-sec"><h3>Через бота ${esc(document.title)}</h3><div id="botBox" class="sub">Завантаження…</div></div>` : ""}
+    <div class="form-err" id="lineErr" hidden></div>`;
+  $("#lineDlg").showModal();
+  $("#lineDlg").addEventListener("close", () => clearInterval(clientPoll), {once: true});
+  const showLink = (link, note) => {
+    $("#pageBox").innerHTML = `<div class="ok-line">${note}</div><div class="link-row"><input readonly value="${esc(link)}" aria-label="Посилання">
+      <button id="copyPage">Копіювати</button>${navigator.share ? `<button id="sharePage">Поділитися</button>` : ""}</div>`;
+    $("#copyPage").onclick = async () => { try{ await navigator.clipboard.writeText(link); $("#copyPage").textContent = "✓ Скопійовано"; }catch(e){ prompt("Скопіюйте посилання:", link); } };
+    if ($("#sharePage")) $("#sharePage").onclick = () => navigator.share({text: `Замовлення-наряд № ${o.number}: ${link}`}).catch(() => {});
+  };
+  $("#pageLink").onclick = async () => {
+    try{ showLink((await api(`/api/orders/${encodeURIComponent(o.number)}/share`, {method: "POST"})).link, "Посилання на сторінку замовлення:"); }
+    catch(e){ $("#pageBox").innerHTML = `<div class="form-err">${esc(e.message)}</div>`; }
+  };
+  $("#sendApproval").onclick = async () => {
+    if (o.approval && o.approval.status === "pending" && !confirm("Кошторис уже чекає відповіді клієнта. Надіслати оновлений?")) return;
+    $("#sendApproval").disabled = true;
+    try{
+      const r = await api(`/api/orders/${encodeURIComponent(o.number)}/send-approval`, {method: "POST"});
+      showLink(r.link, r.telegram === true ? "✓ Надіслано клієнту в Telegram. Посилання також можна надіслати у Viber чи SMS:"
+        : (typeof r.telegram === "string" ? `⚠ ${esc(r.telegram)}. ` : "") + "✓ Погодження створено — надішліть клієнту це посилання:");
+      if (currentOrder && currentOrder.number === o.number) renderApproval(r.approval);
+    }catch(e){ $("#pageBox").innerHTML = `<div class="form-err">${esc(e.message)}</div>`; }
+    $("#sendApproval").disabled = false;
+  };
+
+  // PDF готуємо заздалегідь: iPhone дозволяє «Поділитися» лише одразу після натискання кнопки.
+  let file = null;
+  try{
+    const r = await fetch(`/pdf/${encodeURIComponent(o.number)}`, {credentials: "same-origin"});
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Помилка ${r.status}`);
+    file = new File([await r.blob()], `Замовлення-наряд ${o.number}.pdf`, {type: "application/pdf"});
+    if (navigator.canShare && navigator.canShare({files: [file]})){
+      $("#sharePdf").disabled = false;
+      $("#shareNote").textContent = "";
+    }else{
+      $("#sharePdf").hidden = true;
+      $("#shareNote").textContent = "Цей браузер не вміє «Поділитися» файлом — відкрийте PDF, збережіть і надішліть у Telegram вручну.";
+    }
+  }catch(e){ $("#shareNote").textContent = e.message; $("#sharePdf").hidden = true; }
+  $("#sharePdf").onclick = async () => {
+    try{ await navigator.share({files: [file], title: `Замовлення-наряд ${o.number}`}); }
+    catch(e){ if (e.name !== "AbortError") $("#shareNote").textContent = e.message; }
+  };
+  if (TELEGRAM) loadBotBox(o);
+}
+
+async function loadBotBox(o, sentNow){
+  let d;
+  try{ d = await api(`/api/orders/${encodeURIComponent(o.number)}/client-link`, {method: "POST"}); }
+  catch(e){ $("#botBox").textContent = e.message; return; }
+  if (!$("#botBox")) return;
+  if (d.client){
+    clearInterval(clientPoll);
+    $("#botBox").innerHTML = `${sentNow ? `<div class="ok-line">✓ Клієнт підключився — бот уже надіслав йому PDF.</div>` : ""}
+      <div>Клієнт <b>${esc(d.client)}</b> підключений до бота.</div>
+      <div class="send-row"><button class="primary" id="sendBot">Надіслати PDF через бота</button><span id="sendBotRes"></span></div>
+      ${(o.photos || []).some(p => p.to_client) ? `<div class="sub">Фото, позначені «клієнту», надсилаються разом із PDF.</div>` : ""}`;
+    $("#sendBot").onclick = async () => {
+      $("#sendBot").disabled = true;
+      try{
+        const r = await api(`/api/orders/${encodeURIComponent(o.number)}/send-telegram`, {method: "POST"});
+        $("#sendBotRes").innerHTML = `<span class="ok-line">✓ Надіслано: ${esc(r.client)}${r.photos ? ` (+ фото: ${r.photos})` : ""}</span>`;
+      }catch(e){ $("#sendBotRes").textContent = e.message; $("#sendBot").disabled = false; }
+    };
+    return;
+  }
+  $("#botBox").innerHTML = `<div style="margin-bottom:8px">Клієнт сканує QR-код камерою телефона (або відкриває посилання) і натискає «Старт» —
+      бот одразу надішле йому PDF${d.has_phone ? " і запам'ятає його для наступних замовлень" : ""}.</div>
+    ${d.has_phone ? "" : `<div class="form-warn" style="margin:0 0 8px">У замовленні немає телефону клієнта — бот надішле цей замовлення-наряд, але не запам'ятає клієнта.</div>`}
+    <div class="qr-wrap"><div class="qr">${d.qr_svg}</div>
+      <div class="link"><span id="clientLink">${esc(d.link)}</span>
+        <div class="send-row"><button id="copyLink">Копіювати посилання</button>${navigator.share ? `<button id="shareLink">Поділитися посиланням</button>` : ""}</div>
+        <div id="waitClient">Чекаю, поки клієнт натисне «Старт»…</div></div></div>`;
+  $("#copyLink").onclick = async () => {
+    try{ await navigator.clipboard.writeText(d.link); $("#copyLink").textContent = "✓ Скопійовано"; }
+    catch(e){ prompt("Скопіюйте посилання:", d.link); }
+  };
+  if ($("#shareLink")) $("#shareLink").onclick = () => navigator.share({text: `Ваш замовлення-наряд № ${o.number}: ${d.link}`}).catch(() => {});
+  clearInterval(clientPoll);
+  if (d.has_phone){
+    // Коли клієнт натисне «Старт», бот надішле PDF сам; тут лише показуємо, що це сталося.
+    clientPoll = setInterval(async () => {
+      if (!$("#lineDlg").open){ clearInterval(clientPoll); return; }
+      try{
+        const x = await api(`/api/orders/${encodeURIComponent(o.number)}/client-link`, {method: "POST"});
+        if (x.client) loadBotBox(o, true);
+      }catch(e){}
+    }, 4000);
+  }
+}
+
+async function deleteOrder(number){
+  if (!confirm(`Видалити замовлення-наряд № ${number}?\nЙого буде перенесено в кошик на сервері.`)) return false;
+  try{
+    await api(`/api/orders/${encodeURIComponent(number)}`, {method: "DELETE"});
+  }catch(e){ alert(e.message); return false; }
+  if (currentOrder && currentOrder.number === number){
+    remember(null);
+    $("#log").innerHTML = "";
+    addMsg("assistant", `Замовлення-наряд № ${number} видалено.`);
+    renderOrder(null);
+  }
+  return true;
+}
+
+function editHeadDialog(){
+  if (!currentOrder || !okToEdit()) return;
+  const c = currentOrder.customer, v = currentOrder.vehicle;
+  $("#lineTitle").textContent = "Замовник і автомобіль";
+  $("#lineBody").innerHTML = `<form class="form" id="headForm" autocomplete="off">
+      <label for="hName">ПІБ замовника</label><input id="hName" value="${esc(c.name)}">
+      <label for="hPhone">Телефон</label><input id="hPhone" type="tel" value="${esc(c.phone)}" placeholder="+380…">
+      <label for="hEmail">E-mail</label><input id="hEmail" type="email" value="${esc(c.email)}">
+      <label for="hVin">VIN</label><div><input id="hVin" value="${esc(v.vin)}" maxlength="20" style="text-transform:uppercase" placeholder="17 символів">
+        <div class="hint">Марка визначиться за VIN; для авто, яке вже було в сервісі, — ще й модель і рік.</div></div>
+      <label for="hMake">Марка</label><input id="hMake" value="${esc(v.make || "")}" placeholder="за VIN або вручну: Toyota">
+      <label for="hModel">Модель</label><input id="hModel" value="${esc(v.model || "")}" placeholder="Camry">
+      <label for="hYear">Рік</label><input id="hYear" inputmode="numeric" value="${v.year ?? ""}">
+      <label for="hOdo">Пробіг, км</label><input id="hOdo" inputmode="numeric" value="${v.odometer_km ?? ""}">
+      <label for="hPlate">Держ. номер</label><input id="hPlate" value="${esc(v.plate)}">
+      <label for="hColor">Колір</label><input id="hColor" value="${esc(v.color)}">
+      <label for="hBat">Заряд батареї, % <span class="sub">(електромобілі)</span></label><input id="hBat" inputmode="numeric" value="${v.battery_percent ?? ""}">
+      <span></span><div><div class="form-err" id="lineErr" hidden></div><div class="form-warn" id="headWarn" hidden></div>
+        <div class="form-actions"><button class="primary" type="submit" id="headSave">Зберегти</button><button type="button" id="lineCancel">Скасувати</button></div></div>
+    </form>`;
+  $("#lineDlg").showModal();
+  $("#lineCancel").onclick = () => $("#lineDlg").close();
+  const int = v => v.trim() === "" ? null : Number(v.trim().replace(/\s/g, ""));
+  $("#headForm").oninput = () => {
+    // Після попередження поля знову змінили — кнопка знову зберігає, а не просто закриває вікно.
+    delete $("#headSave").dataset.done;
+    $("#headSave").textContent = "Зберегти";
+    $("#headWarn").hidden = true;
+  };
+  $("#headForm").onsubmit = async e => {
+    e.preventDefault();
+    if ($("#headSave").dataset.done){ $("#lineDlg").close(); return; }
+    const odo = int($("#hOdo").value), bat = int($("#hBat").value);
+    if ([odo, bat].some(x => x !== null && !Number.isInteger(x))){
+      $("#lineErr").hidden = false; $("#lineErr").textContent = "Пробіг і заряд — цілі числа"; return;
+    }
+    // VIN змінили — марку, модель і рік визначаємо заново (за VIN чи з історії), а не беремо від попереднього авто.
+    const keepCar = $("#hVin").value.trim().toUpperCase() === (v.vin || "") || $("#hMake").value !== (v.make || "") ||
+                    $("#hModel").value !== (v.model || "") || $("#hYear").value !== String(v.year ?? "");
+    const customer = {name: $("#hName").value, phone: $("#hPhone").value, email: $("#hEmail").value};
+    const vehicle = {vin: $("#hVin").value, make: keepCar ? $("#hMake").value : "", model: keepCar ? $("#hModel").value : "",
+                     year: keepCar ? int($("#hYear").value) : null, odometer_km: odo, plate: $("#hPlate").value, color: $("#hColor").value, battery_percent: bat};
+    if (!await orderEdit("PUT", "/api/order/customer", customer)) return;
+    let warnings = [];
+    try{
+      const data = await api("/api/order/vehicle", {method: "PUT", body: JSON.stringify(vehicle)});
+      renderOrder(data.order);
+      warnings = data.warnings || [];
+    }catch(err){ $("#lineErr").hidden = false; $("#lineErr").textContent = err.message; return; }
+    if (vehicle.vin.trim() && warnings.length){
+      // Збережено, але VIN варто перевірити — показуємо попередження, перш ніж закрити вікно.
+      $("#headWarn").hidden = false;
+      $("#headWarn").innerHTML = "Збережено. Перевірте VIN:<br>" + warnings.map(esc).join("<br>");
+      $("#headSave").textContent = "Готово"; $("#headSave").dataset.done = "1";
+      return;
+    }
+    $("#lineDlg").close();
+  };
+  $("#hName").focus();
+}
+
+function editDiagnosisDialog(){
+  if (!currentOrder || !okToEdit()) return;
+  $("#lineTitle").textContent = "Діагностика";
+  $("#lineBody").innerHTML = `<form class="form" id="diagForm">
+      <label for="dText">Висновок майстра</label><textarea id="dText">${esc(currentOrder.diagnosis)}</textarea>
+      <span></span><div><div class="form-err" id="lineErr" hidden></div>
+        <div class="form-actions"><button class="primary" type="submit">Зберегти</button><button type="button" id="lineCancel">Скасувати</button></div></div>
+    </form>`;
+  $("#lineDlg").showModal();
+  $("#lineCancel").onclick = () => $("#lineDlg").close();
+  $("#diagForm").onsubmit = async e => {
+    e.preventDefault();
+    if (await orderEdit("PUT", "/api/order/diagnosis", {text: $("#dText").value})) $("#lineDlg").close();
+  };
+  $("#dText").focus();
+}
+
+// ---------- Ручне редагування рядків замовлення-наряду ----------
+function okToEdit(){
+  const s = currentOrder && currentOrder.status;
+  return !["видано", "скасовано"].includes(s) || confirm(`Замовлення-наряд має статус «${s}». Усе одно змінити?`);
+}
+
+async function orderEdit(method, url, body){
+  try{
+    const data = await api(url, {method, body: body ? JSON.stringify(body) : undefined});
+    renderOrder(data.order);
+    return true;
+  }catch(e){
+    const box = $("#lineErr");
+    if (box && $("#lineDlg").open){ box.hidden = false; box.textContent = e.message; }
+    else addMsg("error", e.message);
+    return false;
+  }
+}
+
+function lineOf(kind, n){ return (kind === "labor" ? currentOrder.labor : currentOrder.parts)[n - 1]; }
+
+async function deleteLine(kind, n){
+  const l = lineOf(kind, +n);
+  if (!l || !okToEdit() || !confirm(`Видалити «${l.name}»?`)) return;
+  await orderEdit("DELETE", `/api/order/${kind}/${n}`);
+}
+
+function editLineDialog(kind, n){
+  const l = lineOf(kind, +n);
+  if (!l || !okToEdit()) return;
+  $("#lineTitle").textContent = l.name;
+  $("#lineBody").innerHTML = `<form class="form" id="lineForm" autocomplete="off">
+      <label for="lQty">Кількість</label><input id="lQty" inputmode="decimal" value="${fmtNum(l.qty)}">
+      <label for="lPrice">Ціна за од., ${esc(currentOrder.currency)}</label><input id="lPrice" inputmode="decimal" value="${fmtNum(l.price)}">
+      <label for="lDisc">Знижка, %</label><input id="lDisc" inputmode="decimal" value="${fmtNum(l.discount_percent)}">
+      <span></span><div class="hint">Змінюється лише цей замовлення-наряд, довідник не змінюється.</div>
+      <span></span><div><div class="form-err" id="lineErr" hidden></div>
+        <div class="form-actions"><button class="primary" type="submit">Зберегти</button><button type="button" id="lineCancel">Скасувати</button></div></div>
+    </form>`;
+  $("#lineDlg").showModal();
+  $("#lineCancel").onclick = () => $("#lineDlg").close();
+  $("#lineForm").onsubmit = async e => {
+    e.preventDefault();
+    const n2 = v => Number(String(v).replace(",", ".").trim());
+    const body = {qty: n2($("#lQty").value), price: n2($("#lPrice").value), discount_percent: n2($("#lDisc").value)};
+    if (Object.values(body).some(v => !isFinite(v))){ $("#lineErr").hidden = false; $("#lineErr").textContent = "Введіть числа"; return; }
+    if (await orderEdit("PATCH", `/api/order/${kind}/${n}`, body)) $("#lineDlg").close();
+  };
+  $("#lQty").focus();
+}
+
+async function addLineDialog(kind){
+  if (!currentOrder || !okToEdit()) return;
+  const labor = kind === "labor";
+  $("#lineTitle").textContent = labor ? "Додати роботу" : "Додати запчастину";
+  $("#lineBody").innerHTML = `<div class="seg" id="addTabs"><button data-mode="catalog" class="on">З довідника</button><button data-mode="custom">Своя позиція</button></div>
+    <div id="addView">Завантаження…</div><div class="form-err" id="lineErr" hidden></div>`;
+  $("#lineDlg").showModal();
+  try{ setCatalog(await api("/api/catalog")); }catch(e){ $("#addView").textContent = e.message; return; }
+  const model = currentOrder.vehicle.model_code;
+  const items = labor
+    ? catalogData.operations.filter(o => !model || o.model_codes.includes("*") || o.model_codes.includes(model))
+    : catalogData.parts;
+  const cur = esc(catalogData.currency);
+  const showCatalogList = () => {
+    $("#addView").innerHTML = `<div class="toolbar"><input id="addQuery" type="search" placeholder="Пошук…">
+        <label class="sub">Кількість <input id="addQty" inputmode="decimal" value="1" style="width:60px;min-width:0"></label>
+        ${labor ? `<label class="sub"><input type="checkbox" id="addParts" checked> з типовими запчастинами</label>` : ""}</div>
+      <div id="addList"></div>`;
+    const draw = () => {
+      // Як у пошуку помічника: слово порівнюється за першими 5 літерами («колодок» знайде «колодки»).
+      const q = $("#addQuery").value.trim().toLowerCase().split(/\s+/).filter(Boolean).map(w => w.slice(0, 5));
+      const found = items.filter(it => q.every(w => `${labor ? it.code : it.part_no} ${it.name} ${it.category || ""}`.toLowerCase().includes(w)));
+      $("#addList").innerHTML = found.length ? `<div class="tbl"><table>${found.map(it => `<tr>
+          <td>${esc(it.name)}<div class="sub">${esc(labor ? it.code : it.part_no)}${labor && it.parts.length ? " · " + it.parts.map(p => esc(p.name)).join(", ") : ""}</div></td>
+          <td class="r">${num(it.price)} ${cur}</td>
+          <td class="r"><button data-pick="${esc(labor ? it.code : it.part_no)}">＋</button></td></tr>`).join("")}</table></div>`
+        : `<div class="empty">Нічого не знайдено. Додайте як «Своя позиція».</div>`;
+    };
+    $("#addQuery").oninput = draw;
+    draw();
+    $("#addQuery").focus();
+    $("#addList").onclick = async e => {
+      const id = e.target.dataset.pick;
+      if (!id) return;
+      const qty = Number($("#addQty").value.replace(",", "."));
+      if (!(qty > 0)){ $("#lineErr").hidden = false; $("#lineErr").textContent = "Кількість має бути більшою за нуль"; return; }
+      const body = labor ? {code: id, qty, include_parts: $("#addParts").checked} : {part_no: id, qty};
+      if (await orderEdit("POST", `/api/order/${kind}`, body)) $("#lineDlg").close();
+    };
+  };
+  const showCustomForm = () => {
+    $("#addView").innerHTML = `<form class="form" id="customForm" autocomplete="off">
+        <label for="cName">Назва</label><input id="cName">
+        ${labor ? "" : `<label for="cNo">Артикул</label><input id="cNo" placeholder="необов'язково">`}
+        <label for="cPrice">Ціна за од., ${cur}</label><input id="cPrice" inputmode="decimal">
+        <label for="cQty">Кількість</label><input id="cQty" inputmode="decimal" value="1">
+        ${labor ? "" : `<label for="cUnit">Одиниця</label><input id="cUnit" value="шт">`}
+        <span></span><div class="hint">Позиція додається лише в цей замовлення-наряд. Щоб вона була в довіднику — додайте її в «📚 Довідник».</div>
+        <span></span><div class="form-actions"><button class="primary" type="submit">Додати</button></div>
+      </form>`;
+    $("#cName").focus();
+    $("#customForm").onsubmit = async e => {
+      e.preventDefault();
+      const n2 = v => Number(String(v).replace(",", ".").trim());
+      const body = {name: $("#cName").value, price: n2($("#cPrice").value), qty: n2($("#cQty").value)};
+      if (!labor){ body.part_no = $("#cNo").value; body.unit = $("#cUnit").value; }
+      if (!body.name.trim() || !isFinite(body.price) || $("#cPrice").value.trim() === ""){
+        $("#lineErr").hidden = false; $("#lineErr").textContent = "Вкажіть назву та ціну"; return;
+      }
+      if (await orderEdit("POST", `/api/order/${kind}`, body)) $("#lineDlg").close();
+    };
+  };
+  $("#addTabs").onclick = e => {
+    const mode = e.target.dataset.mode;
+    if (!mode) return;
+    document.querySelectorAll("#addTabs button").forEach(b => b.classList.toggle("on", b === e.target));
+    $("#lineErr").hidden = true;
+    mode === "catalog" ? showCatalogList() : showCustomForm();
+  };
+  showCatalogList();
+}
+$("#closeLine").onclick = () => $("#lineDlg").close();
+$("#mic").onclick = () => {
+  if (recognizer){ const same = voiceTarget === VOICE_CHAT; stopVoice(); if (same) return; }
+  startVoice(VOICE_CHAT);
+};
+
+// ---------- Фото VIN / одометра ----------
+async function shrinkPhoto(file){
+  // Зменшуємо до 1600 px по довшій стороні: так швидше й дешевше, а текст лишається читабельним.
+  const url = URL.createObjectURL(file);
+  try{
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = () => reject(new Error("Не вдалося відкрити фото"));
+      i.src = url;
+    });
+    const k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(img.naturalWidth * k);
+    canvas.height = Math.round(img.naturalHeight * k);
+    canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.85);
+  }finally{ URL.revokeObjectURL(url); }
+}
+
+$("#photoBtn").onclick = () => { if (!busy) $("#photoInput").click(); };
+$("#photoInput").onchange = async e => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file || busy) return;
+  stopVoice();
+  busy = true; $("#send").disabled = $("#photoBtn").disabled = true;
+  const typing = document.createElement("div");
+  try{
+    const image = await shrinkPhoto(file);
+    const bubble = addMsg("user", "📷 Фото");
+    bubble.insertAdjacentHTML("afterbegin", `<img alt="Фото" src="${image}">`);
+    typing.className = "typing"; typing.textContent = "Розпізнаю фото";
+    $("#log").appendChild(typing); $("#log").scrollTop = $("#log").scrollHeight;
+    const r = await api("/api/photo", {method: "POST", body: JSON.stringify({image})});
+    typing.remove();
+    if (!r.text){
+      addMsg("error", "На фото не знайдено VIN чи пробігу" + (r.notes ? ": " + r.notes : "") + ". Спробуйте зняти ближче й рівніше.");
+      return;
+    }
+    const input = $("#input");
+    input.value = (input.value.trim() ? input.value.trim() + " " : "") + r.text;
+    const notes = [...r.warnings, ...(r.notes ? [r.notes] : [])];
+    addMsg("assistant", `Розпізнано: **${r.text.replace(/^З фото: /, "")}**\n` +
+      (notes.length ? notes.map(n => "- ⚠ " + n).join("\n") + "\n" : "") +
+      "Перевірте текст у полі введення, допишіть, якщо потрібно, і натисніть «Надіслати».");
+    input.focus();
+  }catch(err){
+    typing.remove();
+    addMsg("error", err.message);
+  }finally{
+    busy = false; $("#send").disabled = $("#photoBtn").disabled = false;
+  }
+};
+$("#composer").addEventListener("submit", e => { e.preventDefault(); send($("#input").value); });
+$("#input").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); send($("#input").value); }
+});
+$("#hints").addEventListener("click", e => { if (e.target.dataset.manual !== undefined) newManualOrder(); });
+$("#btnOrders").onclick = showOrders;
+
+// ---------- Каса й боржники ----------
+let cashView = "cash", cashDay = null;
+async function showCash(view){
+  cashView = view || cashView;
+  if (!$("#cashDlg").open){ $("#cashDlg").showModal(); cashDay = isoDate(new Date()); }
+  document.querySelectorAll("#cashTabs button").forEach(b => b.classList.toggle("on", b.dataset.cashView === cashView));
+  $("#cashBody").innerHTML = "Завантаження…";
+  try{
+    if (cashView === "cash"){
+      const c = await api(`/api/cash?day=${cashDay}`);
+      $("#cashBody").innerHTML = `<div class="bk-nav"><button data-cash-day="-1">◀</button>
+          <input type="date" id="cashDate" value="${esc(c.day)}"><button data-cash-day="1">▶</button>
+          <button data-cash-day="0">Сьогодні</button></div>
+        <div class="cash-tiles"><div><b>${num(c.total)} ${CUR}</b>усього</div>${c.methods.map(m => `<div><b>${num(c.by_method[m])} ${CUR}</b>${esc(m)}</div>`).join("")}
+          ${Number(c.received_uah) ? `<div><b>${num(c.received_uah)} грн</b>у т.ч. прийнято гривнею</div>` : ""}</div>
+        ${c.payments.length ? `<div class="tbl"><table><tr><th>Час</th><th>Замовлення</th><th class="hide-m">Клієнт</th><th>Спосіб</th><th class="r">Сума</th></tr>
+          ${c.payments.map(p => `<tr><td>${esc(p.at.slice(11))}</td><td><button data-cash-open="${esc(p.number)}">${esc(p.number)}</button><div class="sub show-m">${esc(p.client)}</div></td>
+            <td class="hide-m">${dash(p.client)}<div class="sub">${esc(p.vehicle)}${p.by ? " · прийняв(-ла) " + esc(p.by) : ""}${p.note ? " · " + esc(p.note) : ""}</div></td>
+            <td>${esc(p.method)}</td><td class="r">${num(p.amount)} ${CUR}${p.amount_uah ? `<div class="sub">${num(p.amount_uah)} грн</div>` : ""}</td></tr>`).join("")}</table></div>`
+          : `<div class="empty">Оплат за цей день немає.</div>`}`;
+      $("#cashDate").onchange = e => { if (e.target.value){ cashDay = e.target.value; showCash(); } };
+    }else{
+      const d = await api("/api/debts");
+      const row = x => `<tr><td><button data-cash-open="${esc(x.number)}">${esc(x.number)}</button><div class="sub">${dateOnly(x.created_at)}</div></td>
+        <td>${dash(x.client)}<div class="sub">${esc(x.phone)}${x.vehicle ? " · " + esc(x.vehicle) : ""}</div></td>
+        <td class="r hide-m">${num(x.total)} ${CUR}</td><td class="r hide-m">${num(x.paid)} ${CUR}</td><td class="r"><b>${num(Math.abs(Number(x.balance)))} ${CUR}</b></td></tr>`;
+      $("#cashBody").innerHTML = `
+        <div class="cash-tiles"><div><b>${num(d.total)} ${CUR}</b>борги клієнтів</div><div><b>${d.debts.length}</b>замовлень у борг</div></div>
+        ${d.debts.length ? `<div class="tbl"><table><tr><th>Замовлення</th><th>Клієнт</th><th class="r hide-m">Сума</th><th class="r hide-m">Сплачено</th><th class="r">Борг</th></tr>${d.debts.map(row).join("")}</table></div>`
+          : `<div class="empty">Боргів немає — усі видані автомобілі оплачено.</div>`}
+        ${d.overpaid.length ? `<h3>Переплата / треба повернути</h3><div class="tbl"><table><tr><th>Замовлення</th><th>Клієнт</th><th class="r hide-m">Сума</th><th class="r hide-m">Сплачено</th><th class="r">Повернути</th></tr>${d.overpaid.map(row).join("")}</table></div>` : ""}`;
+    }
+  }catch(e){ $("#cashBody").textContent = e.message; }
+}
+$("#btnCash").onclick = () => showCash();
+$("#closeCash").onclick = () => $("#cashDlg").close();
+$("#cashTabs").onclick = e => { if (e.target.dataset.cashView) showCash(e.target.dataset.cashView); };
+$("#cashBody").addEventListener("click", async e => {
+  const d = e.target.dataset;
+  if (d.cashDay !== undefined){ cashDay = d.cashDay === "0" ? isoDate(new Date()) : addDays(cashDay, Number(d.cashDay)); return showCash(); }
+  if (d.cashOpen){
+    try{
+      const data = await api(`/api/orders/${encodeURIComponent(d.cashOpen)}/open`, {method: "POST"});
+      $("#cashDlg").close(); $("#log").innerHTML = "";
+      addMsg("assistant", `Відкрито замовлення-наряд № ${d.cashOpen}.`);
+      renderOrder(data.order);
+      document.querySelector('.tabs button[data-tab="order"]').click();
+    }catch(err){ alert(err.message); }
+  }
+});
+
+// ---------- Запис на сервіс (планувальник) ----------
+let bkStart = null;
+const isoDate = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const addDays = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return isoDate(d); };
+const ddmm = iso => iso.slice(8, 10) + "." + iso.slice(5, 7);
+const endTime = (t, m) => { const x = Number(t.slice(0, 2)) * 60 + Number(t.slice(3)) + m; return `${String(Math.floor(x / 60) % 24).padStart(2, "0")}:${String(x % 60).padStart(2, "0")}`; };
+
+async function showBookings(){
+  if (!$("#bookingsDlg").open){ $("#bookingsDlg").showModal(); bkStart = bkStart || isoDate(new Date()); }
+  $("#bkRange").textContent = `${ddmm(bkStart)} — ${ddmm(addDays(bkStart, 6))}`;
+  let data;
+  try{ data = await api(`/api/bookings?start=${bkStart}&days=7`); }
+  catch(e){ $("#bkDays").textContent = e.message; return; }
+  const today = isoDate(new Date());
+  const byId = {};
+  data.days.forEach(d => d.items.forEach(b => { byId[b.id] = b; }));
+  $("#bkDays").innerHTML = data.days.map(d => `<div class="bk-day ${d.date === today ? "today" : ""}">
+    <h4>${esc(d.weekday)} ${ddmm(d.date)}${d.date === today ? " · сьогодні" : ""}</h4>
+    ${d.items.length ? d.items.map(b => {
+      const off = b.status === "скасовано" || b.status === "не приїхав";
+      return `<div class="bk-item ${off ? "off" : ""}">
+        <div class="t">${esc(b.time)}<small>до ${endTime(b.time, b.duration_min)}</small></div>
+        <div><div class="who"><b>${esc(b.client_name)}</b>${b.phone ? ` <span class="sub">${esc(b.phone)}</span>` : ""}${b.car ? ` · ${esc(b.car)}` : ""}</div>
+          ${b.work ? `<div>${esc(b.work)}</div>` : ""}${b.note ? `<div class="sub">📝 ${esc(b.note)}</div>` : ""}
+          <div class="sub">${b.status !== "заплановано" ? `<span class="badge">${esc(b.status)}</span> ` : ""}${b.order_number ? `→ ${esc(b.order_number)} ` : ""}${b.created_by ? `записав(-ла) ${esc(b.created_by)}` : ""}</div>
+          ${b.overlaps.length ? `<div class="bk-warn">⚠ Накладка: ${b.overlaps.map(id => byId[id] ? `${esc(byId[id].time)} ${esc(byId[id].client_name)}` : "").join(", ")}</div>` : ""}</div>
+        ${b.status === "заплановано" ? `<div class="acts">
+          <button data-bk-order="${esc(b.id)}" class="primary">🚗 Приїхав → замовлення</button>
+          <button data-bk-edit="${esc(b.id)}">✎ Змінити</button>
+          <button data-bk-status="${esc(b.id)}:не приїхав">Не приїхав</button>
+          <button data-bk-status="${esc(b.id)}:скасовано">Скасувати</button></div>` : ""}
+      </div>`; }).join("") : `<div class="sub">—</div>`}</div>`).join("");
+  $("#bkDays").dataset.items = JSON.stringify(byId);
+}
+
+function bkLog(text, cls){
+  const div = document.createElement("div");
+  div.className = cls || "";
+  if (cls) div.textContent = text; else div.innerHTML = md(text);
+  $("#bkLog").appendChild(div);
+  while ($("#bkLog").children.length > 6) $("#bkLog").firstChild.remove();
+}
+
+$("#bkAgentForm").onsubmit = async e => {
+  e.preventDefault();
+  const text = $("#bkText").value.trim();
+  if (!text) return;
+  if (voiceTarget === VOICE_BOOKING) stopVoice(true);
+  $("#bkSend").disabled = true; $("#bkSend").textContent = "…";
+  bkLog(text, "me");
+  try{
+    const r = await api("/api/bookings/agent", {method: "POST", body: JSON.stringify({text, author: authorName()})});
+    $("#bkText").value = "";
+    bkLog(r.reply);
+    showBookings();
+  }catch(err){ bkLog(err.message, "err"); }
+  $("#bkSend").disabled = false; $("#bkSend").textContent = "Записати";
+};
+$("#bkText").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); $("#bkAgentForm").requestSubmit(); }
+});
+
+function bookingForm(b){
+  const today = isoDate(new Date());
+  $("#lineTitle").textContent = b ? "Змінити запис" : "Новий запис";
+  $("#lineBody").innerHTML = `<form class="form" id="bkForm" autocomplete="off">
+      <label for="bDate">Дата</label><input id="bDate" type="date" value="${esc(b ? b.date : bkStart > today ? bkStart : today)}" required>
+      <label for="bTime">Час</label><input id="bTime" type="time" value="${esc(b ? b.time : "10:00")}" step="300" required>
+      <label for="bDur">Тривалість, хв</label><input id="bDur" inputmode="numeric" value="${b ? b.duration_min : 60}">
+      <label for="bName">Клієнт</label><input id="bName" value="${esc(b ? b.client_name : "")}" required>
+      <label for="bPhone">Телефон</label><input id="bPhone" type="tel" value="${esc(b ? b.phone : "")}" placeholder="+380…">
+      <label for="bCar">Автомобіль</label><input id="bCar" value="${esc(b ? b.car : "")}" placeholder="Model Y, АА1234ВВ">
+      <label for="bWork">Що зробити</label><input id="bWork" value="${esc(b ? b.work : "")}">
+      <label for="bNote">Примітка</label><input id="bNote" value="${esc(b ? b.note : "")}">
+      <span></span><div><div class="form-err" id="lineErr" hidden></div>
+        <div class="form-actions"><button class="primary" type="submit">Зберегти</button><button type="button" id="lineCancel">Скасувати</button></div></div>
+    </form>`;
+  $("#lineDlg").showModal();
+  $("#lineCancel").onclick = () => $("#lineDlg").close();
+  $("#bkForm").onsubmit = async e => {
+    e.preventDefault();
+    const body = {date: $("#bDate").value, time: $("#bTime").value, duration_min: Number($("#bDur").value) || 60,
+                  client_name: $("#bName").value, phone: $("#bPhone").value, car: $("#bCar").value,
+                  work: $("#bWork").value, note: $("#bNote").value, author: authorName()};
+    try{
+      await api(b ? `/api/bookings/${b.id}` : "/api/bookings", {method: b ? "PUT" : "POST", body: JSON.stringify(body)});
+      $("#lineDlg").close();
+      showBookings();
+    }catch(err){ $("#lineErr").hidden = false; $("#lineErr").textContent = err.message; }
+  };
+  $("#bName").focus();
+}
+
+const VOICE_BOOKING = {input: "#bkText", mic: "#bkMic", error: msg => bkLog(msg, "err")};
+$("#bkMic").onclick = () => {
+  if (recognizer){ const same = voiceTarget === VOICE_BOOKING; stopVoice(); if (same) return; }
+  startVoice(VOICE_BOOKING);
+};
+$("#btnBookings").onclick = showBookings;
+$("#closeBookings").onclick = () => $("#bookingsDlg").close();
+$("#bookingsDlg").addEventListener("close", () => { if (voiceTarget === VOICE_BOOKING) stopVoice(); });
+$("#bookingsDlg").addEventListener("click", async e => {
+  const d = e.target.dataset;
+  if (d.bkNav !== undefined){ bkStart = d.bkNav === "0" ? isoDate(new Date()) : addDays(bkStart, Number(d.bkNav)); return showBookings(); }
+  if (d.bkNew !== undefined) return bookingForm(null);
+  const items = JSON.parse($("#bkDays").dataset.items || "{}");
+  if (d.bkEdit) return bookingForm(items[d.bkEdit]);
+  if (d.bkStatus){
+    const [id, status] = d.bkStatus.split(":");
+    const b = items[id];
+    if (!confirm(`${status === "скасовано" ? "Скасувати запис" : "Позначити «не приїхав»"}: ${b.time} ${b.client_name}?`)) return;
+    try{ await api(`/api/bookings/${id}/status`, {method: "POST", body: JSON.stringify({status, author: authorName()})}); showBookings(); }
+    catch(err){ alert(err.message); }
+    return;
+  }
+  if (d.bkOrder){
+    if (busy) return;
+    try{
+      const data = await api(`/api/bookings/${d.bkOrder}/order`, {method: "POST"});
+      $("#bookingsDlg").close(); $("#log").innerHTML = "";
+      addMsg("assistant", `Створено замовлення-наряд № ${data.order.number} за записом. Уточніть пробіг${data.order.vehicle.vin ? "" : " і VIN"} — тут або в панелі.`);
+      renderOrder(data.order);
+      document.querySelector('.tabs button[data-tab="order"]').click();
+    }catch(err){ alert(err.message); }
+  }
+});
+
+// ---------- База клієнтів і розсилка ----------
+let clientsData = null, clientsQuery = "", clientsFilter = "";
+const CLIENT_FILTERS = [["", "усі"], ["tg", "📲 у Telegram"], ["6", "не були 6+ міс."], ["12", "не були 12+ міс."]];
+const BC_TEMPLATES = {
+  "Нагадування про ТО": "Добрий день, {ім'я}! Нагадуємо, що для {авто} настав час планового обслуговування. Запишіться до {сервіс}: {адреса}.",
+  "Сезонна заміна шин": "Добрий день, {ім'я}! Час сезонної заміни шин для {авто}. Чекаємо вас у {сервіс}: {адреса}.",
+  "Довільне": ""};
+const tgBadge = c => c.telegram ? (c.telegram.blocked ? `<span class="tg off" title="Клієнт заблокував бота">🚫 заблокував</span>`
+  : `<span class="tg" title="Підключився до бота ${esc(c.telegram.at)}">📲 Telegram</span>`) : "";
+const dateOnly = d => d ? esc(String(d).split(" ")[0]) : "—";
+
+function clientMatches(c){
+  if (clientsFilter === "tg" && !(c.telegram && !c.telegram.blocked)) return false;
+  if ((clientsFilter === "6" || clientsFilter === "12") && !(c.months != null && c.months >= Number(clientsFilter))) return false;
+  const words = clientsQuery.toLowerCase().split(/\s+/).filter(Boolean);
+  const digits = clientsQuery.replace(/\D/g, "");
+  const hay = `${c.name} ${c.email} ${c.cars.map(x => `${x.vin} ${x.plate || ""} ${x.model || ""}`).join(" ")}`.toLowerCase();
+  if (digits.length >= 3 && /^[\d\s+()-]+$/.test(clientsQuery.trim())) return c.phone.replace(/\D/g, "").includes(digits);
+  return words.every(w => hay.includes(w));
+}
+
+async function showClients(){
+  if (!$("#clientsDlg").open) $("#clientsDlg").showModal();
+  $("#clientsTitle").textContent = "Клієнти";
+  $("#clientsBody").innerHTML = "Завантаження…";
+  try{ clientsData = await api("/api/clients"); }
+  catch(e){ $("#clientsBody").textContent = e.message; return; }
+  const connected = clientsData.clients.filter(c => c.telegram && !c.telegram.blocked).length;
+  $("#clientsBody").innerHTML = `
+    <div class="toolbar"><input id="clientsQuery" type="search" placeholder="Пошук: ПІБ, телефон, VIN, держномер" value="${esc(clientsQuery)}">
+      ${clientsData.telegram ? `<button class="primary need-admin" data-broadcast>📣 Розсилка</button>` : ""}
+      <button class="need-admin" data-download="/api/clients/export.xlsx">⬇ Excel</button></div>
+    <div class="filter-chips" id="clientFilter">${CLIENT_FILTERS.map(([v, l]) => `<button data-cf="${v}" class="${v === clientsFilter ? "on" : ""}">${l}</button>`).join("")}</div>
+    <div class="sub" style="margin-bottom:8px">Усього клієнтів: ${clientsData.clients.length}${clientsData.telegram ? ` · у Telegram: ${connected}` : ""}</div>
+    <div id="clientsTable"></div>`;
+  $("#clientsQuery").oninput = e => { clientsQuery = e.target.value; renderClientsTable(); };
+  renderClientsTable();
+}
+
+function renderClientsTable(){
+  const list = clientsData.clients.filter(clientMatches);
+  $("#clientsTable").innerHTML = list.length ? `<div class="tbl"><table>
+    <tr><th>Клієнт</th><th class="hide-m">Автомобілі</th><th class="r">Візитів</th><th class="r hide-m">Сума</th><th class="hide-m">Останній візит</th></tr>
+    ${list.map(c => `<tr class="click" data-client="${esc(c.key)}"><td>${dash(c.name)} ${tgBadge(c)}<div class="sub">${dash(c.phone)}<span class="show-m"> · ${c.cars.map(x => esc(carName(x) || "авто")).join(", ")} · ${dateOnly(c.last_visit)}</span></div></td>
+      <td class="hide-m">${c.cars.map(x => `${esc(carName(x))} ${x.plate ? `<span class="sub">${esc(x.plate)}</span>` : ""}`).join("<br>") || "—"}</td>
+      <td class="r">${c.visits}</td><td class="r hide-m">${num(c.spent)} ${CUR}${Number(c.debt) > 0 ? `<div class="sub" style="color:var(--accent)">борг ${num(c.debt)}</div>` : ""}</td><td class="hide-m">${dateOnly(c.last_visit)}</td></tr>`).join("")}
+    </table></div>` : `<div class="empty">${clientsData.clients.length ? "Нічого не знайдено." : "Клієнти з'являться тут із першими замовленнями-нарядами."}</div>`;
+}
+
+function showClientCard(key){
+  const c = clientsData.clients.find(x => x.key === key);
+  if (!c) return;
+  $("#clientsTitle").textContent = c.name || c.phone || "Клієнт";
+  $("#clientsBody").innerHTML = `
+    <div class="client-head"><button data-clients-back>← Усі клієнти</button>${tgBadge(c)}</div>
+    <div class="info"><dl><dt>Телефон</dt><dd>${dash(c.phone)}</dd><dt>E-mail</dt><dd>${dash(c.email)}</dd>
+      ${c.telegram ? `<dt>Telegram</dt><dd>${esc(c.telegram.name)}${c.telegram.at ? ` · з ${dateOnly(c.telegram.at)}` : ""}${c.telegram.blocked ? " · заблокував бота" : ""}</dd>` : ""}</dl></div>
+    <div class="client-stats"><div><b>${c.visits}</b>візитів</div><div><b>${num(c.spent)} ${CUR}</b>усього</div>
+      ${Number(c.debt) > 0 ? `<div style="color:var(--accent)"><b>${num(c.debt)} ${CUR}</b>борг</div>` : ""}
+      <div><b>${dateOnly(c.first_visit)}</b>перший візит</div><div><b>${dateOnly(c.last_visit)}</b>останній візит</div></div>
+    <div class="sec-head"><h3>Автомобілі</h3><button class="primary" data-client-order="">＋ Нове замовлення</button></div>
+    <div class="cars">${c.cars.map(x => `<div class="car"><b>${esc(carName(x) || "Автомобіль")} ${x.year ? esc(x.year) : ""}</b>
+        <span class="sub">${esc(x.vin || "")}${x.plate ? " · " + esc(x.plate) : ""}${x.odometer_km != null ? " · " + Number(x.odometer_km).toLocaleString("uk-UA") + " км" : ""}</span>
+        <button data-client-order="${esc(x.vin || "")}">＋ Замовлення на це авто</button></div>`).join("") || `<div class="sub">—</div>`}</div>
+    <h3>Замовлення-наряди</h3>
+    ${c.orders.length ? `<div class="tbl"><table><tr><th>Номер</th><th>Дата</th><th class="hide-m">Роботи</th><th class="r">Сума</th><th>Статус</th><th></th></tr>
+      ${c.orders.map(o => `<tr><td>${esc(o.number)}<div class="sub">${esc(o.vehicle)}</div></td><td>${dateOnly(o.date)}</td>
+        <td class="hide-m sub">${o.works.map(esc).join(", ") || "—"}</td><td class="r">${num(o.total)} ${esc(o.currency)}</td>
+        <td><span class="badge ${stClass(o.status)}">${esc(o.status)}</span></td>
+        <td class="r"><button data-client-open="${esc(o.number)}">Відкрити</button> <button data-print="${esc(o.number)}">🖨</button></td></tr>`).join("")}</table></div>` : `<div class="sub">—</div>`}`;
+  $("#clientsBody").dataset.key = key;
+}
+
+function showBroadcast(){
+  const recipients = clientsData.clients.filter(c => c.telegram && !c.telegram.blocked && clientMatches(c));
+  $("#clientsTitle").textContent = "Розсилка в Telegram";
+  $("#clientsBody").innerHTML = `
+    <div class="client-head"><button data-clients-back>← Клієнти</button></div>
+    <div class="bc-form">
+      <div class="sub">Повідомлення отримають лише клієнти, які підключились до бота (натиснули «Старт»). Підстановки:
+        <code>{ім'я}</code>, <code>{авто}</code>, <code>{сервіс}</code>, <code>{адреса}</code>.</div>
+      <div class="filter-chips" id="bcTemplates" style="margin-top:8px">${Object.keys(BC_TEMPLATES).map(t => `<button data-tpl="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+      <textarea id="bcText" maxlength="3000" placeholder="Текст повідомлення…"></textarea>
+      <div class="sub" id="bcPreview"></div>
+      <h3>Отримувачі · <span id="bcCount"></span></h3>
+      <div class="sub">Фільтр і пошук зі списку клієнтів: «${esc((CLIENT_FILTERS.find(f => f[0] === clientsFilter) || ["", "усі"])[1])}»${clientsQuery ? `, «${esc(clientsQuery)}»` : ""}.</div>
+      ${recipients.length ? `<div class="bc-list">${recipients.map(c => `<label><input type="checkbox" data-bc-key="${esc(c.key)}" checked> ${dash(c.name)} <span class="sub">${esc(c.phone)} · ${c.cars.map(x => esc(carName(x) || "авто")).join(", ")} · ${dateOnly(c.last_visit)}</span></label>`).join("")}</div>`
+        : `<div class="empty">Немає підключених до бота клієнтів за цим фільтром.</div>`}
+      <div class="send-row"><button class="primary" id="bcSend" ${recipients.length ? "" : "disabled"}>📣 Надіслати</button><span id="bcRes"></span></div>
+      ${clientsData.broadcasts.length ? `<h3>Попередні розсилки</h3><div class="tbl"><table><tr><th>Дата</th><th>Текст</th><th class="r">Надіслано</th></tr>
+        ${clientsData.broadcasts.map(b => `<tr><td>${esc(b.at)}</td><td class="sub">${esc(b.text)}</td><td class="r">${b.sent}${b.failed ? ` <span class="sub">(не доставлено ${b.failed})</span>` : ""}</td></tr>`).join("")}</table></div>` : ""}
+    </div>`;
+  const count = () => {
+    const n = document.querySelectorAll("[data-bc-key]:checked").length;
+    $("#bcCount").textContent = n; $("#bcSend").textContent = `📣 Надіслати (${n})`;
+    const first = recipients.find(c => document.querySelector(`[data-bc-key="${CSS.escape(c.key)}"]`).checked);
+    const t = $("#bcText").value;
+    $("#bcPreview").textContent = first && t ? "Приклад: " + t.replaceAll("{ім'я}", first.name || "").replaceAll("{авто}",
+      first.cars[0] ? `${carName(first.cars[0])}${first.cars[0].plate ? ` (${first.cars[0].plate})` : ""}`.replace(/\s+/g, " ") : "ваш автомобіль")
+      .replaceAll("{сервіс}", document.title).replaceAll("{адреса}", catalogAddress()) : "";
+  };
+  $("#bcText").oninput = count;
+  $("#clientsBody").onchange = e => { if (e.target.dataset.bcKey !== undefined) count(); };
+  $("#bcTemplates").onclick = e => { if (e.target.dataset.tpl !== undefined){ $("#bcText").value = BC_TEMPLATES[e.target.dataset.tpl]; $("#bcText").focus(); count(); } };
+  if (recipients.length) count();
+  $("#bcSend").onclick = async () => {
+    const keys = [...document.querySelectorAll("[data-bc-key]:checked")].map(x => x.dataset.bcKey);
+    const text = $("#bcText").value.trim();
+    if (!text){ $("#bcText").focus(); return; }
+    if (!keys.length) return;
+    if (!confirm(`Надіслати повідомлення ${keys.length} клієнтам у Telegram?`)) return;
+    $("#bcSend").disabled = true; $("#bcRes").textContent = "Надсилаю…";
+    try{
+      const r = await api("/api/broadcast", {method: "POST", body: JSON.stringify({keys, text})});
+      $("#bcRes").innerHTML = `<span class="ok-line">✓ Надіслано: ${r.sent}</span>${r.failed ? ` · не доставлено: ${r.failed} (клієнт міг заблокувати бота)` : ""}`;
+    }catch(e){ $("#bcRes").textContent = e.message; $("#bcSend").disabled = false; }
+  };
+}
+let SERVICE_ADDRESS = "";
+const catalogAddress = () => SERVICE_ADDRESS;
+
+$("#btnClients").onclick = showClients;
+
+// ---------- Головна: замовлення в роботі, записи на сьогодні, що потребує уваги ----------
+let homeData = null, homeMine = false, homeStage = null;
+try{ homeMine = localStorage.getItem("homeMine") === "1"; }catch(e){}
+const STAGES = [["прийнято", "📥 Прийнято"], ["в роботі", "🔧 В роботі"], ["готово", "✅ Готово до видачі"]];
+const ALERT_ICON = {stale: "⏰", approval: "📝", pickup: "🅿️", debt: "💸", stock: "📦", late: "🕒"};
+const daysLabel = d => d == null ? "" : d < 1 ? (d * 24 < 1 ? "щойно" : `${Math.floor(d * 24)} год`) : `${Math.floor(d)} дн.`;
+
+async function loadHome(){
+  if (!document.body.classList.contains("home-mode")) return;
+  try{ homeData = await api("/api/dashboard"); }
+  catch(e){ $("#homeBody").innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+  renderHome();
+}
+
+function homeTile(t){
+  const me = authorName();
+  return `<div class="htile ${t.stale ? "late" : ""}" data-home-open="${esc(t.number)}" role="button" tabindex="0">
+    <div class="ht-top"><b>№ ${esc(t.number.replace(/^ЗН-\d{4}-0*/, ""))}</b>
+      <span class="ht-age ${t.stale ? "bad" : ""}" title="У цьому статусі з ${esc(t.since)}">${daysLabel(t.days)}</span></div>
+    <div class="ht-car">${esc(t.car || "—")}</div>
+    <div class="sub">${dash(t.client)}</div>
+    ${t.works.length ? `<div class="ht-works">${t.works.map(esc).join(", ")}${t.more_works ? ` +${t.more_works}` : ""}</div>` : ""}
+    <div class="ht-meta">
+      <span class="ht-sum">${num(t.total)} ${CUR}</span>
+      ${t.payment_status === "оплачено" ? `<span class="ok">оплачено</span>` : Number(t.balance) > 0 && t.payment_status === "частково" ? `<span class="warn">до сплати ${num(t.balance)}</span>` : ""}
+      ${t.approval === "pending" ? `<span title="Кошторис чекає відповіді клієнта">📝 чекає</span>` : t.approval === "approved" ? `<span class="ok" title="Клієнт погодив кошторис">✅ погоджено</span>` : t.approval === "declined" ? `<span class="warn">❌ відмова</span>` : ""}
+    </div>
+    <div class="ht-foot"><span class="${t.assignee && t.assignee === me ? "mine" : ""}">👤 ${esc(t.assignee || "—")}</span>
+      ${t.comments ? `<span>💬${t.comments}</span>` : ""}${t.photos ? `<span>📷${t.photos}</span>` : ""}
+      ${t.next ? `<button class="ht-next" data-home-next="${esc(t.number)}" data-status="${esc(t.next.status)}">${esc(t.next.label)}</button>` : ""}</div>
+  </div>`;
+}
+
+function renderHome(){
+  const d = homeData;
+  if (!d) return;
+  const me = authorName();
+  const mine = t => !homeMine || (me && t.assignee === me);
+  const k = d.kpi;
+  const kpi = (label, value, attr, cls = "") => `<button class="kpi ${cls}" ${attr}><b>${value}</b><span>${label}</span></button>`;
+  const planned = d.bookings_today.filter(b => b.status !== "скасовано");
+  // На телефоні видно одну стадію: обрану або «в роботі», а якщо там порожньо — першу непорожню.
+  const counts = STAGES.map(([st]) => d.board[st].filter(mine).length);
+  const stageIndex = homeStage ?? (counts[1] ? 1 : Math.max(0, counts.findIndex(n => n > 0)));
+  $("#homeBody").innerHTML = `
+    <div class="home-head">
+      <div><h2>${esc(d.weekday[0].toUpperCase() + d.weekday.slice(1))}, ${esc(d.now.split(" ")[0])}</h2>
+        <span class="sub">оновлено о ${esc(d.now.split(" ")[1])} · оновлюється саме</span></div>
+      <label class="mine-toggle" title="${me ? "Показати лише замовлення, де відповідальний — " + esc(me) : "Ім'я вказується в коментарях до замовлення"}">
+        <input type="checkbox" id="homeMine" ${homeMine ? "checked" : ""} ${me ? "" : "disabled"}> Лише мої${me ? ` (${esc(me)})` : ""}</label>
+    </div>
+    ${currentOrder ? `<button class="continue" data-home-open="${esc(currentOrder.number)}">↩ Продовжити № ${esc(currentOrder.number)}${currentOrder.customer.name ? " · " + esc(currentOrder.customer.name) : ""}</button>` : ""}
+    <div class="quick">
+      <button class="primary" data-home-act="new">＋ Нове замовлення</button>
+      <button data-home-act="booking">📅 Записати клієнта</button>
+      <button data-home-act="find">🔎 Знайти замовлення</button>
+      <button data-home-act="work">💬 Робоче місце</button>
+    </div>
+    <div class="kpis">
+      ${kpi("прийнято", k.accepted, 'data-home-jump="stage-0"')}
+      ${kpi("в роботі", k.in_work, 'data-home-jump="stage-1"')}
+      ${kpi("готово до видачі", k.ready, 'data-home-jump="stage-2"', k.ready ? "good" : "")}
+      ${kpi("записів сьогодні", k.bookings_today, 'data-home-jump="home-bookings"')}
+      ${k.cash_today != null ? kpi("отримано сьогодні", num(k.cash_today) + " " + CUR, 'data-home-act="cash"') : ""}
+      ${k.debts != null ? kpi("борги клієнтів", num(k.debts) + " " + CUR, 'data-home-act="debts"', Number(k.debts) > 0 ? "bad" : "") : ""}
+    </div>
+    ${d.alerts.length ? `<section class="attn ${d.alerts.length > 3 ? "folded" : ""}" id="attn"><h3>⚠ Потребує уваги · ${d.alerts.length}</h3>
+      ${d.alerts.map(a => `<button class="attn-row" ${a.number ? `data-home-open="${esc(a.number)}"` : a.kind === "stock" ? 'data-home-act="stock"' : 'data-home-act="booking"'}>
+        <span>${ALERT_ICON[a.kind] || "•"}</span><span>${esc(a.text)}</span></button>`).join("")}
+      ${d.alerts.length > 3 ? `<button class="attn-more" data-attn-more>Показати всі (${d.alerts.length})</button>` : ""}</section>` : ""}
+    <section id="home-board"><h3>Замовлення в роботі</h3>
+      <div class="stage-tabs">${STAGES.map(([st, title], i) => `<button data-home-stage="${i}" class="${i === stageIndex ? "on" : ""}">${title.split(" ").slice(1).join(" ").replace(" до видачі", "")} <span class="badge">${d.board[st].filter(mine).length}</span></button>`).join("")}</div>
+      <div class="board">${STAGES.map(([st, title], i) => {
+        const items = d.board[st].filter(mine);
+        return `<div class="col ${i === stageIndex ? "sel" : ""}" id="stage-${i}"><div class="col-head">${title} <span class="badge">${items.length}</span></div>
+          ${items.map(homeTile).join("") || `<div class="sub col-empty">${homeMine ? "Ваших немає" : "Порожньо"}</div>`}</div>`;
+      }).join("")}</div></section>
+    <section id="home-bookings"><h3>📅 Записи на сьогодні · ${planned.length}${d.bookings_tomorrow ? ` <span class="sub">· завтра: ${d.bookings_tomorrow}</span>` : ""}</h3>
+      ${d.bookings_today.length ? `<div class="hbook">${d.bookings_today.map(b => {
+        const off = b.status === "скасовано" || b.status === "не приїхав";
+        return `<div class="hb ${off ? "off" : ""}"><div class="t">${esc(b.time)}</div>
+          <div><b>${esc(b.client_name)}</b>${b.car ? ` · ${esc(b.car)}` : ""}${b.work ? `<div class="sub">${esc(b.work)}</div>` : ""}
+            ${b.status !== "заплановано" ? `<span class="badge">${esc(b.status)}${b.order_number ? " → " + esc(b.order_number) : ""}</span>` : ""}</div>
+          ${b.status === "заплановано" ? `<button class="primary" data-home-arrive="${esc(b.id)}">🚗 Приїхав</button>` : b.order_number ? `<button data-home-open="${esc(b.order_number)}">Відкрити</button>` : ""}</div>`;
+      }).join("")}</div>` : `<div class="sub">На сьогодні записів немає. <button data-home-act="booking">Записати клієнта</button></div>`}</section>
+    ${d.drafts.length ? `<section><h3>📝 Незавершені чернетки · ${d.drafts.length}</h3><div class="drafts">${d.drafts.map(x =>
+      `<button data-home-open="${esc(x.number)}"><b>${esc(x.number)}</b><span class="sub">${esc(x.client || "без клієнта")}${x.car ? " · " + esc(x.car) : ""} · ${esc(x.created_at.split(" ")[0])}</span></button>`).join("")}</div></section>` : ""}`;
+  $("#homeMine").onchange = e => {
+    homeMine = e.target.checked;
+    try{ localStorage.setItem("homeMine", homeMine ? "1" : "0"); }catch(err){}
+    renderHome();
+  };
+}
+
+async function openFromHome(number){
+  try{
+    if (!currentOrder || currentOrder.number !== number){
+      const data = await api(`/api/orders/${encodeURIComponent(number)}/open`, {method: "POST"});
+      $("#log").innerHTML = "";
+      addMsg("assistant", `Відкрито замовлення-наряд № ${number}. Що потрібно змінити?`);
+      renderOrder(data.order);
+    }
+    document.querySelector('.tabs button[data-tab="order"]').click();
+  }catch(err){ alert(err.message); }
+}
+
+$("#homeBody").addEventListener("click", async e => {
+  if (e.target.dataset.attnMore !== undefined){ $("#attn").classList.remove("folded"); return; }
+  const el = e.target.closest("[data-home-next],[data-home-arrive],[data-home-act],[data-home-jump],[data-home-stage],[data-home-open]");
+  if (!el) return;
+  const d = el.dataset;
+  if (d.homeNext){
+    e.stopPropagation();
+    const t = Object.values(homeData.board).flat().find(x => x.number === d.homeNext);
+    if (d.status === "видано" && t && Number(t.balance) > 0 &&
+        !confirm(`Клієнт ще не сплатив ${num(t.balance)} ${CUR}. Видати автомобіль у борг?`)) return;
+    el.disabled = true;
+    try{ await api(`/api/orders/${encodeURIComponent(d.homeNext)}/status`, {method: "POST", body: JSON.stringify({status: d.status, by: authorName()})}); }
+    catch(err){ alert(err.message); }
+    return loadHome();
+  }
+  if (d.homeArrive){
+    try{
+      const data = await api(`/api/bookings/${d.homeArrive}/order`, {method: "POST"});
+      $("#log").innerHTML = "";
+      addMsg("assistant", `Створено замовлення-наряд № ${data.order.number} за записом. Уточніть пробіг${data.order.vehicle.vin ? "" : " і VIN"} — тут або в панелі.`);
+      renderOrder(data.order);
+      document.querySelector('.tabs button[data-tab="order"]').click();
+    }catch(err){ alert(err.message); }
+    return;
+  }
+  if (d.homeStage !== undefined){ homeStage = Number(d.homeStage); renderHome(); return; }
+  if (d.homeJump){
+    const m = d.homeJump.match(/^stage-(\d)$/);
+    if (m && matchMedia("(max-width: 900px)").matches){ homeStage = Number(m[1]); renderHome(); }
+    document.getElementById(m && matchMedia("(max-width: 900px)").matches ? "home-board" : d.homeJump)?.scrollIntoView({behavior: "smooth", block: "start"});
+    return;
+  }
+  if (d.homeOpen) return openFromHome(d.homeOpen);
+  const act = d.homeAct;
+  if (act === "new"){ await newManualOrderFromHome(); return; }
+  if (act === "work") return document.querySelector('.tabs button[data-tab="chat"]').click();
+  if (act === "booking") return showBookings();
+  if (act === "find") return showOrders();
+  if (act === "cash") return showCash("cash");
+  if (act === "debts") return showCash("debts");
+  if (act === "stock"){ $("#catalogDlg").showModal(); try{ setCatalog(await api("/api/catalog")); showCatalog("stock"); }catch(err){ $("#catalogList").textContent = err.message; } }
+});
+
+async function newManualOrderFromHome(){
+  // «Нове» з головної — як кнопка «＋ Нове»: чистий діалог; далі — помічником або вручну.
+  if (busy) return;
+  await api("/api/reset", {method: "POST"});
+  remember(null);
+  $("#log").innerHTML = ""; greet(); renderOrder(null);
+  document.querySelector('.tabs button[data-tab="chat"]').click();
+  $("#input").focus();
+}
+
+$("#btnHome").onclick = () => document.querySelector('.tabs button[data-tab="home"]').click();
+$("#brand").style.cursor = "pointer";
+$("#brand").onclick = () => $("#btnHome").click();
+// Головна оновлюється сама, поки відкрита (зручно й на телефоні, й на екрані в майстерні).
+setInterval(() => { if (!document.hidden) loadHome(); }, 30000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) loadHome(); });
+
+// ---------- Меню на телефоні ----------
+function toggleMenu(open){
+  const panel = $("#menuPanel");
+  open = open ?? panel.hidden;
+  panel.hidden = !open;
+  $("#btnMenu").setAttribute("aria-expanded", String(open));
+  $("#menuLogout").hidden = $("#btnLogout").hidden;
+  if (open) panel.querySelector("button").focus();
+}
+$("#btnMenu").onclick = e => { e.stopPropagation(); toggleMenu(); };
+$("#menuPanel").onclick = e => {
+  const target = e.target.closest("[data-proxy]");
+  if (!target) return;
+  toggleMenu(false);
+  $(target.dataset.proxy).click();
+};
+document.addEventListener("click", e => { if (!$("#menuPanel").hidden && !e.target.closest("#menuPanel")) toggleMenu(false); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#menuPanel").hidden) toggleMenu(false); });
+$("#closeClients").onclick = () => $("#clientsDlg").close();
+$("#clientsBody").addEventListener("click", async e => {
+  const d = e.target.dataset;
+  if (d.cf !== undefined){ clientsFilter = d.cf; document.querySelectorAll("#clientFilter button").forEach(b => b.classList.toggle("on", b === e.target)); renderClientsTable(); return; }
+  if (d.download) return void (location.href = d.download);
+  if (d.broadcast !== undefined) return showBroadcast();
+  if (d.clientsBack !== undefined) return showClients();
+  if (d.print) return void window.open("/print/" + encodeURIComponent(d.print), "_blank");
+  if (d.clientOpen){
+    const data = await api(`/api/orders/${encodeURIComponent(d.clientOpen)}/open`, {method: "POST"});
+    $("#clientsDlg").close(); $("#log").innerHTML = "";
+    addMsg("assistant", `Відкрито замовлення-наряд № ${d.clientOpen}. Що потрібно змінити?`);
+    renderOrder(data.order);
+    document.querySelector('.tabs button[data-tab="order"]').click();
+    return;
+  }
+  if (d.clientOrder !== undefined){
+    if (busy) return;
+    try{
+      const data = await api("/api/clients/new-order", {method: "POST", body: JSON.stringify({key: $("#clientsBody").dataset.key, vin: d.clientOrder})});
+      $("#clientsDlg").close(); $("#log").innerHTML = "";
+      const v = data.order.vehicle;
+      addMsg("assistant", `Створено замовлення-наряд № ${data.order.number} для клієнта ${data.order.customer.name}` +
+        (v.vin ? ` (${carName(v)} ${v.plate || v.vin}). Вкажіть пробіг і скарги — тут або в панелі.` : ". Вкажіть автомобіль, пробіг і скарги — тут або в панелі."));
+      renderOrder(data.order);
+      document.querySelector('.tabs button[data-tab="order"]').click();
+    }catch(err){ alert(err.message); }
+    return;
+  }
+  const row = e.target.closest("tr[data-client]");
+  if (row) showClientCard(row.dataset.client);
+});
+$("#btnLogout").onclick = () => { location.href = "/logout"; };
+$("#closeDlg").onclick = () => $("#ordersDlg").close();
+
+// ---------- Довідник: перегляд і редагування ----------
+let catalogData = null, catView = "ops", catQuery = "", catCategory = "", partQuery = "", catFlash = "";
+const fmtNum = n => String(n).replace(".", ",");
+
+function setCatalog(data){
+  catalogData = data;
+  $("#catCategories").innerHTML = data.categories.map(c => `<option value="${esc(c)}">`).join("");
+}
+
+function showCatalog(view){
+  catView = view || catView;
+  document.querySelectorAll("#catTabs button").forEach(b => b.classList.toggle("on", b.dataset.view === catView));
+  const flash = catFlash ? `<div class="form-ok">✓ ${esc(catFlash)}</div>` : "";
+  catFlash = "";
+  if (catView === "ops"){
+    $("#catalogList").innerHTML = `${flash}<div class="toolbar">
+        <input id="catQuery" type="search" placeholder="Пошук: колодки, кондиціонер, BRK-PAD-F…" value="${esc(catQuery)}">
+        <select id="catCategory"><option value="">Усі розділи</option>${catalogData.categories.map(c =>
+          `<option ${c === catCategory ? "selected" : ""}>${esc(c)}</option>`).join("")}</select>
+        <button class="primary need-admin" data-new-op>＋ Нова робота</button></div><div id="opsTable"></div>`;
+    $("#catQuery").oninput = e => { catQuery = e.target.value; renderOpsTable(); };
+    $("#catCategory").onchange = e => { catCategory = e.target.value; renderOpsTable(); };
+    renderOpsTable();
+  } else if (catView === "parts"){
+    $("#catalogList").innerHTML = `${flash}<div class="toolbar">
+        <input id="partQuery" type="search" placeholder="Пошук запчастини або артикулу" value="${esc(partQuery)}">
+        <button class="primary need-admin" data-new-part>＋ Нова запчастина</button></div><div id="partsTable"></div>`;
+    $("#partQuery").oninput = e => { partQuery = e.target.value; renderPartsTable(); };
+    renderPartsTable();
+  } else if (catView === "stock"){
+    loadStock(flash);
+  } else if (catView === "purchases"){
+    loadPurchases(flash);
+  } else if (catView === "staff"){
+    loadStaff(flash);
+  } else {
+    renderSettingsForm(flash);
+  }
+}
+
+// ---------- Співробітники (власник) ----------
+let staffData = null;
+async function loadStaff(flash = ""){
+  $("#catalogList").innerHTML = `${flash}<div class="sub" style="margin:8px 0">Кожен входить на сайт під своїм ім'ям за телефоном: кодом, який бот надсилає в Telegram
+      (після запрошення), або особистим паролем. Загальний пароль сервісу — вхід власника.
+      <b>Майстер</b>: замовлення, статуси, коментарі, фото, запис. <b>Адміністратор</b>: плюс оплати й каса, видалення, довідник,
+      склад і закупівлі, розсилки. <b>Власник</b>: усе, зокрема співробітники, налаштування, резервні копії й витрати на Claude.</div>
+    <form class="staff-add" id="staffAdd" autocomplete="off"><input id="stName" placeholder="Ім'я" required>
+      <input id="stPhone" type="tel" placeholder="Телефон" required>
+      <select id="stRole"><option value="master">майстер</option><option value="admin">адміністратор</option><option value="owner">власник</option></select>
+      <button class="primary">＋ Додати</button></form>
+    <div class="form-err" id="staffErr" hidden></div>
+    <div id="staffTable">Завантаження…</div>`;
+  $("#staffAdd").onsubmit = async e => {
+    e.preventDefault();
+    await staffCall("POST", "/api/staff", {name: $("#stName").value, phone: $("#stPhone").value, role: $("#stRole").value}, "Співробітника додано");
+  };
+  try{ staffData = await api("/api/staff"); renderStaff(); }
+  catch(e){ $("#staffTable").textContent = e.message; }
+}
+async function staffCall(method, url, body, flash){
+  try{
+    staffData = await api(url, {method, body: body ? JSON.stringify(body) : undefined});
+    if (flash){ catFlash = flash; return loadStaff(`<div class="form-ok">✓ ${esc(flash)}</div>`); }
+    renderStaff();
+  }catch(err){ $("#staffErr").hidden = false; $("#staffErr").textContent = err.message; }
+}
+function renderStaff(){
+  const list = staffData.staff;
+  $("#staffTable").innerHTML = list.length ? `<div class="tbl"><table><tr><th>Співробітник</th><th>Роль</th><th class="hide-m">Вхід</th><th></th></tr>
+    ${list.map(e => `<tr class="staff-row ${e.active ? "" : "off"}"><td><b>${esc(e.name)}</b><div class="sub">${esc(e.phone)}</div></td>
+      <td><select data-staff-role="${esc(e.id)}">${Object.entries(staffData.roles).map(([k, v]) => `<option value="${k}" ${k === e.role ? "selected" : ""}>${esc(v)}</option>`).join("")}</select>
+        ${e.active ? "" : `<div class="sub">вимкнено</div>`}</td>
+      <td class="hide-m sub">${e.tg_id ? `<span class="tg">✓ Telegram</span> ${esc(e.tg_name)}` : staffData.telegram ? "Telegram не прив'язано" : ""}${e.has_password ? `<div>🔑 є пароль</div>` : ""}</td>
+      <td><div class="staff-acts">
+        ${staffData.telegram ? `<button data-staff-invite="${esc(e.id)}" title="Посилання для прив'язки Telegram">🔗 ${e.tg_id ? "Нове запрошення" : "Запрошення"}</button>` : ""}
+        <button data-staff-pwd="${esc(e.id)}">🔑 Пароль</button>
+        <button data-staff-active="${esc(e.id)}" data-on="${e.active ? 0 : 1}">${e.active ? "⏸ Вимкнути" : "▶ Увімкнути"}</button></div></td></tr>`).join("")}</table></div>`
+    : `<div class="empty">Співробітників ще немає. Додайте першого — і він зможе входити під своїм ім'ям.</div>`;
+}
+function staffInviteDialog(e){
+  $("#lineTitle").textContent = `Запрошення · ${e.name}`;
+  $("#lineBody").innerHTML = `<div class="send-sec"><div class="sub">Надішліть це посилання співробітнику (у Telegram, Viber чи SMS). Він відкриває його й натискає «Старт» —
+      бот прив'язує його Telegram, і далі він входить на сайт кодом: <b>${esc(staffData.login_url)}</b> → свій телефон → код із Telegram.
+      Посилання одноразове.</div>
+    ${e.invite_link ? `<div class="link-row"><input readonly value="${esc(e.invite_link)}"><button id="copyInv">Копіювати</button>${navigator.share ? `<button id="shareInv">Поділитися</button>` : ""}</div>`
+      : `<div class="form-err">Не вдалося отримати посилання — перевірте Telegram-бота.</div>`}</div>`;
+  $("#lineDlg").showModal();
+  if ($("#copyInv")) $("#copyInv").onclick = async () => { try{ await navigator.clipboard.writeText(e.invite_link); $("#copyInv").textContent = "✓ Скопійовано"; }catch(x){ prompt("Скопіюйте:", e.invite_link); } };
+  if ($("#shareInv")) $("#shareInv").onclick = () => navigator.share({text: `Вхід у ${document.title}: ${e.invite_link}`}).catch(() => {});
+}
+document.addEventListener("change", e => {
+  const id = e.target.dataset && e.target.dataset.staffRole;
+  if (id) staffCall("PUT", `/api/staff/${id}`, {role: e.target.value}, "Роль змінено — співробітнику треба увійти знову");
+});
+document.addEventListener("click", async e => {
+  const d = e.target.dataset || {};
+  if (d.staffInvite){
+    const emp = staffData.staff.find(x => x.id === d.staffInvite);
+    if (emp.tg_id && !confirm(`${emp.name} уже прив'язав Telegram. Нове запрошення відв'яже поточний Telegram. Продовжити?`)) return;
+    if (emp.tg_id || !emp.invite_link) await staffCall("POST", `/api/staff/${emp.id}/invite`);
+    staffInviteDialog(staffData.staff.find(x => x.id === d.staffInvite));
+  }
+  if (d.staffPwd){
+    const emp = staffData.staff.find(x => x.id === d.staffPwd);
+    const pwd = prompt(`Особистий пароль для ${emp.name} (щонайменше 8 символів).\nПорожньо — прибрати пароль.`);
+    if (pwd === null) return;
+    await staffCall("PUT", `/api/staff/${emp.id}/password`, {password: pwd}, pwd ? "Пароль задано" : "Пароль прибрано");
+  }
+  if (d.staffActive){
+    const emp = staffData.staff.find(x => x.id === d.staffActive);
+    if (d.on === "0" && !confirm(`Вимкнути ${emp.name}? Він одразу втратить доступ до сайту й кнопок у Telegram.`)) return;
+    await staffCall("PUT", `/api/staff/${emp.id}`, {active: d.on === "1"}, d.on === "1" ? "Увімкнено" : "Вимкнено — доступ закрито");
+  }
+});
+
+// ---------- Закупівлі ----------
+let poData = null;
+async function loadPurchases(flash = ""){
+  $("#catalogList").innerHTML = `${flash}<div class="toolbar"><span class="sub" style="flex:1">Замовлення постачальникам. Під час приймання товар іде на склад разом із ціною закупівлі.</span>
+      <button data-po-from-low>＋ З того, що треба замовити</button><button class="primary" data-po-new>＋ Нове замовлення</button></div>
+    <div id="poTable">Завантаження…</div>`;
+  try{ poData = await api("/api/purchases"); renderPurchases(); }
+  catch(e){ $("#poTable").textContent = e.message; }
+}
+function renderPurchases(){
+  const st = {"чернетка": "", "замовлено": "st-2", "отримано частково": "st-1", "отримано": "st-3", "скасовано": "st-5"};
+  $("#poTable").innerHTML = poData.purchases.length ? `<div class="tbl"><table>
+    <tr><th>Замовлення</th><th class="hide-m">Постачальник</th><th class="r">Сума</th><th>Статус</th><th></th></tr>
+    ${poData.purchases.map(p => `<tr><td><b>${esc(p.number)}</b><div class="sub">${esc(p.created_at.split(" ")[0])} · позицій: ${p.lines.length}<span class="show-m"> · ${esc(p.supplier || "—")}</span></div></td>
+      <td class="hide-m">${dash(p.supplier)}</td><td class="r">${num(p.total)} ${CUR}</td>
+      <td><span class="badge ${st[p.status] || ""}">${esc(p.status)}</span></td>
+      <td class="r acts"><button data-po-open="${esc(p.id)}" title="Відкрити">✎</button></td></tr>`).join("")}</table></div>`
+    : `<div class="empty">Замовлень постачальникам ще немає.</div>`;
+}
+async function poDialog(po, prefill){
+  if (!catalogData) setCatalog(await api("/api/catalog"));
+  if (!poData) poData = await api("/api/purchases");
+  const parts = catalogData.parts;
+  const editable = !po || ["чернетка", "замовлено"].includes(po.status);
+  const lines = po ? po.lines : prefill || [];
+  const receiving = po && ["замовлено", "отримано частково"].includes(po.status);
+  $("#lineTitle").textContent = po ? `${po.number} · ${po.status}` : "Нове замовлення постачальнику";
+  const row = x => `<tr class="po-line"><td><input list="poParts" class="po-part" value="${esc(x ? x.part_no : "")}" placeholder="артикул або назва" ${editable ? "" : "disabled"}>
+      <div class="sub po-name">${esc(x ? x.name : "")}</div></td>
+    <td><input class="po-qty" inputmode="decimal" value="${x ? String(x.qty).replace(".", ",") : "1"}" ${editable ? "" : "disabled"}></td>
+    <td><input class="po-cost" inputmode="decimal" value="${x && x.cost ? String(x.cost).replace(".", ",") : ""}" placeholder="${CUR}" ${editable ? "" : "disabled"}></td>
+    ${receiving ? `<td><input class="po-got" inputmode="decimal" value="${String(Math.max(0, x.qty - x.received)).replace(".", ",")}" title="Скільки отримано зараз"><div class="sub">було: ${String(x.received).replace(".", ",")}</div></td>` : po && po.status !== "чернетка" ? `<td class="r">${String(x.received).replace(".", ",")}</td>` : ""}
+    <td>${editable ? `<button type="button" class="po-del" title="Прибрати">✕</button>` : ""}</td></tr>`;
+  $("#lineBody").innerHTML = `<form class="form" id="poForm" autocomplete="off">
+      <label for="poSupplier">Постачальник</label><input id="poSupplier" list="poSuppliers" value="${esc(po ? po.supplier : "")}" ${editable ? "" : "disabled"}>
+      <datalist id="poSuppliers">${poData.suppliers.map(x => `<option value="${esc(x)}">`).join("")}</datalist>
+      <label for="poNote">Примітка</label><input id="poNote" value="${esc(po ? po.note : "")}" ${editable ? "" : "disabled"}>
+    </form>
+    <datalist id="poParts">${parts.map(p => `<option value="${esc(p.part_no)}">${esc(p.name)}</option>`).join("")}</datalist>
+    <div class="tbl"><table id="poLines"><tr><th>Запчастина</th><th>К-сть</th><th>Ціна, ${CUR}</th>${receiving ? "<th>Отримано</th>" : po && po.status !== "чернетка" ? `<th class="r">Отримано</th>` : ""}<th></th></tr>
+      ${lines.map(row).join("")}</table></div>
+    ${editable ? `<button type="button" id="poAdd">＋ Рядок</button>` : ""}
+    <div class="po-total">Разом: <b id="poSum">—</b></div>
+    <div class="form-err" id="lineErr" hidden></div>
+    <div class="form-actions" style="flex-wrap:wrap">
+      ${editable ? `<button class="primary" id="poSave">Зберегти</button>` : ""}
+      ${po && po.status === "чернетка" ? `<button id="poOrdered">📨 Позначити «замовлено»</button>` : ""}
+      ${receiving ? `<button class="primary" id="poReceive">📦 Прийняти на склад</button>` : ""}
+      ${po ? `<button data-download="/api/purchases/${esc(po.id)}/export.xlsx" id="poXlsx">⬇ Excel для постачальника</button>` : ""}
+      ${po && ["чернетка", "замовлено"].includes(po.status) ? `<button class="danger" id="poCancel">Скасувати замовлення</button>` : ""}
+    </div>`;
+  $("#lineDlg").showModal();
+  const nameOf = no => (parts.find(p => p.part_no === no.trim().toUpperCase()) || {}).name || "";
+  const collect = () => [...document.querySelectorAll("#poLines .po-line")].map(tr => ({
+    part_no: tr.querySelector(".po-part").value.trim().toUpperCase(), qty: tr.querySelector(".po-qty").value.replace(",", "."),
+    cost: tr.querySelector(".po-cost").value.replace(",", ".") || 0,
+    got: tr.querySelector(".po-got") ? tr.querySelector(".po-got").value.replace(",", ".") : null})).filter(x => x.part_no);
+  const recount = () => { const t = collect().reduce((s, x) => s + (Number(x.qty) || 0) * (Number(x.cost) || 0), 0); $("#poSum").textContent = num(t) + " " + CUR; };
+  const err = m => { $("#lineErr").hidden = false; $("#lineErr").textContent = m; };
+  const body = extra => ({supplier: $("#poSupplier").value, note: $("#poNote").value, lines: collect(), by: authorName(), ...extra});
+  const done = async (r, msg) => { $("#lineDlg").close(); poData = r; catFlash = msg; showCatalog("purchases"); };
+  $("#poLines").addEventListener("input", e => {
+    if (e.target.classList.contains("po-part")) e.target.parentNode.querySelector(".po-name").textContent = nameOf(e.target.value);
+    recount();
+  });
+  $("#poLines").addEventListener("click", e => { if (e.target.classList.contains("po-del")){ e.target.closest("tr").remove(); recount(); } });
+  if ($("#poAdd")) $("#poAdd").onclick = () => { $("#poLines").insertAdjacentHTML("beforeend", row(null)); recount(); };
+  if ($("#poSave")) $("#poSave").onclick = async () => {
+    try{ await done(await api(po ? `/api/purchases/${po.id}` : "/api/purchases", {method: po ? "PUT" : "POST", body: JSON.stringify(body())}), "Збережено"); }
+    catch(e){ err(e.message); }
+  };
+  if ($("#poOrdered")) $("#poOrdered").onclick = async () => {
+    try{ await done(await api(`/api/purchases/${po.id}`, {method: "PUT", body: JSON.stringify(body({status: "замовлено"}))}), `${po.number}: замовлено`); }
+    catch(e){ err(e.message); }
+  };
+  if ($("#poCancel")) $("#poCancel").onclick = async () => {
+    if (!confirm(`Скасувати ${po.number}?`)) return;
+    try{ await done(await api(`/api/purchases/${po.id}`, {method: "PUT", body: JSON.stringify({status: "скасовано"})}), `${po.number}: скасовано`); }
+    catch(e){ err(e.message); }
+  };
+  if ($("#poReceive")) $("#poReceive").onclick = async () => {
+    const got = collect().filter(x => Number(x.got) > 0).map(x => ({part_no: x.part_no, qty: x.got, cost: x.cost}));
+    if (!got.length) return err("Вкажіть, скільки отримано");
+    if (!confirm(`Прийняти на склад ${got.length} поз.?`)) return;
+    try{ await done(await api(`/api/purchases/${po.id}/receive`, {method: "POST", body: JSON.stringify({lines: got, by: authorName()})}), `${po.number}: прийнято на склад`); }
+    catch(e){ err(e.message); }
+  };
+  if ($("#poXlsx")) $("#poXlsx").onclick = () => { location.href = `/api/purchases/${po.id}/export.xlsx`; };
+  recount();
+}
+async function poFromLow(){
+  try{
+    const st = await api("/api/stock");
+    const low = st.items.filter(i => i.low || i.free < 0).map(i => ({part_no: i.part_no, name: i.name, received: 0,
+      qty: Math.max(i.min * 2 - i.free, i.min - i.free, -i.free, 1), cost: i.cost || 0}));
+    if (!low.length){ alert("Усього вистачає — замовляти нічого. Мінімальні залишки задаються на вкладці «Склад» (⚖)."); return; }
+    poDialog(null, low);
+  }catch(e){ alert(e.message); }
+}
+
+// ---------- Склад ----------
+let stockData = null, stockQuery = "", stockLowOnly = false;
+async function loadStock(flash = ""){
+  $("#catalogList").innerHTML = `${flash}<div class="toolbar">
+      <input id="stockQuery" type="search" placeholder="Пошук запчастини або артикулу" value="${esc(stockQuery)}">
+      <button class="need-admin" data-download="/api/stock/to-order.xlsx">⬇ Що замовити (Excel)</button>
+      <button class="primary need-admin" data-po-from-low>＋ Замовити постачальнику</button></div>
+    <div class="filter-chips"><button data-stock-filter="0" class="${stockLowOnly ? "" : "on"}">усі</button><button data-stock-filter="1" class="${stockLowOnly ? "on" : ""}">⚠ треба замовити</button></div>
+    <div class="sub" style="margin:6px 0">Запчастини з довідника списуються автоматично, коли замовлення-наряд отримує статус «видано».
+      «Резерв» — уже вписані в замовлення, які ще не видано. Мінімум 0 — без нагадувань.</div>
+    <div id="stockTable">Завантаження…</div>`;
+  $("#stockQuery").oninput = e => { stockQuery = e.target.value; renderStockTable(); };
+  try{ stockData = await api("/api/stock"); renderStockTable(); }
+  catch(e){ $("#stockTable").textContent = e.message; }
+}
+function renderStockTable(){
+  if (!stockData || !$("#stockTable")) return;
+  const q = stockQuery.trim().toLowerCase();
+  const items = stockData.items.filter(i => (!stockLowOnly || i.low || i.free < 0) && (!q || `${i.part_no} ${i.name}`.toLowerCase().includes(q)));
+  const n = v => String(v).replace(".", ",");
+  $("#stockTable").innerHTML = items.length ? `<div class="tbl"><table>
+    <tr><th>Запчастина</th><th class="r">Залишок</th><th class="r hide-m">Резерв</th><th class="r hide-m">Мін.</th><th class="r hide-m" title="Середня закупівельна ціна · націнка до ціни продажу">Собівартість</th><th></th></tr>
+    ${items.map(i => `<tr><td>${esc(i.name)}<div class="sub">${esc(i.part_no)}${i.reserved ? `<span class="show-m"> · резерв ${n(i.reserved)}</span>` : ""}</div></td>
+      <td class="r"><b class="${i.low || i.free < 0 ? "stock-low" : ""}">${n(i.qty)}</b> ${esc(i.unit)}${i.free < 0 ? `<div class="sub stock-low">бракує ${n(-i.free)}</div>` : i.low ? `<div class="sub stock-low">замовити</div>` : ""}</td>
+      <td class="r hide-m">${i.reserved ? n(i.reserved) : "—"}</td><td class="r hide-m">${i.min ? n(i.min) : "—"}</td>
+      <td class="r hide-m">${i.cost != null ? `${num(i.cost)} ${CUR}<div class="sub">${i.markup != null ? (i.markup > 0 ? "+" : "") + i.markup + "%" : ""}</div>` : "—"}</td>
+      <td class="r acts need-admin"><button data-stock-in="${esc(i.part_no)}" title="Прихід">＋</button> <button data-stock-adj="${esc(i.part_no)}" title="Інвентаризація, мінімум, історія">⚖</button></td></tr>`).join("")}
+    </table></div>` : `<div class="empty">${stockLowOnly ? "Усього вистачає — замовляти нічого." : "Нічого не знайдено."}</div>`;
+}
+async function stockDialog(partNo, mode){
+  const i = stockData.items.find(x => x.part_no === partNo);
+  if (!i) return;
+  $("#lineTitle").textContent = `${mode === "in" ? "Прихід" : "Склад"}: ${i.name}`;
+  $("#lineBody").innerHTML = `<form class="form" id="stockForm" autocomplete="off">
+      <label>Залишок</label><div><b>${String(i.qty).replace(".", ",")} ${esc(i.unit)}</b>${i.reserved ? ` · у резерві ${String(i.reserved).replace(".", ",")}` : ""}</div>
+      ${mode === "in" ? `<label for="sQty">Надійшло, ${esc(i.unit)}</label><input id="sQty" inputmode="decimal" required>
+        <label for="sCost">Ціна закупівлі, ${CUR} за од.</label><div><input id="sCost" inputmode="decimal" placeholder="необов'язково" value="${i.cost != null ? String(i.cost).replace(".", ",") : ""}">
+          <div class="hint">З неї рахується собівартість і маржа на запчастинах. Ціна продажу: ${num(i.price)} ${CUR}.</div></div>
+        <label for="sNote">Постачальник / примітка</label><input id="sNote" placeholder="напр., накладна № 123">`
+      : `<label for="sQty">Фактично на складі</label><div><input id="sQty" inputmode="decimal" value="${String(i.qty).replace(".", ",")}">
+          <div class="hint">Після перерахунку: різниця запишеться як «інвентаризація».</div></div>
+        <label for="sMin">Мінімальний залишок</label><div><input id="sMin" inputmode="decimal" value="${String(i.min).replace(".", ",")}">
+          <div class="hint">Коли залишиться стільки чи менше — бот напише в групу «закінчується».</div></div>
+        <label for="sNote">Примітка</label><input id="sNote">`}
+      <span></span><div><div class="form-err" id="lineErr" hidden></div>
+        <div class="form-actions"><button class="primary" type="submit">Зберегти</button><button type="button" id="lineCancel">Скасувати</button></div></div>
+    </form>
+    ${mode === "in" ? "" : `<h3>Рух за останній час</h3><div id="stockMoves" class="sub">Завантаження…</div>`}`;
+  $("#lineDlg").showModal();
+  $("#lineCancel").onclick = () => $("#lineDlg").close();
+  $("#sQty").focus();
+  if (mode !== "in"){
+    api(`/api/stock/${encodeURIComponent(partNo)}/moves`).then(rows => {
+      $("#stockMoves").innerHTML = rows.length ? `<div class="tbl"><table><tr><th>Дата</th><th>Операція</th><th class="r">К-сть</th><th class="r">Залишок</th></tr>
+        ${rows.slice(0, 50).map(r => `<tr><td>${esc(r.at)}</td><td>${esc(r.kind)}${r.order ? " · " + esc(r.order) : ""}${r.by ? " · " + esc(r.by) : ""}${r.note ? `<div class="sub">${esc(r.note)}</div>` : ""}</td>
+          <td class="r">${r.qty > 0 ? "+" : ""}${String(r.qty).replace(".", ",")}</td><td class="r">${String(r.after).replace(".", ",")}</td></tr>`).join("")}</table></div>` : "Руху ще не було.";
+    }).catch(e => { $("#stockMoves").textContent = e.message; });
+  }
+  $("#stockForm").onsubmit = async e => {
+    e.preventDefault();
+    const body = {qty: $("#sQty").value, note: $("#sNote").value, by: authorName(), cost: $("#sCost") ? $("#sCost").value.replace(",", ".") : ""};
+    const url = `/api/stock/${encodeURIComponent(partNo)}`;
+    try{
+      if (mode === "in") await api(url + "/receive", {method: "POST", body: JSON.stringify(body)});
+      else{
+        if (String($("#sMin").value).replace(",", ".") !== String(i.min)) await api(url + "/min", {method: "PUT", body: JSON.stringify({qty: $("#sMin").value})});
+        if (String(body.qty).replace(",", ".") !== String(i.qty)) await api(url + "/adjust", {method: "POST", body: JSON.stringify(body)});
+      }
+      $("#lineDlg").close();
+      catFlash = mode === "in" ? `Прихід записано: ${i.name}` : `Збережено: ${i.name}`;
+      showCatalog("stock");
+    }catch(err){ $("#lineErr").hidden = false; $("#lineErr").textContent = err.message; }
+  };
+}
+
+function renderOpsTable(){
+  const cur = esc(catalogData.currency), words = catQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const ops = catalogData.operations.filter(o => (!catCategory || o.category === catCategory) &&
+    words.every(w => `${o.code} ${o.name} ${o.category} ${o.parts.map(p => p.name).join(" ")}`.toLowerCase().includes(w)));
+  if (!ops.length){ $("#opsTable").innerHTML = `<div class="empty">Нічого не знайдено.</div>`; return; }
+  let html = `<div class="tbl"><table><tr><th>Робота</th>${catalogData.models.length ? `<th class="hide-m">Моделі</th>` : ""}<th class="r">Ціна роботи</th><th class="r hide-m">Запчастини</th><th></th></tr>`;
+  let last = null;
+  for (const o of [...ops].sort((a, b) => catalogData.categories.indexOf(a.category) - catalogData.categories.indexOf(b.category))){
+    if (o.category !== last){ html += `<tr class="cat-row"><td colspan="5">${esc(o.category)}</td></tr>`; last = o.category; }
+    html += `<tr><td>${esc(o.name)}<div class="sub">${esc(o.code)}${o.interval ? " · " + esc(o.interval) : ""}${o.parts.length ? " · " + o.parts.map(p => esc(p.name)).join(", ") : ""}${catalogData.models.length ? `<span class="show-m"> · ${esc(o.models)}</span>` : ""}</div></td>
+      ${catalogData.models.length ? `<td class="hide-m">${esc(o.models)}</td>` : ""}
+      <td class="r">${num(o.price)} ${cur}${o.parts.length ? `<div class="sub show-m">+ запч. ${num(o.parts_price)}</div>` : ""}</td><td class="r hide-m">${o.parts.length ? num(o.parts_price) + " " + cur : "—"}</td>
+      <td class="r acts"><button class="need-admin" data-edit-op="${esc(o.code)}" title="Редагувати">✎</button> <button data-add="${esc(o.code)}" title="Додати до замовлення-наряду">＋</button></td></tr>`;
+  }
+  $("#opsTable").innerHTML = html + "</table></div>";
+}
+
+function renderPartsTable(){
+  const cur = esc(catalogData.currency), q = partQuery.trim().toLowerCase();
+  const parts = catalogData.parts.filter(p => !q || `${p.part_no} ${p.name}`.toLowerCase().includes(q));
+  $("#partsTable").innerHTML = parts.length ? `<div class="tbl"><table>
+    <tr><th>Запчастина</th><th class="r">Ціна</th><th class="hide-m">Од.</th><th class="r hide-m">У роботах</th><th></th></tr>
+    ${parts.map(p => `<tr><td>${esc(p.name)}<div class="sub">${esc(p.part_no)}<span class="show-m"> · ${esc(p.unit)}</span></div></td>
+      <td class="r">${num(p.price)} ${cur}</td><td class="hide-m">${esc(p.unit)}</td><td class="r hide-m">${p.used || "—"}</td>
+      <td class="r"><button class="need-admin" data-edit-part="${esc(p.part_no)}" title="Редагувати">✎</button></td></tr>`).join("")}
+    </table></div>` : `<div class="empty">Нічого не знайдено.</div>`;
+}
+
+function formError(msg){
+  const box = $("#formErr");
+  box.hidden = !msg; box.textContent = msg || "";
+  if (msg) box.scrollIntoView({block: "nearest"});
+}
+
+async function saveCatalog(method, url, body, flash, view){
+  try{
+    setCatalog(await api(url, {method, body: body ? JSON.stringify(body) : undefined}));
+    catFlash = flash;
+    showCatalog(view);
+    return true;
+  }catch(e){ formError(e.message); return false; }
+}
+
+function opForm(code){
+  const o = code ? catalogData.operations.find(x => x.code === code) : null;
+  const models = o ? o.model_codes : ["*"];
+  let parts = o ? o.parts.map(p => p.part_no) : [];
+  const partName = no => (catalogData.parts.find(p => p.part_no === no) || {name: no}).name;
+  $("#catalogList").innerHTML = `<h3>${o ? "Редагування роботи" : "Нова робота"}</h3>
+    <form class="form" id="opForm" autocomplete="off">
+      <label for="fCode">Код</label>
+      <div><input id="fCode" value="${esc(o ? o.code : "")}" ${o ? "disabled" : ""} placeholder="напр. BRK-PAD-F">
+        ${o ? "" : `<div class="hint">Латинські літери, цифри, дефіс. Потім змінити не можна.</div>`}</div>
+      <label for="fName">Назва</label><input id="fName" value="${esc(o ? o.name : "")}">
+      <label for="fCat">Розділ</label><input id="fCat" list="catCategories" value="${esc(o ? o.category : catCategory)}" placeholder="оберіть або введіть новий">
+      <label for="fPrice">Ціна роботи, ${esc(catalogData.currency)}</label><input id="fPrice" inputmode="decimal" value="${o ? fmtNum(o.price) : ""}" placeholder="напр. 80">
+      <label ${catalogData.models.length ? "" : "hidden"}>Моделі</label>
+      <div class="checks" id="fModels" ${catalogData.models.length ? "" : "hidden"}>
+        <label><input type="checkbox" value="*" ${models.includes("*") ? "checked" : ""}> усі</label>
+        ${catalogData.models.map(m => `<label><input type="checkbox" value="${m.code}" ${models.includes(m.code) ? "checked" : ""}> ${esc(m.name)}</label>`).join("")}
+      </div>
+      <label>Запчастини</label>
+      <div><div class="chips" id="fParts"></div>
+        <div class="row"><select id="fPartSel"><option value="">— додати запчастину —</option>
+          ${catalogData.parts.map(p => `<option value="${esc(p.part_no)}">${esc(p.name)} (${esc(p.part_no)})</option>`).join("")}</select></div></div>
+      <label for="fInterval">Інтервал ТО</label><input id="fInterval" value="${esc(o ? o.interval : "")}" placeholder="напр. кожні 2 роки (необов'язково)">
+      <span></span>
+      <div><div class="form-err" id="formErr" hidden></div>
+        <div class="form-actions"><button class="primary" type="submit">Зберегти</button><button type="button" data-cancel>Скасувати</button>
+        ${o ? `<button type="button" class="danger" data-delete>Видалити</button>` : ""}</div></div>
+    </form>`;
+  const drawParts = () => $("#fParts").innerHTML = parts.length
+    ? parts.map(no => `<span class="chip">${esc(partName(no))}<button type="button" data-rm="${esc(no)}" title="Прибрати">✕</button></span>`).join("")
+    : `<span class="sub">без запчастин</span>`;
+  drawParts();
+  const syncModels = () => {
+    const all = $('#fModels input[value="*"]').checked;
+    document.querySelectorAll('#fModels input:not([value="*"])').forEach(c => c.disabled = all);
+  };
+  syncModels();
+  $("#fModels").onchange = syncModels;
+  $("#fPartSel").onchange = e => { const v = e.target.value; if (v && !parts.includes(v)) parts.push(v); e.target.value = ""; drawParts(); };
+  $("#fParts").onclick = e => { const no = e.target.dataset.rm; if (no){ parts = parts.filter(x => x !== no); drawParts(); } };
+  $("#opForm").onsubmit = e => {
+    e.preventDefault();
+    const all = $('#fModels input[value="*"]').checked;
+    const body = {
+      code: $("#fCode").value, name: $("#fName").value, category: $("#fCat").value, price: $("#fPrice").value,
+      models: all ? ["*"] : [...document.querySelectorAll('#fModels input:checked')].map(c => c.value),
+      parts, interval: $("#fInterval").value,
+    };
+    if (o) saveCatalog("PUT", `/api/catalog/operations/${encodeURIComponent(o.code)}`, body, `Роботу «${body.name}» збережено`, "ops");
+    else saveCatalog("POST", "/api/catalog/operations", body, `Роботу «${body.name}» додано`, "ops");
+  };
+  $("#opForm [data-cancel]").onclick = () => showCatalog("ops");
+  if (o) $("#opForm [data-delete]").onclick = () => {
+    if (confirm(`Видалити роботу «${o.name}» з довідника?`))
+      saveCatalog("DELETE", `/api/catalog/operations/${encodeURIComponent(o.code)}`, null, `Роботу «${o.name}» видалено`, "ops");
+  };
+  $("#fName").focus();
+}
+
+function partForm(no){
+  const p = no ? catalogData.parts.find(x => x.part_no === no) : null;
+  $("#catalogList").innerHTML = `<h3>${p ? "Редагування запчастини" : "Нова запчастина"}</h3>
+    <form class="form" id="partForm" autocomplete="off">
+      <label for="pNo">Артикул</label>
+      <div><input id="pNo" value="${esc(p ? p.part_no : "")}" ${p ? "disabled" : ""} placeholder="напр. PAD-F або 1044686-00-A">
+        ${p ? "" : `<div class="hint">Латинські літери, цифри, дефіс. Потім змінити не можна.</div>`}</div>
+      <label for="pName">Назва</label><input id="pName" value="${esc(p ? p.name : "")}">
+      <label for="pPrice">Ціна, ${esc(catalogData.currency)}</label><input id="pPrice" inputmode="decimal" value="${p ? String(p.price).replace(".", ",") : ""}">
+      <label for="pUnit">Одиниця</label><input id="pUnit" value="${esc(p ? p.unit : "шт")}">
+      ${p && p.used ? `<span></span><div class="hint">Використовується в ${p.used} роб. — нова ціна застосується до нових замовлень-нарядів.</div>` : ""}
+      <span></span>
+      <div><div class="form-err" id="formErr" hidden></div>
+        <div class="form-actions"><button class="primary" type="submit">Зберегти</button><button type="button" data-cancel>Скасувати</button>
+        ${p ? `<button type="button" class="danger" data-delete>Видалити</button>` : ""}</div></div>
+    </form>`;
+  $("#partForm").onsubmit = e => {
+    e.preventDefault();
+    const body = {part_no: $("#pNo").value, name: $("#pName").value, price: $("#pPrice").value, unit: $("#pUnit").value};
+    if (p) saveCatalog("PUT", `/api/catalog/parts/${encodeURIComponent(p.part_no)}`, body, `Запчастину «${body.name}» збережено`, "parts");
+    else saveCatalog("POST", "/api/catalog/parts", body, `Запчастину «${body.name}» додано`, "parts");
+  };
+  $("#partForm [data-cancel]").onclick = () => showCatalog("parts");
+  if (p) $("#partForm [data-delete]").onclick = () => {
+    if (confirm(`Видалити запчастину «${p.name}» з довідника?`))
+      saveCatalog("DELETE", `/api/catalog/parts/${encodeURIComponent(p.part_no)}`, null, `Запчастину «${p.name}» видалено`, "parts");
+  };
+  $("#pName").focus();
+}
+
+function renderSettingsForm(flash){
+  const s = catalogData.settings;
+  $("#catalogList").innerHTML = `${flash}
+    <form class="form" id="setForm" autocomplete="off">
+      <label for="sName">Назва сервісу</label><input id="sName" value="${esc(s.name)}">
+      <label for="sAddr">Адреса</label><input id="sAddr" value="${esc(s.address)}">
+      <label for="sPhone">Телефон</label><input id="sPhone" value="${esc(s.phone)}" placeholder="не друкується, якщо порожньо">
+      <label for="sInn">ЄДРПОУ</label><input id="sInn" value="${esc(s.inn)}" placeholder="не друкується, якщо порожньо">
+      <label for="sCur">Валюта цін</label>
+      <div><select id="sCur">${["грн", "$", "€"].map(c => `<option ${c === s.currency ? "selected" : ""}>${c}</option>`).join("")}</select>
+        <div class="hint">Діє для нових замовлень-нарядів. Ціни в довіднику не перераховуються — лише змінюється позначка валюти.</div></div>
+      <label for="sUah" ${s.currency === "$" ? "" : "hidden"}>Гривня</label>
+      <div ${s.currency === "$" ? "" : "hidden"}><select id="sUah"><option value="nbu" ${s.uah_mode === "nbu" ? "selected" : ""}>показувати за курсом НБУ</option>
+          <option value="manual" ${s.uah_mode === "manual" ? "selected" : ""}>показувати за своїм курсом</option>
+          <option value="off" ${s.uah_mode === "off" ? "selected" : ""}>не показувати</option></select>
+        <div class="uah-opts"><label>Свій курс, грн/$ <input id="sUahRate" inputmode="decimal" value="${s.uah_rate ? String(s.uah_rate).replace(".", ",") : ""}"></label>
+          <label>Націнка до НБУ, % <input id="sUahMarkup" inputmode="decimal" value="${String(s.uah_markup || 0).replace(".", ",")}"></label></div>
+        <div class="hint">${catalogData.fx ? `Зараз: ${esc(catalogData.fx.source)} ${esc(String(catalogData.fx.rate).replace(".", ","))} грн/$ на ${esc(catalogData.fx.date)}.` : "Курс зараз недоступний."}
+          Сума в гривні показується в замовленні, друкованій формі й повідомленнях клієнту; оплату можна прийняти гривнею.</div></div>
+      <label for="sVat">ПДВ, %</label>
+      <div><input id="sVat" inputmode="decimal" value="${String(s.vat_percent).replace(".", ",")}">
+        <div class="checks"><label><input type="checkbox" id="sVatIn" ${s.prices_include_vat ? "checked" : ""}> ціни вже містять ПДВ</label></div>
+        <div class="hint">0 — ПДВ не нараховується і не показується.</div></div>
+      <span></span><div class="hint">Зміни застосовуються до нових замовлень-нарядів; уже створені не змінюються.</div>
+      <span></span>
+      <div><div class="form-err" id="formErr" hidden></div>
+        <div class="form-actions"><button class="primary" type="submit">Зберегти</button></div></div>
+    </form>
+    <div class="tools-sec"><h3>Прайс в Excel</h3>
+      <div class="sub">Вивантажте прайс, змініть ціни чи додайте рядки в Excel і завантажте назад. Рядки звіряються за кодом роботи й артикулом; рядки, яких немає у файлі, не видаляються.</div>
+      <div class="send-row"><button type="button" data-download="/api/catalog/export.xlsx">⬇ Вивантажити в Excel</button>
+        <button type="button" id="xlsxPick">⬆ Завантажити з Excel</button><input type="file" id="xlsxFile" accept=".xlsx" hidden></div>
+      <div id="xlsxResult"></div></div>
+    <div class="tools-sec"><h3>Резервна копія</h3>
+      <div class="sub">Архів із замовленнями (з кошиком), коментарями, фото, довідником і витратами.
+        ${BACKUP_CHAT ? "Щоночі о 03:00 копія автоматично надходить вам у Telegram." : TELEGRAM ? "Щоб щоночі отримувати копію в Telegram: напишіть боту в особисті /chatid і додайте цей ID як BACKUP_CHAT_ID у налаштуваннях сервера (Render → Environment)." : ""}</div>
+      <div class="send-row"><button type="button" data-download="/api/backup.zip">⬇ Завантажити архів</button>
+        ${BACKUP_CHAT ? `<button type="button" id="backupTg">📨 Надіслати в Telegram зараз</button>` : ""}<span id="backupRes" class="sub"></span></div></div>
+    <div class="usage" id="usageBox"><h3>Витрати на Claude</h3><div class="sub">Завантаження…</div></div>`;
+  loadUsage();
+  if ($("#backupTg")) $("#backupTg").onclick = async () => {
+    $("#backupTg").disabled = true; $("#backupRes").textContent = "Надсилаю…";
+    try{
+      const r = await api("/api/backup/telegram", {method: "POST"});
+      $("#backupRes").textContent = `✓ Надіслано (замовлень: ${r.orders}, фото: ${r.photos})`;
+    }catch(e){ $("#backupRes").textContent = e.message; }
+    $("#backupTg").disabled = false;
+  };
+  $("#xlsxPick").onclick = () => $("#xlsxFile").click();
+  $("#xlsxFile").onchange = async e => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (file) importExcel(file, false);
+  };
+  $("#setForm").onsubmit = async e => {
+    e.preventDefault();
+    const body = {name: $("#sName").value, address: $("#sAddr").value, phone: $("#sPhone").value, inn: $("#sInn").value,
+                  vat_percent: $("#sVat").value, prices_include_vat: $("#sVatIn").checked,
+                  currency: $("#sCur").value, uah_mode: $("#sUah").value, uah_rate: $("#sUahRate").value, uah_markup: $("#sUahMarkup").value};
+    if (await saveCatalog("PUT", "/api/catalog/settings", body, "Налаштування збережено", "settings")){
+      $("#brand").textContent = catalogData.settings.name; document.title = catalogData.settings.name;
+      CUR = catalogData.settings.currency || CUR;
+    }
+  };
+}
+
+async function importExcel(file, apply){
+  const box = $("#xlsxResult");
+  box.innerHTML = `<div class="sub">${apply ? "Застосовую…" : "Перевіряю файл…"}</div>`;
+  let r;
+  try{
+    const resp = await fetch(`/api/catalog/import${apply ? "?apply=true" : ""}`, {method: "POST", body: file, credentials: "same-origin",
+                                                                              headers: {"Content-Type": "application/octet-stream"}});
+    r = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(r.error || `Помилка ${resp.status}`);
+  }catch(err){ box.innerHTML = `<div class="form-err">${esc(err.message)}</div>`; return; }
+  if (apply){
+    if (r.catalog) setCatalog(r.catalog);
+    catFlash = `Прайс оновлено: робіт ${r.operations.length}, запчастин ${r.parts.length}`;
+    showCatalog("settings");
+    return;
+  }
+  const row = x => `<div>${x.action === "new" ? "＋ нова" : "✎ змінено"} · <b>${esc(x.code)}</b> ${esc(x.name)} · ${num(x.price)} ${CUR}${x.changes.length ? ` <span class="sub">(${x.changes.map(esc).join(", ")})</span>` : ""}</div>`;
+  const total = r.operations.length + r.parts.length;
+  box.innerHTML = `
+    ${total ? `<div class="import-list">${r.operations.length ? `<b>Роботи: ${r.operations.length}</b>${r.operations.map(row).join("")}` : ""}
+      ${r.parts.length ? `<b>Запчастини: ${r.parts.length}</b>${r.parts.map(row).join("")}` : ""}</div>` : `<div class="sub">Змін немає — прайс у файлі збігається з довідником.</div>`}
+    ${r.errors.length ? `<div class="form-err">Рядки з помилками (не буде застосовано):<div class="import-list">${r.errors.map(x => `<div>«${esc(x.sheet)}», рядок ${x.row}: ${esc(x.message)}</div>`).join("")}</div></div>` : ""}
+    ${total ? `<div class="send-row"><button type="button" class="primary" id="xlsxApply">Застосувати зміни (${total})</button><button type="button" id="xlsxCancel">Скасувати</button></div>` : ""}`;
+  if (total){
+    $("#xlsxApply").onclick = () => importExcel(file, true);
+    $("#xlsxCancel").onclick = () => { box.innerHTML = ""; };
+  }
+}
+
+async function loadUsage(){
+  try{
+    const u = await api("/api/usage");
+    const tile = (label, v) => `<div class="usage-tile"><b>${usd(v.cost_usd)}</b><span>${label} · запитів: ${v.requests}</span></div>`;
+    const max = Math.max(...u.by_day.map(d => d.cost_usd), 0.0001);
+    $("#usageBox").innerHTML = `<h3>Витрати на Claude</h3>
+      <div class="usage-grid">${tile("сьогодні", u.today)}${tile("цей місяць", u.month)}${tile("усього", u.all)}
+        <div class="usage-tile"><b>${usd(u.avg_per_order)}</b><span>у середньому на замовлення-наряд (${u.orders})</span></div></div>
+      <div class="sub">По днях за 2 тижні</div>
+      <div class="bars">${u.by_day.map(d => `<div title="${esc(d.day)}: ${usd(d.cost_usd)}, запитів: ${d.requests}">
+        <i style="height:${Math.round(d.cost_usd / max * 100)}%"></i><small>${esc(d.day.slice(8))}</small></div>`).join("")}</div>
+      <div class="hint">Оцінка за тарифами моделі й фактичними токенами з відповідей API. Точна сума — у console.anthropic.com → Usage.</div>`;
+  }catch(e){ $("#usageBox").innerHTML = `<h3>Витрати на Claude</h3><div class="sub">${esc(e.message)}</div>`; }
+}
+
+$("#btnCatalog").onclick = async () => {
+  $("#catalogDlg").showModal();
+  try{
+    setCatalog(await api("/api/catalog"));  // щоразу свіжі дані: довідник могли змінити інші
+    showCatalog("ops");
+  }catch(e){ $("#catalogList").textContent = e.message; }
+};
+$("#catTabs").onclick = e => { const v = e.target.dataset.view; if (v && catalogData) showCatalog(v); };
+$("#closeCatalog").onclick = () => $("#catalogDlg").close();
+$("#catalogList").addEventListener("click", e => {
+  const d = e.target.dataset;
+  if (d.download) return void (location.href = d.download);
+  if (d.newOp !== undefined) return opForm(null);
+  if (d.editOp) return opForm(d.editOp);
+  if (d.newPart !== undefined) return partForm(null);
+  if (d.editPart) return partForm(d.editPart);
+  if (d.stockFilter !== undefined){ stockLowOnly = d.stockFilter === "1"; document.querySelectorAll("[data-stock-filter]").forEach(b => b.classList.toggle("on", b === e.target)); return renderStockTable(); }
+  if (d.stockIn) return stockDialog(d.stockIn, "in");
+  if (d.poNew !== undefined) return poDialog(null, null);
+  if (d.poFromLow !== undefined) return poFromLow();
+  if (d.poOpen) return poDialog(poData.purchases.find(p => p.id === d.poOpen));
+  if (d.stockAdj) return stockDialog(d.stockAdj, "adj");
+  if (!d.add) return;
+  const op = catalogData.operations.find(o => o.code === d.add);
+  $("#catalogDlg").close();
+  document.querySelector('.tabs button[data-tab="chat"]').click();
+  send(`Додай роботу ${op.code} — ${op.name}`);
+});
+$("#btnNew").onclick = async () => {
+  if (busy) return;
+  await api("/api/reset", {method: "POST"});
+  remember(null);
+  $("#log").innerHTML = ""; greet(); renderOrder(null);
+  document.querySelector('.tabs button[data-tab="chat"]').click();
+};
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
+  const home = b.dataset.tab === "home";
+  const wasHome = document.body.classList.contains("home-mode");
+  document.body.classList.toggle("home-mode", home);
+  $("#btnHome").classList.toggle("on", home);
+  if (home){ loadHome(); return; }
+  document.querySelectorAll("main > .card").forEach(c => c.classList.toggle("show", c.id === b.dataset.tab));
+  // Повертаємось із головної — статус замовлення могли змінити там.
+  if (wasHome && currentOrder) api("/api/state").then(st => { if (st.order) renderOrder(st.order); }).catch(() => {});
+});
+
+(async () => {
+  try{
+    const s = await api("/api/state");
+    if (s.auth) $("#btnLogout").hidden = false;
+    if (s.user){
+      USER = s.user;
+      document.body.classList.add("role-" + USER.role);
+      if (s.auth){
+        document.querySelector("header h1 span:not(#brand)").textContent =
+          isEmployee() ? `· ${USER.name} (${USER.role_label})` : "· вхід власника";
+        $("#btnLogout").title = `Вийти (${USER.name})`;
+        $("#menuLogout").textContent = `⎋ Вийти · ${USER.name}`;
+      }
+    }
+    if (s.statuses) STATUSES = s.statuses;
+    TELEGRAM = !!s.telegram;
+    BACKUP_CHAT = !!s.backup_chat;
+    ASSIGNEES = s.assignees || [];
+    INTAKE_ITEMS = s.intake_items || [];
+    CUR = s.currency || CUR;
+    if (s.photo_kinds) PHOTO_KINDS = s.photo_kinds;
+    if (s.service) SERVICE_ADDRESS = s.service.address || "";
+    if (s.service && s.service.name){ $("#brand").textContent = s.service.name; document.title = s.service.name; }
+    if (s.short_name) $("#appTitle").content = s.short_name;  // підпис під іконкою на головному екрані iPhone
+    if (s.history.length) s.history.forEach(m => addMsg(m.role, m.text));
+    const last = remembered();
+    if (!s.order && last){
+      // Сервер перезапускався і забув розмову — відкриваємо автоматично збережену чернетку.
+      try{
+        const data = await api(`/api/orders/${encodeURIComponent(last)}/open`, {method: "POST"});
+        addMsg("assistant", `Відновлено замовлення-наряд № ${last}. Попередню розмову не збережено — продовжуйте з того місця, де зупинилися.`);
+        renderOrder(data.order);
+        return;
+      }catch(e){ remember(null); }
+    }
+    if (!s.history.length) greet();
+    renderOrder(s.order);
+  }catch(e){ greet(); renderOrder(null); addMsg("error", e.message); }
+  finally{ document.querySelector('.tabs button[data-tab="home"]').click(); }  // стартова сторінка — головна
+})();
+</script>
+</body>
+</html>
