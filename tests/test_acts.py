@@ -26,11 +26,11 @@ JPEG = "data:image/jpeg;base64," + base64.b64encode(b"\xff\xd8\xff\xe0" + b"0" *
 def test_intake_sign_and_print(session):
     number = saved(session)
     web = TestClient(create_app(orders_dir=session.store.dir))
-    assert "Ключ-карта" in web.get("/api/state").json()["intake_items"]
+    assert "Ключ" in web.get("/api/state").json()["intake_items"]
     web.post(f"/api/orders/{number}/open")
-    r = web.put("/api/order/intake", json={"items": ["Ключ-карта", "Ключ-карта", " Килимки "],
+    r = web.put("/api/order/intake", json={"items": ["Ключ", "Ключ", " Килимки "],
                                            "left_inside": "сумка", "damages": "подряпина на бампері"}).json()
-    assert r["order"]["intake"]["items"] == ["Ключ-карта", "Килимки"] and r["unsigned"] is False
+    assert r["order"]["intake"]["items"] == ["Ключ", "Килимки"] and r["unsigned"] is False
     assert web.post("/api/order/intake/sign", json={"image": png(), "signed_by": ""}).status_code == 400
     assert web.post("/api/order/intake/sign", json={"image": JPEG, "signed_by": "Петро"}).status_code == 400
     assert web.post("/api/order/intake/sign", json={"image": "data:image/png;base64,!!!", "signed_by": "Петро"}).status_code == 400
@@ -44,17 +44,17 @@ def test_intake_sign_and_print(session):
     web.post(f"/api/orders/{number}/photos", json={"image": JPEG, "kind": "пошкодження"})
     web.post(f"/api/orders/{number}/photos", json={"image": JPEG, "kind": "після"})
     html = web.get(f"/print/{number}/act").text
-    assert "АКТ ПРИЙМАННЯ АВТОМОБІЛЯ" in html and "☑ Ключ-карта" in html and "☐ Дитяче крісло" in html
+    assert "АКТ ПРИЙМАННЯ АВТОМОБІЛЯ" in html and "☑ Ключ" in html and "☐ Дитяче крісло" in html
     assert "подряпина на бампері" in html and html.count("<figure>") == 1 and "data:image/png;base64" in html
     pdf = web.get(f"/pdf/{number}/act")
     assert pdf.status_code == 200 and pdf.content.startswith(b"%PDF")
     assert web.get("/print/ЗН-2026-09999/act").status_code == 404
 
     # однаковий зміст — підпис лишається; змінили — підпис знято
-    same = web.put("/api/order/intake", json={"items": ["Ключ-карта", "Килимки"], "left_inside": "сумка",
+    same = web.put("/api/order/intake", json={"items": ["Ключ", "Килимки"], "left_inside": "сумка",
                                               "damages": "подряпина на бампері"}).json()
     assert same["unsigned"] is False and same["order"]["intake"]["signature"]
-    changed = web.put("/api/order/intake", json={"items": ["Ключ-карта"], "left_inside": "", "damages": ""}).json()
+    changed = web.put("/api/order/intake", json={"items": ["Ключ"], "left_inside": "", "damages": ""}).json()
     assert changed["unsigned"] is True and "signature" not in changed["order"]["intake"]
     assert web.put("/api/order/intake", json={"damages": "x" * 1001}).status_code == 400
 
@@ -72,7 +72,7 @@ def test_signed_act_is_sent_to_client(tmp_path, session):
     web.post(f"/api/orders/{number}/send-telegram")
     assert len(fake.sent("sendDocument")) == before + 1  # акта ще немає — лише замовлення-наряд
     web.post(f"/api/orders/{number}/open")
-    web.put("/api/order/intake", json={"items": ["Ключ-карта"]})
+    web.put("/api/order/intake", json={"items": ["Ключ"]})
     web.post("/api/order/intake/sign", json={"image": png(), "signed_by": "Петренко Петро"})
     web.post(f"/api/orders/{number}/send-telegram")
     docs = fake.sent("sendDocument")

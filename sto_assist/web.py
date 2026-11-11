@@ -337,7 +337,7 @@ def create_app(
     client = client or anthropic.Anthropic()
     conversations: dict[str, Conversation] = {}
     conversations_lock = threading.Lock()
-    service_name = catalog.service.get("name") or "Замовлення-наряди Tesla"
+    service_name = catalog.service.get("name") or "STO-Assist"
     app = FastAPI(title=service_name, docs_url=None, redoc_url=None, openapi_url=None)
     # Ключ підпису входу: зі сталого секрету (вхід переживає перезапуск) або випадковий.
     # Пароль теж входить у ключ, тож після зміни пароля всі входи стають недійсними.
@@ -1919,7 +1919,7 @@ def main(argv: list[str] | None = None) -> int:
     if hasattr(time, "tzset"):
         time.tzset()
     env = os.environ.get
-    parser = argparse.ArgumentParser(description="Веб-інтерфейс помічника із замовлень-нарядів Tesla")
+    parser = argparse.ArgumentParser(description="Веб-інтерфейс помічника із замовлень-нарядів для СТО")
     parser.add_argument("--host", default=env("HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(env("PORT", "8000")))
     parser.add_argument("--orders-dir", default=env("ORDERS_DIR", "orders"))
