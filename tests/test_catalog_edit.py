@@ -42,7 +42,6 @@ def test_operation_crud_persists(catalog):
     ({"name": "  "}, "Назва"),
     ({"price": "-1"}, "Ціна"),
     ({"price": "abc"}, "числом"),
-    ({"models": []}, "модель"),
     ({"models": ["MODEL_Z"]}, "Невідома модель"),
     ({"parts": ["NOPE"]}, "NOPE"),
     ({"category": ""}, "Розділ"),
@@ -142,3 +141,33 @@ def test_legacy_catalog_with_hours_is_converted(tmp_path):
     assert "labor_rate_per_hour" not in saved and saved["operations"][0] == {
         "code": "OLD-1", "name": "Стара робота", "price": 105, "models": ["*"], "parts": [],
         "category": "Діагностика", "interval": ""}
+
+
+def test_product_default_catalog_is_valid_and_universal(tmp_path):
+    """Стартовий довідник продукту (не тестовий): гривня, без прив'язки до моделей, усе проходить перевірку."""
+    cat = Catalog.load(DEFAULT_CATALOG)
+    assert cat.currency == "грн" and cat.fx["mode"] == "off" and len(cat.operations) >= 60
+    for op in cat.operations.values():
+        assert op.models == ["*"]
+        checked = cat.make_operation({**op.__dict__})
+        assert checked == op
+    for part in cat.parts.values():
+        assert cat.make_part({**part.__dict__}) == part
+    assert "tesla" not in DEFAULT_CATALOG.read_text(encoding="utf-8").lower()
+
+    from fastapi.testclient import TestClient
+
+    from sto_assist.web import create_app
+
+    path = tmp_path / "catalog.json"
+    path.write_text(DEFAULT_CATALOG.read_text(encoding="utf-8"), encoding="utf-8")
+    web = TestClient(create_app(catalog_path=path, orders_dir=tmp_path / "orders"))
+    state = web.get("/api/state").json()
+    assert state["currency"] == "грн" and state["fx"] is None
+    view = web.get("/api/catalog").json()
+    assert view["models"] == [] and view["settings"]["currency"] == "грн"
+    # роботу можна створити без моделей; валюту — змінити
+    assert web.post("/api/catalog/operations", json={"code": "X-1", "name": "Тест", "price": 100, "category": "Інше"}).status_code == 200
+    web.put("/api/catalog/settings", json={"name": "СТО Тест", "vat_percent": 0, "currency": "€"})
+    assert web.get("/api/state").json()["currency"] == "€"
+    assert web.put("/api/catalog/settings", json={"name": "СТО", "vat_percent": 0, "currency": "BTC"}).status_code == 400

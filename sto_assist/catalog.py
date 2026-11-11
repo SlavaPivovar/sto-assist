@@ -149,9 +149,9 @@ class Catalog:
         з яким звіряються артикули (за замовчуванням поточний)."""
         parts_index = self.parts if parts is None else parts
         code = self._code(data.get("code"), "Код роботи")
-        models = data.get("models") or []
-        if not isinstance(models, list) or not models:
-            raise CatalogError("Вкажіть хоча б одну модель або «усі»")
+        models = data.get("models") or ["*"]  # без обмеження — робота для всіх авто
+        if not isinstance(models, list):
+            raise CatalogError("Моделі мають бути списком")
         models = ["*"] if "*" in models else [m for m in MODEL_CODES if m in models]
         if not models:
             raise CatalogError("Невідома модель")

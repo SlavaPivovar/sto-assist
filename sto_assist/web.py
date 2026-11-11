@@ -975,7 +975,9 @@ def create_app(
             "categories": catalog.categories(), "operations": ops, "currency": catalog.currency,
             "parts": [{"part_no": p.part_no, "name": p.name, "price": p.price, "unit": p.unit,
                        "used": used.get(p.part_no, 0)} for p in parts.values()],
-            "models": [{"code": m, "name": model_names[m]} for m in MODEL_CODES],
+            # Обмеження робіт за моделями показуємо, лише якщо довідник ним користується.
+            "models": [{"code": m, "name": model_names[m]} for m in MODEL_CODES]
+            if any("*" not in o.models for o in operations.values()) else [],
             "settings": {**catalog.service, "vat_percent": catalog.vat_percent, "prices_include_vat": catalog.prices_include_vat,
                          "currency": catalog.currency, "uah_mode": catalog.fx.get("mode", "off"), "uah_rate": catalog.fx.get("manual_rate", 0),
                          "uah_markup": catalog.fx.get("markup", 0)},

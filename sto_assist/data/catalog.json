@@ -1,116 +1,988 @@
 {
-  "service": {"name": "DK-TeslaService", "address": "м. Одеса, вул. Гарманна, 1", "phone": "", "inn": ""},
-  "currency": "$",
-  "vat_percent": 0,
-  "prices_include_vat": true,
-  "operations": [
-    {"code": "DIAG-01", "name": "Комп'ютерна діагностика (Toolbox), зчитування помилок", "price": 60, "models": ["*"], "parts": [], "category": "Діагностика", "interval": ""},
-    {"code": "DIAG-HV", "name": "Діагностика високовольтної батареї та системи заряджання", "price": 90, "models": ["*"], "parts": [], "category": "Діагностика", "interval": ""},
-    {"code": "DIAG-PRE", "name": "Комплексна перевірка автомобіля перед купівлею", "price": 120, "models": ["*"], "parts": [], "category": "Діагностика", "interval": ""},
-    {"code": "DIAG-NOISE", "name": "Пошук сторонніх шумів і стуків (огляд на підйомнику, тест-драйв)", "price": 60, "models": ["*"], "parts": [], "category": "Діагностика", "interval": ""},
-    {"code": "DIAG-LV", "name": "Діагностика мережі 12/16 В, пошук витоку струму", "price": 120, "models": ["*"], "parts": [], "category": "Діагностика", "interval": ""},
-    {"code": "DIAG-SUSP", "name": "Діагностика ходової частини та рульового керування", "price": 48, "models": ["*"], "parts": [], "category": "Діагностика", "interval": ""},
-    {"code": "MAINT-INSP", "name": "Регламентний огляд: ходова, гальма, шини, рідини, оновлення ПЗ", "price": 90, "models": ["*"], "parts": [], "category": "Технічне обслуговування", "interval": "щороку"},
-    {"code": "HVAC-FILTER", "name": "Заміна салонного фільтра", "price": 30, "models": ["MODEL_3", "MODEL_Y"], "parts": ["CABIN-FLT-3Y"], "category": "Технічне обслуговування", "interval": "кожні 2 роки"},
-    {"code": "HVAC-FILTER-SX", "name": "Заміна салонних фільтрів", "price": 48, "models": ["MODEL_S", "MODEL_X"], "parts": ["CABIN-FLT-SX"], "category": "Технічне обслуговування", "interval": "кожні 2 роки"},
-    {"code": "HVAC-HEPA", "name": "Заміна HEPA-фільтра", "price": 90, "models": ["MODEL_S", "MODEL_X", "MODEL_Y"], "parts": ["HEPA-FLT"], "category": "Технічне обслуговування", "interval": "кожні 3 роки"},
-    {"code": "BRK-FLUID-TEST", "name": "Перевірка гальмівної рідини на вміст вологи", "price": 12, "models": ["*"], "parts": [], "category": "Технічне обслуговування", "interval": "кожні 4 роки"},
-    {"code": "BRK-FLUID", "name": "Заміна гальмівної рідини", "price": 60, "models": ["*"], "parts": ["FLUID-DOT3"], "category": "Технічне обслуговування", "interval": "за результатом перевірки"},
-    {"code": "BRK-CAL-SVC", "name": "Обслуговування гальмівних супортів (очищення, змащення напрямних)", "price": 90, "models": ["*"], "parts": ["CAL-GREASE"], "category": "Технічне обслуговування", "interval": "щороку або кожні 20 000 км у регіонах із солоними дорогами"},
-    {"code": "HVAC-DESICCANT", "name": "Заміна осушувача (картриджа) кондиціонера", "price": 90, "models": ["*"], "parts": ["AC-DESICCANT", "REFRIG-1234YF"], "category": "Технічне обслуговування", "interval": "Model 3 — кожні 6 років, Model Y/S/X — кожні 4 роки"},
-    {"code": "WIPER", "name": "Заміна щіток склоочисника", "price": 18, "models": ["*"], "parts": ["WIPER-SET"], "category": "Технічне обслуговування", "interval": "щороку"},
-    {"code": "WASHER-FLUID", "name": "Доливання рідини склоомивача", "price": 6, "models": ["*"], "parts": ["WASHER-FLUID-4L"], "category": "Технічне обслуговування", "interval": "за потреби"},
-    {"code": "COOL-SVC", "name": "Заміна охолоджувальної рідини контуру батареї/приводу", "price": 120, "models": ["*"], "parts": ["COOLANT-G48"], "category": "Технічне обслуговування", "interval": "за потреби (для Model 3/Y не регламентується)"},
-    {"code": "TIRE-ROT", "name": "Ротація коліс із балансуванням", "price": 60, "models": ["*"], "parts": [], "category": "Шини та колеса", "interval": "кожні 10 000 км або при різниці протектора ≥ 1,5 мм"},
-    {"code": "TIRE-ALIGN", "name": "Регулювання кутів встановлення коліс (розвал-сходження)", "price": 90, "models": ["*"], "parts": [], "category": "Шини та колеса", "interval": "після ремонту підвіски або при нерівномірному зносі"},
-    {"code": "TIRE-MOUNT", "name": "Шиномонтаж 4 коліс із балансуванням (сезонна заміна)", "price": 90, "models": ["*"], "parts": [], "category": "Шини та колеса", "interval": "двічі на рік"},
-    {"code": "TIRE-REPAIR", "name": "Ремонт проколу шини (джгут/латка) з балансуванням", "price": 36, "models": ["*"], "parts": ["TIRE-PATCH"], "category": "Шини та колеса", "interval": ""},
-    {"code": "TPMS", "name": "Заміна датчика тиску в шині (TPMS), одне колесо", "price": 36, "models": ["*"], "parts": ["TPMS-SENSOR"], "category": "Шини та колеса", "interval": ""},
-    {"code": "BRK-PAD-F", "name": "Заміна передніх гальмівних колодок", "price": 72, "models": ["*"], "parts": ["PAD-F"], "category": "Гальмівна система", "interval": ""},
-    {"code": "BRK-PAD-R", "name": "Заміна задніх гальмівних колодок", "price": 78, "models": ["*"], "parts": ["PAD-R"], "category": "Гальмівна система", "interval": ""},
-    {"code": "BRK-DISC-F", "name": "Заміна передніх гальмівних дисків і колодок", "price": 108, "models": ["*"], "parts": ["DISC-F", "PAD-F"], "category": "Гальмівна система", "interval": ""},
-    {"code": "BRK-DISC-R", "name": "Заміна задніх гальмівних дисків і колодок", "price": 120, "models": ["*"], "parts": ["DISC-R", "PAD-R"], "category": "Гальмівна система", "interval": ""},
-    {"code": "BRK-CAL-F", "name": "Заміна переднього гальмівного супорта (одна сторона) з прокачуванням", "price": 78, "models": ["*"], "parts": ["CALIPER-F"], "category": "Гальмівна система", "interval": ""},
-    {"code": "BRK-PARK", "name": "Ремонт / заміна електроприводу стоянкового гальма (одна сторона)", "price": 60, "models": ["*"], "parts": ["EPB-MOTOR"], "category": "Гальмівна система", "interval": ""},
-    {"code": "SUSP-ARM-UF", "name": "Заміна переднього верхнього важеля (одна сторона)", "price": 108, "models": ["MODEL_3", "MODEL_Y"], "parts": ["ARM-UF-3Y"], "category": "Підвіска та кермо", "interval": ""},
-    {"code": "SUSP-ARM-LF", "name": "Заміна переднього нижнього важеля (одна сторона)", "price": 96, "models": ["MODEL_3", "MODEL_Y"], "parts": ["ARM-LF-3Y"], "category": "Підвіска та кермо", "interval": ""},
-    {"code": "SUSP-ARM-R", "name": "Заміна задніх важелів (комплект однієї сторони)", "price": 150, "models": ["MODEL_3", "MODEL_Y"], "parts": ["ARM-R-KIT-3Y"], "category": "Підвіска та кермо", "interval": ""},
-    {"code": "SUSP-STRUT-F", "name": "Заміна переднього амортизатора (одна сторона)", "price": 108, "models": ["MODEL_3", "MODEL_Y"], "parts": ["STRUT-F-3Y"], "category": "Підвіска та кермо", "interval": ""},
-    {"code": "SUSP-SHOCK-R", "name": "Заміна заднього амортизатора (одна сторона)", "price": 72, "models": ["MODEL_3", "MODEL_Y"], "parts": ["SHOCK-R-3Y"], "category": "Підвіска та кермо", "interval": ""},
-    {"code": "SUSP-AIR-SX", "name": "Заміна пневмостійки (одна сторона)", "price": 150, "models": ["MODEL_S", "MODEL_X"], "parts": ["AIR-STRUT-SX"], "category": "Підвіска та кермо", "interval": ""},
-    {"code": "SUSP-AIR-COMP", "name": "Заміна компресора пневмопідвіски", "price": 120, "models": ["MODEL_S", "MODEL_X"], "parts": ["AIR-COMP-SX"], "category": "Підвіска та кермо", "interval": ""},
-    {"code": "SUSP-STAB", "name": "Заміна стійки стабілізатора (одна сторона)", "price": 36, "models": ["*"], "parts": ["STAB-LINK"], "category": "Підвіска та кермо", "interval": ""},
-    {"code": "SUSP-HUB-F", "name": "Заміна передньої маточини з підшипником (одна сторона)", "price": 90, "models": ["*"], "parts": ["HUB-F"], "category": "Підвіска та кермо", "interval": ""},
-    {"code": "STEER-TIE", "name": "Заміна кермового наконечника (одна сторона)", "price": 48, "models": ["*"], "parts": ["TIE-ROD-END"], "category": "Підвіска та кермо", "interval": "після — розвал-сходження"},
-    {"code": "STEER-RACK", "name": "Заміна рульової рейки", "price": 210, "models": ["*"], "parts": [], "category": "Підвіска та кермо", "interval": "після — розвал-сходження"},
-    {"code": "HVAC-AC", "name": "Обслуговування кондиціонера (вакуумування, заправка холодоагентом)", "price": 90, "models": ["*"], "parts": ["REFRIG-1234YF"], "category": "Клімат-контроль", "interval": ""},
-    {"code": "HVAC-CLEAN", "name": "Антибактеріальна обробка випарника та повітроводів", "price": 48, "models": ["*"], "parts": ["HVAC-CLEANER"], "category": "Клімат-контроль", "interval": "за потреби (неприємний запах)"},
-    {"code": "HVAC-COMP", "name": "Заміна компресора кондиціонера з заправкою", "price": 240, "models": ["*"], "parts": ["REFRIG-1234YF"], "category": "Клімат-контроль", "interval": ""},
-    {"code": "HVAC-OCTO", "name": "Заміна багатоходового клапана теплового насоса (Octovalve)", "price": 180, "models": ["MODEL_3", "MODEL_Y"], "parts": ["REFRIG-1234YF"], "category": "Клімат-контроль", "interval": ""},
-    {"code": "HVAC-BLOWER", "name": "Заміна вентилятора салону", "price": 90, "models": ["*"], "parts": [], "category": "Клімат-контроль", "interval": ""},
-    {"code": "HV-ISOLATION", "name": "Пошук пробою ізоляції високовольтної системи", "price": 120, "models": ["*"], "parts": [], "category": "Високовольтна система", "interval": ""},
-    {"code": "HV-PUMP", "name": "Заміна помпи контуру охолодження батареї/приводу", "price": 90, "models": ["*"], "parts": ["COOLANT-G48"], "category": "Високовольтна система", "interval": ""},
-    {"code": "HV-BAT-RR", "name": "Зняття та встановлення високовольтної батареї", "price": 360, "models": ["*"], "parts": [], "category": "Високовольтна система", "interval": ""},
-    {"code": "CHG-PORT", "name": "Заміна порту заряджання (зарядного роз'єму)", "price": 150, "models": ["MODEL_3", "MODEL_Y"], "parts": ["CHG-PORT-3Y"], "category": "Високовольтна система", "interval": ""},
-    {"code": "CHG-DOOR", "name": "Ремонт / заміна кришки порту заряджання", "price": 36, "models": ["*"], "parts": [], "category": "Високовольтна система", "interval": ""},
-    {"code": "CHG-ONBOARD", "name": "Заміна бортового зарядного пристрою", "price": 180, "models": ["MODEL_S", "MODEL_X"], "parts": [], "category": "Високовольтна система", "interval": ""},
-    {"code": "DU-MOUNT", "name": "Заміна подушки кріплення приводу", "price": 150, "models": ["*"], "parts": [], "category": "Привід", "interval": ""},
-    {"code": "DU-SEAL", "name": "Заміна сальника приводу (одна сторона)", "price": 120, "models": ["*"], "parts": [], "category": "Привід", "interval": ""},
-    {"code": "DU-SHAFT", "name": "Заміна півосі (одна сторона)", "price": 90, "models": ["*"], "parts": ["HALFSHAFT"], "category": "Привід", "interval": ""},
-    {"code": "DU-RR", "name": "Зняття та встановлення приводу (драйв-юніту)", "price": 360, "models": ["*"], "parts": [], "category": "Привід", "interval": ""},
-    {"code": "LV-BAT", "name": "Заміна низьковольтної батареї 12 В", "price": 42, "models": ["MODEL_S", "MODEL_X"], "parts": ["LV-BAT-12V"], "category": "Електрика та електроніка", "interval": "за потреби (зазвичай 3–4 роки)"},
-    {"code": "LV-BAT-16", "name": "Заміна низьковольтної Li-ion батареї 16 В", "price": 42, "models": ["MODEL_3", "MODEL_Y", "CYBERTRUCK"], "parts": ["LV-BAT-16V"], "category": "Електрика та електроніка", "interval": "за потреби"},
-    {"code": "SW-UPDATE", "name": "Оновлення програмного забезпечення", "price": 30, "models": ["*"], "parts": [], "category": "Електрика та електроніка", "interval": ""},
-    {"code": "MCU-UPG", "name": "Заміна / модернізація центрального комп'ютера (MCU)", "price": 180, "models": ["MODEL_S", "MODEL_X"], "parts": [], "category": "Електрика та електроніка", "interval": ""},
-    {"code": "SCREEN", "name": "Заміна центрального дисплея", "price": 90, "models": ["MODEL_3", "MODEL_Y"], "parts": [], "category": "Електрика та електроніка", "interval": ""},
-    {"code": "CAM-CAL", "name": "Калібрування камер автопілота", "price": 60, "models": ["*"], "parts": [], "category": "Електрика та електроніка", "interval": "після заміни лобового скла або камер"},
-    {"code": "CAM-REP", "name": "Заміна камери (одна)", "price": 60, "models": ["*"], "parts": [], "category": "Електрика та електроніка", "interval": "після — калібрування камер"},
-    {"code": "PARK-SENSOR", "name": "Заміна ультразвукового датчика паркування", "price": 48, "models": ["*"], "parts": [], "category": "Електрика та електроніка", "interval": ""},
-    {"code": "KEY-PROG", "name": "Програмування ключ-карти / брелока / телефона як ключа", "price": 18, "models": ["*"], "parts": ["KEY-CARD"], "category": "Електрика та електроніка", "interval": ""},
-    {"code": "HEADLIGHT", "name": "Заміна фари в зборі (одна)", "price": 60, "models": ["*"], "parts": [], "category": "Електрика та електроніка", "interval": ""},
-    {"code": "WINDOW-REG", "name": "Заміна склопідйомника (одні двері)", "price": 90, "models": ["*"], "parts": [], "category": "Електрика та електроніка", "interval": ""},
-    {"code": "DOOR-HANDLE", "name": "Ремонт / заміна електроприводу дверної ручки", "price": 90, "models": ["MODEL_S", "MODEL_3", "MODEL_Y"], "parts": [], "category": "Електрика та електроніка", "interval": ""},
-    {"code": "WINDSHIELD", "name": "Заміна лобового скла (з калібруванням камер)", "price": 180, "models": ["*"], "parts": [], "category": "Кузов і салон", "interval": ""},
-    {"code": "TRUNK-ACT", "name": "Заміна приводу / амортизатора кришки багажника", "price": 48, "models": ["*"], "parts": [], "category": "Кузов і салон", "interval": ""},
-    {"code": "FALCON-ADJ", "name": "Регулювання дверей Falcon Wing", "price": 120, "models": ["MODEL_X"], "parts": [], "category": "Кузов і салон", "interval": ""},
-    {"code": "UNDERTRAY", "name": "Зняття / встановлення або заміна захисту днища", "price": 30, "models": ["*"], "parts": [], "category": "Кузов і салон", "interval": ""},
-    {"code": "SEAL-NOISE", "name": "Усунення скрипів і шумів у салоні, регулювання ущільнювачів", "price": 90, "models": ["*"], "parts": [], "category": "Кузов і салон", "interval": ""},
-    {"code": "CABIN-CLEAN", "name": "Хімчистка салону", "price": 240, "models": ["*"], "parts": [], "category": "Кузов і салон", "interval": ""}
-  ],
-  "parts": [
-    {"part_no": "FLUID-DOT3", "name": "Гальмівна рідина DOT 3, 1 л", "price": 15, "unit": "шт"},
-    {"part_no": "PAD-F", "name": "Колодки гальмівні передні, комплект", "price": 150, "unit": "компл"},
-    {"part_no": "PAD-R", "name": "Колодки гальмівні задні, комплект", "price": 130, "unit": "компл"},
-    {"part_no": "DISC-F", "name": "Диски гальмівні передні, пара", "price": 260, "unit": "компл"},
-    {"part_no": "DISC-R", "name": "Диски гальмівні задні, пара", "price": 220, "unit": "компл"},
-    {"part_no": "CALIPER-F", "name": "Супорт гальмівний передній", "price": 320, "unit": "шт"},
-    {"part_no": "EPB-MOTOR", "name": "Електропривод стоянкового гальма", "price": 180, "unit": "шт"},
-    {"part_no": "CAL-GREASE", "name": "Мастило для напрямних супорта", "price": 10, "unit": "шт"},
-    {"part_no": "CABIN-FLT-3Y", "name": "Фільтр салону Model 3/Y, комплект 2 шт", "price": 45, "unit": "компл"},
-    {"part_no": "CABIN-FLT-SX", "name": "Фільтр салону Model S/X, комплект", "price": 60, "unit": "компл"},
-    {"part_no": "HEPA-FLT", "name": "Фільтр HEPA", "price": 220, "unit": "шт"},
-    {"part_no": "AC-DESICCANT", "name": "Осушувач (картридж) кондиціонера", "price": 40, "unit": "шт"},
-    {"part_no": "REFRIG-1234YF", "name": "Холодоагент R1234yf, 100 г", "price": 12, "unit": "шт"},
-    {"part_no": "HVAC-CLEANER", "name": "Засіб для антибактеріальної обробки кондиціонера", "price": 20, "unit": "шт"},
-    {"part_no": "WIPER-SET", "name": "Щітки склоочисника, комплект", "price": 50, "unit": "компл"},
-    {"part_no": "WASHER-FLUID-4L", "name": "Рідина склоомивача, 4 л", "price": 8, "unit": "шт"},
-    {"part_no": "COOLANT-G48", "name": "Охолоджувальна рідина G-48, 1 л", "price": 15, "unit": "л"},
-    {"part_no": "TIRE-PATCH", "name": "Латка / джгут для ремонту шини", "price": 10, "unit": "шт"},
-    {"part_no": "TPMS-SENSOR", "name": "Датчик тиску в шині (TPMS)", "price": 70, "unit": "шт"},
-    {"part_no": "ARM-UF-3Y", "name": "Важіль передній верхній Model 3/Y", "price": 190, "unit": "шт"},
-    {"part_no": "ARM-LF-3Y", "name": "Важіль передній нижній Model 3/Y", "price": 170, "unit": "шт"},
-    {"part_no": "ARM-R-KIT-3Y", "name": "Комплект задніх важелів Model 3/Y (одна сторона)", "price": 380, "unit": "компл"},
-    {"part_no": "STRUT-F-3Y", "name": "Амортизатор передній Model 3/Y", "price": 260, "unit": "шт"},
-    {"part_no": "SHOCK-R-3Y", "name": "Амортизатор задній Model 3/Y", "price": 200, "unit": "шт"},
-    {"part_no": "AIR-STRUT-SX", "name": "Пневмостійка Model S/X", "price": 1300, "unit": "шт"},
-    {"part_no": "AIR-COMP-SX", "name": "Компресор пневмопідвіски Model S/X", "price": 650, "unit": "шт"},
-    {"part_no": "STAB-LINK", "name": "Стійка стабілізатора", "price": 45, "unit": "шт"},
-    {"part_no": "HUB-F", "name": "Маточина передня з підшипником", "price": 230, "unit": "шт"},
-    {"part_no": "TIE-ROD-END", "name": "Наконечник кермової тяги", "price": 60, "unit": "шт"},
-    {"part_no": "HALFSHAFT", "name": "Піввісь у зборі", "price": 450, "unit": "шт"},
-    {"part_no": "LV-BAT-12V", "name": "Батарея 12 В", "price": 200, "unit": "шт"},
-    {"part_no": "LV-BAT-16V", "name": "Батарея Li-ion 16 В", "price": 440, "unit": "шт"},
-    {"part_no": "CHG-PORT-3Y", "name": "Порт заряджання в зборі Model 3/Y", "price": 600, "unit": "шт"},
-    {"part_no": "KEY-CARD", "name": "Ключ-карта Tesla", "price": 30, "unit": "шт"}
-  ]
+ "service": {
+  "name": "Мій автосервіс",
+  "address": "",
+  "phone": "",
+  "inn": ""
+ },
+ "currency": "грн",
+ "vat_percent": 0,
+ "prices_include_vat": true,
+ "operations": [
+  {
+   "code": "DIAG-PC",
+   "name": "Комп'ютерна діагностика, зчитування помилок",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Діагностика",
+   "interval": ""
+  },
+  {
+   "code": "DIAG-SUSP",
+   "name": "Діагностика ходової частини",
+   "price": 400,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Діагностика",
+   "interval": ""
+  },
+  {
+   "code": "DIAG-BRAKE",
+   "name": "Діагностика гальмівної системи",
+   "price": 350,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Діагностика",
+   "interval": ""
+  },
+  {
+   "code": "DIAG-ENG",
+   "name": "Діагностика двигуна (ендоскопія, компресія)",
+   "price": 900,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Діагностика",
+   "interval": ""
+  },
+  {
+   "code": "DIAG-EL",
+   "name": "Діагностика електрообладнання, пошук несправності (за годину)",
+   "price": 700,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Діагностика",
+   "interval": ""
+  },
+  {
+   "code": "DIAG-AC",
+   "name": "Діагностика кондиціонера",
+   "price": 400,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Діагностика",
+   "interval": ""
+  },
+  {
+   "code": "DIAG-PRE",
+   "name": "Комплексна перевірка автомобіля перед купівлею",
+   "price": 1500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Діагностика",
+   "interval": ""
+  },
+  {
+   "code": "TO-OIL",
+   "name": "Заміна моторної оливи та оливного фільтра",
+   "price": 400,
+   "models": [
+    "*"
+   ],
+   "parts": [
+    "FLT-OIL"
+   ],
+   "category": "Технічне обслуговування",
+   "interval": "кожні 10 000 км або раз на рік"
+  },
+  {
+   "code": "TO-AIR",
+   "name": "Заміна повітряного фільтра",
+   "price": 150,
+   "models": [
+    "*"
+   ],
+   "parts": [
+    "FLT-AIR"
+   ],
+   "category": "Технічне обслуговування",
+   "interval": "кожні 15 000–30 000 км"
+  },
+  {
+   "code": "TO-CABIN",
+   "name": "Заміна салонного фільтра",
+   "price": 200,
+   "models": [
+    "*"
+   ],
+   "parts": [
+    "FLT-CABIN"
+   ],
+   "category": "Технічне обслуговування",
+   "interval": "кожні 15 000 км або раз на рік"
+  },
+  {
+   "code": "TO-FUEL",
+   "name": "Заміна паливного фільтра",
+   "price": 400,
+   "models": [
+    "*"
+   ],
+   "parts": [
+    "FLT-FUEL"
+   ],
+   "category": "Технічне обслуговування",
+   "interval": "кожні 30 000–60 000 км"
+  },
+  {
+   "code": "TO-SPARK",
+   "name": "Заміна свічок запалювання (комплект)",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Технічне обслуговування",
+   "interval": "кожні 30 000–60 000 км"
+  },
+  {
+   "code": "TO-GLOW",
+   "name": "Заміна свічок розжарювання (комплект)",
+   "price": 1200,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Технічне обслуговування",
+   "interval": ""
+  },
+  {
+   "code": "TO-COOL",
+   "name": "Заміна охолоджувальної рідини",
+   "price": 600,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Технічне обслуговування",
+   "interval": "кожні 5 років або 100 000 км"
+  },
+  {
+   "code": "TO-BRFL",
+   "name": "Заміна гальмівної рідини",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [
+    "FLUID-DOT4"
+   ],
+   "category": "Технічне обслуговування",
+   "interval": "кожні 2 роки"
+  },
+  {
+   "code": "TO-ATF",
+   "name": "Заміна оливи в автоматичній коробці (часткова)",
+   "price": 900,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Технічне обслуговування",
+   "interval": "кожні 60 000 км"
+  },
+  {
+   "code": "TO-MTF",
+   "name": "Заміна оливи в механічній коробці",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Технічне обслуговування",
+   "interval": "кожні 100 000 км"
+  },
+  {
+   "code": "TO-WIPER",
+   "name": "Заміна щіток склоочисника",
+   "price": 100,
+   "models": [
+    "*"
+   ],
+   "parts": [
+    "WIPER"
+   ],
+   "category": "Технічне обслуговування",
+   "interval": "раз на рік"
+  },
+  {
+   "code": "TO-CHECK",
+   "name": "Огляд автомобіля за регламентом ТО (рідини, ходова, світло)",
+   "price": 300,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Технічне обслуговування",
+   "interval": "на кожному ТО"
+  },
+  {
+   "code": "ENG-TIMING",
+   "name": "Заміна ременя ГРМ із роликами",
+   "price": 3500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Двигун",
+   "interval": "кожні 60 000–120 000 км"
+  },
+  {
+   "code": "ENG-PUMP",
+   "name": "Заміна помпи охолодження",
+   "price": 1500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Двигун",
+   "interval": ""
+  },
+  {
+   "code": "ENG-BELT",
+   "name": "Заміна ременя навісного обладнання",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Двигун",
+   "interval": ""
+  },
+  {
+   "code": "ENG-THERM",
+   "name": "Заміна термостата",
+   "price": 800,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Двигун",
+   "interval": ""
+  },
+  {
+   "code": "ENG-GASKET",
+   "name": "Заміна прокладки клапанної кришки",
+   "price": 900,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Двигун",
+   "interval": ""
+  },
+  {
+   "code": "ENG-MOUNT",
+   "name": "Заміна опори двигуна (1 шт)",
+   "price": 800,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Двигун",
+   "interval": ""
+  },
+  {
+   "code": "ENG-INJ",
+   "name": "Чищення форсунок (комплект)",
+   "price": 1200,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Двигун",
+   "interval": ""
+  },
+  {
+   "code": "ENG-THROT",
+   "name": "Чищення дросельної заслінки",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Двигун",
+   "interval": ""
+  },
+  {
+   "code": "ENG-EXH",
+   "name": "Ремонт вихлопної системи (за годину)",
+   "price": 700,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Двигун",
+   "interval": ""
+  },
+  {
+   "code": "BRK-PAD-F",
+   "name": "Заміна передніх гальмівних колодок",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [
+    "PAD-F"
+   ],
+   "category": "Гальмівна система",
+   "interval": "перевірка на кожному ТО"
+  },
+  {
+   "code": "BRK-PAD-R",
+   "name": "Заміна задніх гальмівних колодок",
+   "price": 550,
+   "models": [
+    "*"
+   ],
+   "parts": [
+    "PAD-R"
+   ],
+   "category": "Гальмівна система",
+   "interval": "перевірка на кожному ТО"
+  },
+  {
+   "code": "BRK-DISC-F",
+   "name": "Заміна передніх гальмівних дисків із колодками",
+   "price": 1100,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Гальмівна система",
+   "interval": ""
+  },
+  {
+   "code": "BRK-DISC-R",
+   "name": "Заміна задніх гальмівних дисків із колодками",
+   "price": 1200,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Гальмівна система",
+   "interval": ""
+  },
+  {
+   "code": "BRK-CAL",
+   "name": "Обслуговування супорта (1 шт)",
+   "price": 400,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Гальмівна система",
+   "interval": ""
+  },
+  {
+   "code": "BRK-HOSE",
+   "name": "Заміна гальмівного шланга (1 шт)",
+   "price": 400,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Гальмівна система",
+   "interval": ""
+  },
+  {
+   "code": "BRK-HAND",
+   "name": "Регулювання / ремонт стоянкового гальма",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Гальмівна система",
+   "interval": ""
+  },
+  {
+   "code": "SUS-SHOCK-F",
+   "name": "Заміна переднього амортизатора (1 шт)",
+   "price": 900,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Підвіска та кермо",
+   "interval": ""
+  },
+  {
+   "code": "SUS-SHOCK-R",
+   "name": "Заміна заднього амортизатора (1 шт)",
+   "price": 600,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Підвіска та кермо",
+   "interval": ""
+  },
+  {
+   "code": "SUS-ARM",
+   "name": "Заміна важеля підвіски (1 шт)",
+   "price": 700,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Підвіска та кермо",
+   "interval": ""
+  },
+  {
+   "code": "SUS-BALL",
+   "name": "Заміна кульової опори (1 шт)",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Підвіска та кермо",
+   "interval": ""
+  },
+  {
+   "code": "SUS-BUSH",
+   "name": "Заміна сайлентблока (1 шт)",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Підвіска та кермо",
+   "interval": ""
+  },
+  {
+   "code": "SUS-LINK",
+   "name": "Заміна стійки стабілізатора (1 шт)",
+   "price": 250,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Підвіска та кермо",
+   "interval": ""
+  },
+  {
+   "code": "SUS-STAB",
+   "name": "Заміна втулок стабілізатора (пара)",
+   "price": 400,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Підвіска та кермо",
+   "interval": ""
+  },
+  {
+   "code": "SUS-HUB",
+   "name": "Заміна маточинного підшипника (1 шт)",
+   "price": 900,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Підвіска та кермо",
+   "interval": ""
+  },
+  {
+   "code": "STR-TIE",
+   "name": "Заміна рульового наконечника (1 шт)",
+   "price": 350,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Підвіска та кермо",
+   "interval": ""
+  },
+  {
+   "code": "STR-ROD",
+   "name": "Заміна рульової тяги (1 шт)",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Підвіска та кермо",
+   "interval": ""
+  },
+  {
+   "code": "SUS-ALIGN",
+   "name": "Розвал-сходження",
+   "price": 800,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Підвіска та кермо",
+   "interval": "після ремонту підвіски, раз на рік"
+  },
+  {
+   "code": "TR-CLUTCH",
+   "name": "Заміна зчеплення (комплект)",
+   "price": 4500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Трансмісія",
+   "interval": ""
+  },
+  {
+   "code": "TR-CV",
+   "name": "Заміна ШРУСа (1 шт)",
+   "price": 900,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Трансмісія",
+   "interval": ""
+  },
+  {
+   "code": "TR-BOOT",
+   "name": "Заміна пильника ШРУСа (1 шт)",
+   "price": 700,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Трансмісія",
+   "interval": ""
+  },
+  {
+   "code": "TR-AXLE",
+   "name": "Заміна привідного вала в зборі (1 шт)",
+   "price": 800,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Трансмісія",
+   "interval": ""
+  },
+  {
+   "code": "TR-SEAL",
+   "name": "Заміна сальника привода (1 шт)",
+   "price": 700,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Трансмісія",
+   "interval": ""
+  },
+  {
+   "code": "TIRE-SWAP",
+   "name": "Сезонна заміна шин (комплект, R13–R16)",
+   "price": 800,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Шини та колеса",
+   "interval": "двічі на рік"
+  },
+  {
+   "code": "TIRE-SWAP-L",
+   "name": "Сезонна заміна шин (комплект, R17+ / позашляховик)",
+   "price": 1100,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Шини та колеса",
+   "interval": "двічі на рік"
+  },
+  {
+   "code": "TIRE-BAL",
+   "name": "Балансування колеса (1 шт)",
+   "price": 120,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Шини та колеса",
+   "interval": ""
+  },
+  {
+   "code": "TIRE-REP",
+   "name": "Ремонт проколу",
+   "price": 200,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Шини та колеса",
+   "interval": ""
+  },
+  {
+   "code": "TIRE-WHEELS",
+   "name": "Перестановка коліс у зборі (комплект)",
+   "price": 300,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Шини та колеса",
+   "interval": ""
+  },
+  {
+   "code": "TIRE-STORE",
+   "name": "Зберігання шин (комплект, сезон)",
+   "price": 800,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Шини та колеса",
+   "interval": ""
+  },
+  {
+   "code": "AC-FILL",
+   "name": "Заправка кондиціонера",
+   "price": 900,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Кондиціонер і опалення",
+   "interval": "кожні 2–3 роки"
+  },
+  {
+   "code": "AC-CLEAN",
+   "name": "Антибактеріальна обробка кондиціонера",
+   "price": 500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Кондиціонер і опалення",
+   "interval": "раз на рік"
+  },
+  {
+   "code": "AC-LEAK",
+   "name": "Пошук витоку фреону",
+   "price": 600,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Кондиціонер і опалення",
+   "interval": ""
+  },
+  {
+   "code": "AC-RAD",
+   "name": "Заміна радіатора пічки",
+   "price": 2500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Кондиціонер і опалення",
+   "interval": ""
+  },
+  {
+   "code": "EL-BATT",
+   "name": "Заміна акумулятора",
+   "price": 200,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Електрика",
+   "interval": "кожні 4–5 років"
+  },
+  {
+   "code": "EL-BULB",
+   "name": "Заміна лампи (1 шт)",
+   "price": 100,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Електрика",
+   "interval": ""
+  },
+  {
+   "code": "EL-GEN",
+   "name": "Зняття та встановлення генератора",
+   "price": 900,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Електрика",
+   "interval": ""
+  },
+  {
+   "code": "EL-START",
+   "name": "Зняття та встановлення стартера",
+   "price": 900,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Електрика",
+   "interval": ""
+  },
+  {
+   "code": "EL-LIGHT",
+   "name": "Регулювання світла фар",
+   "price": 250,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Електрика",
+   "interval": ""
+  },
+  {
+   "code": "EL-SENSOR",
+   "name": "Заміна датчика (1 шт)",
+   "price": 400,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Електрика",
+   "interval": ""
+  },
+  {
+   "code": "EV-DIAG",
+   "name": "Діагностика високовольтної батареї та системи заряджання",
+   "price": 1200,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Гібриди та електромобілі",
+   "interval": ""
+  },
+  {
+   "code": "EV-COOL",
+   "name": "Заміна охолоджувальної рідини батареї / інвертора",
+   "price": 1500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Гібриди та електромобілі",
+   "interval": "за регламентом виробника"
+  },
+  {
+   "code": "EV-PORT",
+   "name": "Ремонт зарядного порту",
+   "price": 1500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Гібриди та електромобілі",
+   "interval": ""
+  },
+  {
+   "code": "EV-12V",
+   "name": "Заміна 12-вольтового акумулятора",
+   "price": 400,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Гібриди та електромобілі",
+   "interval": ""
+  },
+  {
+   "code": "BODY-POLISH",
+   "name": "Полірування фар (пара)",
+   "price": 600,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Кузов і салон",
+   "interval": ""
+  },
+  {
+   "code": "BODY-LOCK",
+   "name": "Ремонт замка / склопідіймача дверей",
+   "price": 800,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Кузов і салон",
+   "interval": ""
+  },
+  {
+   "code": "BODY-GLASS",
+   "name": "Заміна лобового скла",
+   "price": 2000,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Кузов і салон",
+   "interval": ""
+  },
+  {
+   "code": "BODY-ANTI",
+   "name": "Антикорозійна обробка днища",
+   "price": 3500,
+   "models": [
+    "*"
+   ],
+   "parts": [],
+   "category": "Кузов і салон",
+   "interval": ""
+  }
+ ],
+ "parts": [
+  {
+   "part_no": "OIL-5W30",
+   "name": "Олива моторна 5W-30, 1 л",
+   "price": 350,
+   "unit": "л"
+  },
+  {
+   "part_no": "OIL-5W40",
+   "name": "Олива моторна 5W-40, 1 л",
+   "price": 320,
+   "unit": "л"
+  },
+  {
+   "part_no": "OIL-ATF",
+   "name": "Олива трансмісійна ATF, 1 л",
+   "price": 400,
+   "unit": "л"
+  },
+  {
+   "part_no": "OIL-75W90",
+   "name": "Олива трансмісійна 75W-90, 1 л",
+   "price": 380,
+   "unit": "л"
+  },
+  {
+   "part_no": "FLT-OIL",
+   "name": "Фільтр оливний",
+   "price": 250,
+   "unit": "шт"
+  },
+  {
+   "part_no": "FLT-AIR",
+   "name": "Фільтр повітряний",
+   "price": 350,
+   "unit": "шт"
+  },
+  {
+   "part_no": "FLT-CABIN",
+   "name": "Фільтр салону",
+   "price": 350,
+   "unit": "шт"
+  },
+  {
+   "part_no": "FLT-FUEL",
+   "name": "Фільтр паливний",
+   "price": 500,
+   "unit": "шт"
+  },
+  {
+   "part_no": "FLUID-DOT4",
+   "name": "Гальмівна рідина DOT 4, 1 л",
+   "price": 300,
+   "unit": "л"
+  },
+  {
+   "part_no": "COOLANT",
+   "name": "Антифриз концентрат, 1 л",
+   "price": 250,
+   "unit": "л"
+  },
+  {
+   "part_no": "WASHER",
+   "name": "Омивач скла, 4 л",
+   "price": 200,
+   "unit": "шт"
+  },
+  {
+   "part_no": "SPARK",
+   "name": "Свічка запалювання",
+   "price": 250,
+   "unit": "шт"
+  },
+  {
+   "part_no": "PAD-F",
+   "name": "Колодки гальмівні передні, комплект",
+   "price": 1200,
+   "unit": "компл"
+  },
+  {
+   "part_no": "PAD-R",
+   "name": "Колодки гальмівні задні, комплект",
+   "price": 1000,
+   "unit": "компл"
+  },
+  {
+   "part_no": "DISC-F",
+   "name": "Диск гальмівний передній",
+   "price": 1500,
+   "unit": "шт"
+  },
+  {
+   "part_no": "DISC-R",
+   "name": "Диск гальмівний задній",
+   "price": 1300,
+   "unit": "шт"
+  },
+  {
+   "part_no": "WIPER",
+   "name": "Щітки склоочисника, комплект",
+   "price": 500,
+   "unit": "компл"
+  },
+  {
+   "part_no": "BULB-H7",
+   "name": "Лампа H7",
+   "price": 150,
+   "unit": "шт"
+  },
+  {
+   "part_no": "BATT-60",
+   "name": "Акумулятор 60 А·год",
+   "price": 3200,
+   "unit": "шт"
+  },
+  {
+   "part_no": "FREON",
+   "name": "Фреон R134a, 100 г",
+   "price": 150,
+   "unit": "шт"
+  },
+  {
+   "part_no": "WEIGHT",
+   "name": "Вантажі балансувальні (на колесо)",
+   "price": 30,
+   "unit": "шт"
+  },
+  {
+   "part_no": "CLEANER",
+   "name": "Очисник гальм, 500 мл",
+   "price": 180,
+   "unit": "шт"
+  }
+ ]
 }
