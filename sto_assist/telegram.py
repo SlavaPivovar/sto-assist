@@ -167,6 +167,7 @@ class TelegramBot:
         self.uah_rate = None  # () -> курс гривні або None; задає web.py
         self.approvals = None  # ApprovalStore; задає web.py
         self.staff = None  # StaffStore; задає web.py
+        self.currency = "грн"  # валюта сервісу для підсумків; задає web.py
         self.service_name = ""
         self.service_address = ""
         self.photos = None  # PhotoStore; задає web.py
@@ -1048,12 +1049,12 @@ class TelegramBot:
         lines = [f"📊 <b>Підсумок дня {today}</b>" + (f" · {escape(self.service_name)}" if self.service_name else ""),
                  f"📥 Прийнято: {unique(events['прийнято'])}",
                  f"✅ Готово: {unique(events['готово'])}",
-                 f"🏁 Видано: {unique(events['видано'])} · на суму <b>{money(revenue)} $</b>",
-                 f"💵 Отримано: <b>{money(sum(cash.values(), Decimal('0')))} $</b>"
+                 f"🏁 Видано: {unique(events['видано'])} · на суму <b>{money(revenue)} {escape(self.currency)}</b>",
+                 f"💵 Отримано: <b>{money(sum(cash.values(), Decimal('0')))} {escape(self.currency)}</b>"
                  + (" (" + ", ".join(f"{escape(m)} {money(v)}" for m, v in cash.items()) + ")" if cash else ""),
                  f"🔧 Зараз у роботі: {len(active)}"]
         if debts:
-            lines.append(f"⚠️ Борги клієнтів: {money(sum((o.balance() for o in debts), Decimal('0')))} $ "
+            lines.append(f"⚠️ Борги клієнтів: {money(sum((o.balance() for o in debts), Decimal('0')))} {escape(self.currency)} "
                          f"({len(debts)} замовл.) — " + ", ".join(escape(o.number) for o in debts[:8]))
         if load:
             lines.append("👤 " + "; ".join(f"{escape(k)}: {v}" for k, v in sorted(load.items(), key=lambda x: -x[1])))

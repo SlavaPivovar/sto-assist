@@ -328,6 +328,7 @@ def create_app(
         bot.uah_rate = lambda: fx_rate()
         bot.approvals = approvals
         bot.staff = staff
+        bot.currency = catalog.currency
         for number, old in list(bot.links.get("approvals", {}).items()):  # погодження зі старої версії
             approvals.import_legacy(number, old)
         bot.service_name = catalog.service.get("name", "")
@@ -560,7 +561,7 @@ def create_app(
                     history.append({"role": "assistant", "text": text})
         return {"order": conv.session.snapshot(), "history": history, "service": catalog.service,
                 "statuses": STATUSES, "telegram": bot is not None, "photo_kinds": PHOTO_KINDS,
-                "intake_items": INTAKE_ITEMS,
+                "intake_items": INTAKE_ITEMS, "currency": catalog.currency,
                 "user": {**CURRENT_USER.get(), "role_label": ROLES[CURRENT_USER.get()["role"]]},
                 "fx": fx_view(),
                 "short_name": short_name(catalog.service.get("name") or service_name),
@@ -976,7 +977,7 @@ def create_app(
                        "used": used.get(p.part_no, 0)} for p in parts.values()],
             "models": [{"code": m, "name": model_names[m]} for m in MODEL_CODES],
             "settings": {**catalog.service, "vat_percent": catalog.vat_percent, "prices_include_vat": catalog.prices_include_vat,
-                         "uah_mode": catalog.fx.get("mode", "nbu"), "uah_rate": catalog.fx.get("manual_rate", 0),
+                         "currency": catalog.currency, "uah_mode": catalog.fx.get("mode", "off"), "uah_rate": catalog.fx.get("manual_rate", 0),
                          "uah_markup": catalog.fx.get("markup", 0)},
             "fx": fx_view(),
         }
@@ -1022,6 +1023,7 @@ def create_app(
         if bot:
             bot.service_name = catalog.service.get("name", "")
             bot.service_address = catalog.service.get("address", "")
+            bot.currency = catalog.currency
         return result
 
     # --- прайс в Excel і резервна копія ---
@@ -1615,7 +1617,7 @@ def create_app(
                                "text": f"{t['number']} — готово {int(t['days'])} дн., клієнт не забрав ({t['client'] or '—'})"})
         for d in debts[:5] if can_see_money() else []:
             alerts.append({"kind": "debt", "number": d["number"],
-                           "text": f"{d['number']} — борг {fmt_money(d['balance'])} $ ({d['client'] or '—'})"})
+                           "text": f"{d['number']} — борг {fmt_money(d['balance'])} {catalog.currency} ({d['client'] or '—'})"})
         if low:
             alerts.append({"kind": "stock", "number": "",
                            "text": f"На складі закінчується: {', '.join(low[:4])}{' і ще ' + str(len(low) - 4) if len(low) > 4 else ''}"})

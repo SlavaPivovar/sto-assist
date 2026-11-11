@@ -114,7 +114,7 @@ class RepairOrder:
     recommendations: list[str] = field(default_factory=list)
     labor: list[LaborLine] = field(default_factory=list)
     parts: list[PartLine] = field(default_factory=list)
-    currency: str = "$"
+    currency: str = "грн"
     vat_percent: float = 0
     prices_include_vat: bool = True
     status_log: list[dict] = field(default_factory=list)  # [{"status": ..., "at": "дд.мм.рррр гг:хх", "by": хто}]

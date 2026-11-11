@@ -18,9 +18,9 @@ from openpyxl.styles import Font, PatternFill
 from .catalog import MODEL_CODES, Catalog, CatalogError, Operation, Part
 
 OPS_SHEET, PARTS_SHEET = "Роботи", "Запчастини"
-OPS_COLUMNS = [("code", "Код", 16), ("name", "Назва", 50), ("category", "Розділ", 22), ("price", "Ціна, $", 10),
+OPS_COLUMNS = [("code", "Код", 16), ("name", "Назва", 50), ("category", "Розділ", 22), ("price", "Ціна", 10),
                ("models", "Моделі", 24), ("parts", "Запчастини (артикули)", 30), ("interval", "Інтервал", 30)]
-PARTS_COLUMNS = [("part_no", "Артикул", 18), ("name", "Назва", 50), ("price", "Ціна, $", 10), ("unit", "Одиниця", 10)]
+PARTS_COLUMNS = [("part_no", "Артикул", 18), ("name", "Назва", 50), ("price", "Ціна", 10), ("unit", "Одиниця", 10)]
 ALL_MODELS = "усі"
 MAX_ROWS = 5000
 
@@ -176,7 +176,7 @@ def import_catalog(catalog: Catalog, data: bytes, apply: bool) -> dict:
 
 
 CLIENT_COLUMNS = [("ПІБ", 30), ("Телефон", 18), ("E-mail", 24), ("Автомобілі", 40), ("Візитів", 9),
-                  ("Сума, $", 12), ("Останній візит", 17), ("Telegram", 22)]
+                  ("Сума", 12), ("Останній візит", 17), ("Telegram", 22)]
 
 
 def export_clients(clients: list[dict]) -> bytes:
@@ -224,7 +224,7 @@ def export_purchase(po: dict, service: dict) -> bytes:
     if po.get("supplier"):
         ws.append([f"Постачальник: {po['supplier']}"])
     ws.append([])
-    ws.append(["Артикул", "Назва", "Кількість", "Одиниця", "Ціна, $", "Сума, $"])
+    ws.append(["Артикул", "Назва", "Кількість", "Одиниця", "Ціна", "Сума"])
     for cell in ws[ws.max_row]:
         cell.font = Font(bold=True)
         cell.fill = PatternFill("solid", fgColor="E8EEF5")

@@ -34,7 +34,7 @@ def summary(rec: dict) -> str:
     """«погодив 2 з 3 на 222,00 $, відклав: Диски (180,00 $)» — для коментарів і повідомлень."""
     def m(v) -> str:
         return f"{Decimal(v):,.2f}".replace(",", " ").replace(".", ",")
-    cur = rec.get("currency", "$")
+    cur = rec.get("currency", "грн")
     lines = rec.get("lines", [])
     if rec["status"] == DECLINED:
         return f"відмовився від кошторису на {m(rec['total'])} {cur}"

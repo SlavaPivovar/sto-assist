@@ -12,6 +12,7 @@ from pathlib import Path
 
 DEFAULT_CATALOG = Path(__file__).parent / "data" / "catalog.json"
 MODEL_CODES = ("MODEL_S", "MODEL_3", "MODEL_X", "MODEL_Y", "CYBERTRUCK")
+CURRENCIES = ("грн", "$", "€")
 CODE_RE = re.compile(r"^[A-Z0-9][A-Z0-9-]{1,39}$")
 
 
@@ -46,11 +47,13 @@ class Catalog:
         self.path = Path(path) if path else None
         self.lock = threading.Lock()
         self.service: dict = data.get("service", {})
-        self.currency: str = data.get("currency", "$")
+        self.currency: str = data.get("currency", "грн")
         self.vat_percent: float = data.get("vat_percent", 0)
         self.prices_include_vat: bool = data.get("prices_include_vat", True)
         # Гривня поруч із доларом: mode — off / nbu / manual; markup — націнка до курсу НБУ, %.
-        self.fx: dict = {"mode": "nbu", "manual_rate": 0, "markup": 0, **data.get("fx", {})}
+        # (лише коли ціни в доларах; для гривневого прайсу перерахунок не потрібен).
+        self.fx: dict = {"mode": "nbu" if self.currency == "$" else "off", "manual_rate": 0, "markup": 0,
+                         **data.get("fx", {})}
         # Старий формат довідника (нормогодини × ставка) переводиться у фіксовані ціни.
         legacy_rate = data.get("labor_rate_per_hour", 0)
         self.operations = {}
@@ -63,17 +66,18 @@ class Catalog:
         self.parts = {p["part_no"]: Part(**p) for p in data["parts"]}
 
     @classmethod
-    def load(cls, path: str | Path = DEFAULT_CATALOG) -> "Catalog":
+    def load(cls, path: str | Path | None = None) -> "Catalog":
+        path = path or DEFAULT_CATALOG
         return cls(json.loads(Path(path).read_text(encoding="utf-8")), path)
 
     @classmethod
-    def load_editable(cls, path: str | Path, default: str | Path = DEFAULT_CATALOG) -> "Catalog":
+    def load_editable(cls, path: str | Path, default: str | Path | None = None) -> "Catalog":
         """Завантажити довідник, який можна редагувати. Якщо файлу ще немає (перший запуск),
         він створюється як копія стандартного довідника."""
         path = Path(path)
         if not path.exists():
             path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(default, path)
+            shutil.copyfile(default or DEFAULT_CATALOG, path)
         catalog = cls.load(path)
         if "labor_rate_per_hour" in json.loads(path.read_text(encoding="utf-8")):
             catalog.save()  # файл старого формату одразу переписуємо з фіксованими цінами
@@ -241,8 +245,15 @@ class Catalog:
             fx["manual_rate"] = self._number(data.get("uah_rate") or 0, "Свій курс", 0, 1000)
             if fx["mode"] == "manual" and not fx["manual_rate"]:
                 raise CatalogError("Вкажіть свій курс долара")
+        currency = self.currency
+        if "currency" in data:
+            if data["currency"] not in CURRENCIES:
+                raise CatalogError(f"Валюта: {', '.join(CURRENCIES)}")
+            currency = data["currency"]
+            if currency != "$":
+                fx["mode"] = "off"  # перерахунок у гривню має сенс лише для доларового прайсу
         with self.lock:
-            self._commit(service=service, vat_percent=vat, fx=fx,
+            self._commit(service=service, vat_percent=vat, fx=fx, currency=currency,
                          prices_include_vat=bool(data.get("prices_include_vat", self.prices_include_vat)))
 
     def search_operations(self, query: str, model_code: str | None = None) -> list[Operation]:
